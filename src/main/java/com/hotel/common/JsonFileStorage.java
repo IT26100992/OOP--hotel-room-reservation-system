@@ -4,6 +4,7 @@ package com.hotel.common;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -13,10 +14,11 @@ import java.nio.file.StandardCopyOption;
 
 public class JsonFileStorage<T> {
 
-    private static final ObjectMapper MAPPER =
-            new ObjectMapper()
-                    .findAndRegisterModules()
-                    .enable(SerializationFeature.INDENT_OUTPUT);
+    private final ObjectMapper mapper = new ObjectMapper()
+            .registerModule(new JavaTimeModule())
+            .disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
+                    //.findAndRegisterModules()
+                  // .enable(SerializationFeature.INDENT_OUTPUT);
 
     private final Path filePath;
     private final TypeReference<T> typeReference;
@@ -47,7 +49,8 @@ public class JsonFileStorage<T> {
 
     public synchronized T read() {
         try {
-            return MAPPER.readValue(
+            return mapper.readValue(
+                    //above mapper previously in MAPPER -manually checked by me
                     filePath.toFile(), typeReference
             );
         } catch (IOException e) {
@@ -67,7 +70,8 @@ public class JsonFileStorage<T> {
                     filePath.getParent(), "hotel-", ".tmp"
             );
 
-            MAPPER.writeValue(tempFile.toFile(), data);
+            mapper.writeValue(tempFile.toFile(), data);
+            //above mapper previously in MAPPER -manually checked by me
 
             try {
                 Files.move(

@@ -1,0 +1,10 @@
+com\hotel\payment\model\PaymentStatus.class
+com\hotel\room\model\RoomStatus.class
+com\hotel\room\model\Room.class
+com\hotel\payment\model\Payment.class
+com\hotel\payment\model\PaymentMethod.class
+com\hotel\reservation\model\ReservationStatus.class
+com\hotel\user\model\User.class
+com\hotel\reservation\model\Reservation.class
+com\hotel\room\model\RoomType.class
+com\hotel\user\model\UserRole.class
