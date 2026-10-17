@@ -4,7 +4,6 @@ package com.hotel;
 import com.hotel.common.AppException;
 import io.javalin.Javalin;
 import io.javalin.http.staticfiles.Location;
-
 import java.util.Map;
 
 public class HotelApplication {
@@ -15,6 +14,11 @@ public class HotelApplication {
 
             // Serve HTML, CSS and JavaScript from resources/public
             config.staticFiles.add("/public", Location.CLASSPATH);
+
+            /*app.exception(AppException.class, (exception, ctx) -> {
+                ctx.status(exception.getStatusCode().json)
+                        .json(Map.of("error", exception.getMessage()));
+            });*/
 
             // Test the backend API
             config.routes.get("/api/health", ctx ->
@@ -42,6 +46,8 @@ public class HotelApplication {
             config.routes.error(404, ctx -> {
                 ctx.json(Map.of("error", "Resource not found"));
             });
+
+
         });
 
         app.start(7070);
