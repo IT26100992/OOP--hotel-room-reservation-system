@@ -1,4 +1,4 @@
-
+//Test if the local host port 7070 is working and backend API is running.
 package com.hotel;
 
 import com.hotel.common.AppException;
