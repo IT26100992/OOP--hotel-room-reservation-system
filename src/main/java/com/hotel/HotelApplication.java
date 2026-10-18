@@ -29,12 +29,14 @@ public class HotelApplication {
             );
 
             // Handle our application's custom exceptions
-            config.routes.exception(AppException.class, (e, ctx) -> {
-                ctx.status(e.getStatusCode()).json(
-                        Map.of("error", e.getMessage())
+            // Handle unexpected server errors
+            config.routes.exception(Exception.class, (e, ctx) -> {
+                e.printStackTrace();
+
+                ctx.status(500).json(
+                        Map.of("error", "An unexpected server error occurred")
                 );
             });
-
             // Handle unexpected server errors
             config.routes.exception(Exception.class, (e, ctx) -> {
                 ctx.status(500).json(
