@@ -7,6 +7,9 @@ import io.javalin.config.JavalinConfig;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeParseException;
+import com.hotel.room.model.RoomType;
+import java.math.BigDecimal;
+import java.util.Locale;
 
 public class RoomSearchApi {
 
@@ -33,24 +36,54 @@ public class RoomSearchApi {
                 );
             }
 
+
             try {
                 LocalDate checkIn = LocalDate.parse(checkInText);
                 LocalDate checkOut = LocalDate.parse(checkOutText);
                 int guests = Integer.parseInt(guestsText);
 
+                String roomTypeText = ctx.queryParam("roomType");
+                String minPriceText = ctx.queryParam("minPrice");
+                String maxPriceText = ctx.queryParam("maxPrice");
+
+                RoomType roomType = null;
+                BigDecimal minPrice = null;
+                BigDecimal maxPrice = null;
+
+                if (roomTypeText != null && !roomTypeText.isBlank()) {
+                    roomType = RoomType.valueOf(
+                            roomTypeText.trim().toUpperCase(Locale.ROOT)
+                    );
+                }
+
+                if (minPriceText != null && !minPriceText.isBlank()) {
+                    minPrice = new BigDecimal(minPriceText.trim());
+                }
+
+                if (maxPriceText != null && !maxPriceText.isBlank()) {
+                    maxPrice = new BigDecimal(maxPriceText.trim());
+                }
+
                 ctx.json(availabilityService.searchAvailableRooms(
                         checkIn,
                         checkOut,
-                        guests
+                        guests,
+                        roomType,
+                        minPrice,
+                        maxPrice
                 ));
 
             } catch (DateTimeParseException |
-                     NumberFormatException e) {
+                     IllegalArgumentException e) {
 
                 throw new ValidationException(
-                        "Invalid dates or guest count. Use YYYY-MM-DD dates."
+                        "Invalid search parameters. Check dates, guests, " +
+                                "room type and price values."
                 );
             }
+
+
+
         });
     }
 }

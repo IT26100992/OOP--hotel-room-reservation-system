@@ -9,6 +9,8 @@ import com.hotel.reservation.repository.ReservationRepository;
 import com.hotel.room.model.Room;
 import com.hotel.room.model.RoomStatus;
 import com.hotel.room.repository.RoomRepository;
+import com.hotel.room.model.RoomType;
+import java.math.BigDecimal;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -25,10 +27,25 @@ public class RoomAvailabilityService {
         this.reservationRepository = reservationRepository;
     }
 
+
     public List<Room> searchAvailableRooms(
             LocalDate checkIn,
             LocalDate checkOut,
             int guestCount) {
+
+        return searchAvailableRooms(
+                checkIn, checkOut, guestCount,
+                null, null, null
+        );
+    }
+
+    public List<Room> searchAvailableRooms(
+            LocalDate checkIn,
+            LocalDate checkOut,
+            int guestCount,
+            RoomType roomType,
+            BigDecimal minPrice,
+            BigDecimal maxPrice) {
 
         if (checkIn == null || checkOut == null) {
             throw new ValidationException(
@@ -45,12 +62,29 @@ public class RoomAvailabilityService {
                     "Guest count must be greater than zero.");
         }
 
+        if (minPrice != null && minPrice.signum() < 0) {
+            throw new ValidationException(
+                    "Minimum price cannot be negative.");
+        }
+
+        if (maxPrice != null && maxPrice.signum() < 0) {
+            throw new ValidationException(
+                    "Maximum price cannot be negative.");
+        }
+
+        if (minPrice != null && maxPrice != null
+                && minPrice.compareTo(maxPrice) > 0) {
+            throw new ValidationException(
+                    "Minimum price cannot exceed maximum price.");
+        }
+
         List<Reservation> reservations =
                 reservationRepository.findAll();
 
         RoomAvailabilityBST tree = new RoomAvailabilityBST();
 
         for (Room room : roomRepository.findAll()) {
+
             if (room.getStatus() != RoomStatus.AVAILABLE) {
                 continue;
             }
@@ -59,19 +93,33 @@ public class RoomAvailabilityService {
                 continue;
             }
 
+            // Optional room type filter
+            if (roomType != null
+                    && room.getRoomType() != roomType) {
+                continue;
+            }
+
+            // Optional minimum price filter
+            if (minPrice != null
+                    && room.getPricePerNight().compareTo(minPrice) < 0) {
+                continue;
+            }
+
+            // Optional maximum price filter
+            if (maxPrice != null
+                    && room.getPricePerNight().compareTo(maxPrice) > 0) {
+                continue;
+            }
+
             boolean hasConflict = reservations.stream()
                     .filter(reservation ->
                             reservation.getRoomId().equals(room.getId()))
                     .filter(reservation ->
-                            reservation.getStatus()
-                                    == ReservationStatus.PENDING
-                                    || reservation.getStatus()
-                                    == ReservationStatus.CONFIRMED)
+                            reservation.getStatus() == ReservationStatus.PENDING
+                                    || reservation.getStatus() == ReservationStatus.CONFIRMED)
                     .anyMatch(reservation ->
-                            checkIn.isBefore(
-                                    reservation.getCheckOutDate())
-                                    && checkOut.isAfter(
-                                    reservation.getCheckInDate()));
+                            checkIn.isBefore(reservation.getCheckOutDate())
+                                    && checkOut.isAfter(reservation.getCheckInDate()));
 
             if (!hasConflict) {
                 tree.insert(room);
@@ -80,4 +128,6 @@ public class RoomAvailabilityService {
 
         return tree.inOrderTraversal();
     }
+
+
 }
