@@ -205,3 +205,46 @@ select:focus {
 .saved-preference-card p {
     margin: 6px 0;
 }
+
+
+/* Saved preference action buttons */
+
+[hidden] {
+    display: none !important;
+}
+
+.preference-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 15px;
+}
+
+.preference-actions button {
+    padding: 9px 14px;
+    background: #2060a4;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+}
+
+.preference-actions button:hover {
+    background: #164a80;
+}
+
+.preference-actions .delete-btn {
+    background: #c33b3b;
+}
+
+.preference-actions .delete-btn:hover {
+    background: #a52b2b;
+}
+
+#updateSearchBtn {
+    background: #167a52;
+}
+
+#cancelEditBtn {
+    background: #637083;
+}

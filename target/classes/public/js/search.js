@@ -316,20 +316,269 @@ function displaySavedPreferences(preferences) {
 
         const dates = document.createElement("p");
         dates.textContent =
-            "Dates: " +
-            preference.checkInDate +
-            " to " +
-            preference.checkOutDate;
+            "Dates: " + preference.checkInDate +
+            " to " + preference.checkOutDate;
 
         const price = document.createElement("p");
         price.textContent =
             "Price Range: LKR " +
             (preference.minPrice ?? "Any") +
-            " - " +
-            (preference.maxPrice ?? "Any");
+            " - " + (preference.maxPrice ?? "Any");
 
-        card.append(title, dates, price);
+        const actions = document.createElement("div");
+        actions.className = "preference-actions";
+
+        // LOAD SEARCH
+        const loadBtn = document.createElement("button");
+        loadBtn.type = "button";
+        loadBtn.textContent = "Load Search";
+
+        loadBtn.addEventListener("click", () => {
+            stopEditing();
+            fillSearchForm(preference);
+            savedSearchMessage.textContent =
+                "Search conditions loaded. Click Search Rooms.";
+
+            searchForm.scrollIntoView({
+                behavior: "smooth",
+                block: "start"
+            });
+        });
+
+        // EDIT
+        const editBtn = document.createElement("button");
+        editBtn.type = "button";
+        editBtn.textContent = "Edit";
+
+        editBtn.addEventListener("click", () => {
+            try {
+                startEditing(preference);
+            } catch (error) {
+                savedSearchMessage.textContent = error.message;
+            }
+        });
+
+        // DELETE
+        const deleteBtn = document.createElement("button");
+        deleteBtn.type = "button";
+        deleteBtn.textContent = "Delete";
+        deleteBtn.className = "delete-btn";
+
+        deleteBtn.addEventListener("click", () => {
+            deleteSavedPreference(preference.id);
+        });
+
+        actions.append(loadBtn, editBtn, deleteBtn);
+
+        card.append(title, dates, price, actions);
+
         savedSearchResults.appendChild(card);
     });
 }
+
+
+// ========================================
+// Edit and Delete Saved Searches - Sithum
+// ========================================
+
+const updateSearchBtn =
+    document.getElementById("updateSearchBtn");
+
+const cancelEditBtn =
+    document.getElementById("cancelEditBtn");
+
+let editingPreferenceId = null;
+let editingUserId = null;
+
+// Fill the main search form with a saved preference
+function fillSearchForm(preference) {
+    document.getElementById("checkIn").value =
+        preference.checkInDate;
+
+    document.getElementById("checkOut").value =
+        preference.checkOutDate;
+
+    document.getElementById("guests").value =
+        preference.guestCount;
+
+    document.getElementById("roomType").value =
+        preference.roomType || "";
+
+    document.getElementById("minPrice").value =
+        preference.minPrice ?? "";
+
+    document.getElementById("maxPrice").value =
+        preference.maxPrice ?? "";
+}
+
+// Get search conditions from the form
+function getPreferenceFormData() {
+    const checkInDate =
+        document.getElementById("checkIn").value;
+
+    const checkOutDate =
+        document.getElementById("checkOut").value;
+
+    const guestCount =
+        Number(document.getElementById("guests").value);
+
+    const roomType =
+        document.getElementById("roomType").value;
+
+    const minPrice =
+        document.getElementById("minPrice").value;
+
+    const maxPrice =
+        document.getElementById("maxPrice").value;
+
+    if (!checkInDate || !checkOutDate ||
+        checkOutDate <= checkInDate) {
+        throw new Error("Please select valid dates.");
+    }
+
+    if (!Number.isInteger(guestCount) || guestCount <= 0) {
+        throw new Error("Guest count must be positive.");
+    }
+
+    if ((minPrice !== "" && Number(minPrice) < 0) ||
+        (maxPrice !== "" && Number(maxPrice) < 0)) {
+        throw new Error("Prices cannot be negative.");
+    }
+
+    if (minPrice !== "" && maxPrice !== "" &&
+        Number(minPrice) > Number(maxPrice)) {
+        throw new Error(
+            "Minimum price cannot exceed maximum price."
+        );
+    }
+
+    return {
+        checkInDate,
+        checkOutDate,
+        guestCount,
+        roomType: roomType || null,
+        minPrice: minPrice === ""
+            ? null : Number(minPrice),
+        maxPrice: maxPrice === ""
+            ? null : Number(maxPrice)
+    };
+}
+
+// Start editing a preference
+function startEditing(preference) {
+    editingPreferenceId = preference.id;
+    editingUserId = getTestUserId();
+
+    fillSearchForm(preference);
+
+    updateSearchBtn.hidden = false;
+    cancelEditBtn.hidden = false;
+    saveSearchBtn.hidden = true;
+
+    savedSearchMessage.textContent =
+        "Editing a saved search. Change the form values " +
+        "and click Update Saved Search.";
+
+    searchForm.scrollIntoView({
+        behavior: "smooth",
+        block: "start"
+    });
+}
+
+// Return to normal mode
+function stopEditing() {
+    editingPreferenceId = null;
+    editingUserId = null;
+
+    updateSearchBtn.hidden = true;
+    cancelEditBtn.hidden = true;
+    saveSearchBtn.hidden = false;
+}
+
+cancelEditBtn.addEventListener("click", () => {
+    stopEditing();
+    savedSearchMessage.textContent = "Editing cancelled.";
+});
+
+// UPDATE - Save edited conditions
+updateSearchBtn.addEventListener("click", async () => {
+    if (!editingPreferenceId) {
+        return;
+    }
+
+    try {
+        const userId = getTestUserId();
+
+        if (userId !== editingUserId) {
+            throw new Error(
+                "Do not change the test user while editing."
+            );
+        }
+
+        const updatedData = getPreferenceFormData();
+
+        updateSearchBtn.disabled = true;
+
+        const response = await fetch(
+            "/api/search-preferences/" +
+            encodeURIComponent(editingPreferenceId) +
+            "?userId=" + encodeURIComponent(userId),
+            {
+                method: "PUT",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify(updatedData)
+            }
+        );
+
+        await readApiResponse(response);
+
+        stopEditing();
+        await loadSavedSearches();
+
+        savedSearchMessage.textContent =
+            "Saved search updated successfully!";
+
+    } catch (error) {
+        savedSearchMessage.textContent = error.message;
+    } finally {
+        updateSearchBtn.disabled = false;
+    }
+});
+
+// DELETE - Remove a preference
+async function deleteSavedPreference(preferenceId) {
+    try {
+        const userId = getTestUserId();
+
+        if (!confirm(
+            "Are you sure you want to delete this saved search?"
+        )) {
+            return;
+        }
+
+        const response = await fetch(
+            "/api/search-preferences/" +
+            encodeURIComponent(preferenceId) +
+            "?userId=" + encodeURIComponent(userId),
+            { method: "DELETE" }
+        );
+
+        await readApiResponse(response);
+
+        if (editingPreferenceId === preferenceId) {
+            stopEditing();
+        }
+
+        await loadSavedSearches();
+
+        savedSearchMessage.textContent =
+            "Saved search deleted successfully!";
+
+    } catch (error) {
+        savedSearchMessage.textContent = error.message;
+    }
+}
+
 
