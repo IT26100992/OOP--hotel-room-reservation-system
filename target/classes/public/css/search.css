@@ -1,0 +1,150 @@
+
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background: #f3f6fa;
+    color: #243247;
+}
+
+.header {
+    background: #183153;
+    color: white;
+    text-align: center;
+    padding: 32px 20px;
+}
+
+.header h1 {
+    margin: 0 0 10px;
+}
+
+.header p {
+    margin: 0;
+    color: #d7e3f2;
+}
+
+.container {
+    max-width: 1100px;
+    margin: 35px auto;
+    padding: 0 20px;
+}
+
+.search-section,
+.results-section {
+    background: white;
+    border-radius: 12px;
+    padding: 28px;
+    margin-bottom: 25px;
+    box-shadow: 0 3px 14px rgba(0, 0, 0, 0.07);
+}
+
+h2 {
+    margin-top: 0;
+}
+
+.form-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 18px;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+}
+
+label {
+    font-weight: 600;
+    font-size: 14px;
+}
+
+input,
+select {
+    width: 100%;
+    padding: 11px;
+    border: 1px solid #ccd5e0;
+    border-radius: 7px;
+    font-size: 14px;
+    background: white;
+}
+
+input:focus,
+select:focus {
+    outline: 2px solid #5793d2;
+    outline-offset: 1px;
+}
+
+.search-button {
+    background: #2060a4;
+    color: white;
+    border: none;
+    border-radius: 7px;
+    padding: 13px 28px;
+    margin-top: 22px;
+    cursor: pointer;
+    font-size: 15px;
+    font-weight: 600;
+}
+
+.search-button:hover {
+    background: #164a80;
+}
+
+.search-button:disabled {
+    opacity: 0.6;
+    cursor: wait;
+}
+
+.room-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 18px;
+    margin-top: 20px;
+}
+
+.room-card {
+    border: 1px solid #dce3ed;
+    border-radius: 10px;
+    padding: 20px;
+    background: #fbfcfe;
+}
+
+.room-card h3 {
+    margin: 0 0 12px;
+    color: #183153;
+}
+
+.room-card p {
+    margin: 8px 0;
+}
+
+.room-price {
+    font-size: 20px;
+    font-weight: bold;
+    color: #176a48;
+}
+
+#message {
+    color: #526174;
+}
+
+@media (max-width: 800px) {
+    .form-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .room-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 550px) {
+    .form-grid,
+    .room-grid {
+        grid-template-columns: 1fr;
+    }
+}
