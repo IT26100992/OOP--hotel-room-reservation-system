@@ -78,6 +78,48 @@
         </form>
     </section>
 
+
+    <section class="saved-search-section">
+
+        <h2>My Saved Searches</h2>
+
+        <p>
+            Save your search conditions to use them again later.
+        </p>
+
+        <!-- Temporary user selection for local testing -->
+        <div class="form-group">
+            <label for="savedSearchUserId">
+                Test User ID
+            </label>
+
+            <input
+                    type="text"
+                    id="savedSearchUserId"
+                    value="USER-001"
+                    placeholder="Enter existing user ID"
+            >
+        </div>
+
+        <div class="saved-actions">
+            <button type="button" id="saveSearchBtn">
+                Save Current Search
+            </button>
+
+            <button type="button" id="loadSavedSearchesBtn">
+                View Saved Searches
+            </button>
+        </div>
+
+        <p id="savedSearchMessage"
+           role="status"
+           aria-live="polite"></p>
+
+        <div id="savedSearchResults"></div>
+
+    </section>
+
+
     <section class="results-section">
         <h2>Available Rooms</h2>
 
