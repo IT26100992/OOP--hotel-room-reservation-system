@@ -1,12 +1,1 @@
-
-[
-  {
-    "id": "USER-001",
-    "fullName": "Test Customer",
-    "email": "testcustomer@example.com",
-    "passwordHash": "test-only-not-a-real-password-hash",
-    "role": "CUSTOMER",
-    "phone": "0771234567",
-    "active": true
-  }
-]
+[]
