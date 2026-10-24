@@ -2,9 +2,17 @@
 package com.hotel;
 
 import com.hotel.common.AppException;
+import com.hotel.room.repository.RoomRepository;
+import com.hotel.reservation.repository.ReservationRepository;
+import com.hotel.search.service.RoomAvailabilityService;
+import com.hotel.search.api.RoomSearchApi;
 import io.javalin.Javalin;
 import io.javalin.http.staticfiles.Location;
 import java.util.Map;
+import com.hotel.search.repository.SearchPreferenceRepository;
+import com.hotel.search.service.SearchPreferenceService;
+import com.hotel.search.api.SearchPreferenceApi;
+import com.hotel.user.repository.UserRepository;
 
 public class HotelApplication {
 
@@ -49,8 +57,44 @@ public class HotelApplication {
                 ctx.json(Map.of("error", "Resource not found"));
             });
 
+            // Search & Availability feature - Sithum
+            RoomRepository roomRepository = new RoomRepository();
+
+            ReservationRepository reservationRepository =
+                    new ReservationRepository();
+
+            RoomAvailabilityService availabilityService =
+                    new RoomAvailabilityService(
+                            roomRepository,
+                            reservationRepository
+                    );
+
+            RoomSearchApi roomSearchApi =
+                    new RoomSearchApi(availabilityService);
+
+            roomSearchApi.registerRoutes(config);
+
+            // Saved Search Preferences - Sithum
+            SearchPreferenceRepository preferenceRepository =
+                    new SearchPreferenceRepository();
+
+            UserRepository userRepository =
+                    new UserRepository();
+
+            SearchPreferenceService preferenceService =
+                    new SearchPreferenceService(
+                            preferenceRepository,
+                            userRepository
+                    );
+
+            SearchPreferenceApi preferenceApi =
+                    new SearchPreferenceApi(preferenceService);
+
+            preferenceApi.registerRoutes(config);
+
 
         });
+
 
         app.start(7070);
     }

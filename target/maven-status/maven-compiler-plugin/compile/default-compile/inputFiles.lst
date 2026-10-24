@@ -24,7 +24,12 @@ C:\Users\sithu_2pb16va\Desktop\OOP--hotel-room-reservation-system\src\main\java\
 C:\Users\sithu_2pb16va\Desktop\OOP--hotel-room-reservation-system\src\main\java\com\hotel\room\model\RoomType.java
 C:\Users\sithu_2pb16va\Desktop\OOP--hotel-room-reservation-system\src\main\java\com\hotel\room\repository\RoomRepository.java
 C:\Users\sithu_2pb16va\Desktop\OOP--hotel-room-reservation-system\src\main\java\com\hotel\room\service\RoomService.java
+C:\Users\sithu_2pb16va\Desktop\OOP--hotel-room-reservation-system\src\main\java\com\hotel\search\api\RoomSearchApi.java
+C:\Users\sithu_2pb16va\Desktop\OOP--hotel-room-reservation-system\src\main\java\com\hotel\search\api\SearchPreferenceApi.java
+C:\Users\sithu_2pb16va\Desktop\OOP--hotel-room-reservation-system\src\main\java\com\hotel\search\model\SearchPreference.java
+C:\Users\sithu_2pb16va\Desktop\OOP--hotel-room-reservation-system\src\main\java\com\hotel\search\repository\SearchPreferenceRepository.java
 C:\Users\sithu_2pb16va\Desktop\OOP--hotel-room-reservation-system\src\main\java\com\hotel\search\service\RoomAvailabilityService.java
+C:\Users\sithu_2pb16va\Desktop\OOP--hotel-room-reservation-system\src\main\java\com\hotel\search\service\SearchPreferenceService.java
 C:\Users\sithu_2pb16va\Desktop\OOP--hotel-room-reservation-system\src\main\java\com\hotel\user\model\User.java
 C:\Users\sithu_2pb16va\Desktop\OOP--hotel-room-reservation-system\src\main\java\com\hotel\user\model\UserRole.java
 C:\Users\sithu_2pb16va\Desktop\OOP--hotel-room-reservation-system\src\main\java\com\hotel\user\repository\UserRepository.java
