@@ -9,6 +9,10 @@ import com.hotel.search.api.RoomSearchApi;
 import io.javalin.Javalin;
 import io.javalin.http.staticfiles.Location;
 import java.util.Map;
+import com.hotel.search.repository.SearchPreferenceRepository;
+import com.hotel.search.service.SearchPreferenceService;
+import com.hotel.search.api.SearchPreferenceApi;
+import com.hotel.user.repository.UserRepository;
 
 public class HotelApplication {
 
@@ -69,6 +73,25 @@ public class HotelApplication {
                     new RoomSearchApi(availabilityService);
 
             roomSearchApi.registerRoutes(config);
+
+            // Saved Search Preferences - Sithum
+            SearchPreferenceRepository preferenceRepository =
+                    new SearchPreferenceRepository();
+
+            UserRepository userRepository =
+                    new UserRepository();
+
+            SearchPreferenceService preferenceService =
+                    new SearchPreferenceService(
+                            preferenceRepository,
+                            userRepository
+                    );
+
+            SearchPreferenceApi preferenceApi =
+                    new SearchPreferenceApi(preferenceService);
+
+            preferenceApi.registerRoutes(config);
+
 
         });
 
