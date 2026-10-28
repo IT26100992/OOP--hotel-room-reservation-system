@@ -1,0 +1,251 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hotel Payment Receipt</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background: #f1f5f9;
+            margin: 0;
+            padding: 30px 15px;
+            color: #1e293b;
+        }
+
+        .container {
+            max-width: 700px;
+            margin: 0 auto;
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 18px rgba(0, 0, 0, 0.08);
+        }
+
+        .header {
+            text-align: center;
+            border-bottom: 2px solid #2563eb;
+            padding-bottom: 20px;
+            margin-bottom: 25px;
+        }
+
+        .header h1 {
+            color: #1d4ed8;
+            margin-bottom: 8px;
+        }
+
+        .header p {
+            color: #64748b;
+            margin: 0;
+        }
+
+        .search {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        input {
+            flex: 1;
+            min-width: 0;
+            padding: 12px;
+            border: 1px solid #cbd5e1;
+            border-radius: 6px;
+            font-size: 15px;
+        }
+
+        button, .home-link {
+            background: #2563eb;
+            color: white;
+            border: none;
+            padding: 12px 18px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        button:hover, .home-link:hover {
+            background: #1d4ed8;
+        }
+
+        .receipt {
+            background: #f8fafc;
+            border: 1px dashed #94a3b8;
+            border-radius: 8px;
+            padding: 20px;
+            min-height: 100px;
+            overflow-wrap: anywhere;
+        }
+
+        #receipt-content {
+            white-space: pre-wrap;
+            font-family: "Courier New", monospace;
+            line-height: 1.6;
+            font-size: 14px;
+        }
+
+        .message {
+            color: #64748b;
+            text-align: center;
+            padding: 15px 0;
+        }
+
+        .error {
+            color: #dc2626;
+        }
+
+        .actions {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 12px;
+            margin-top: 25px;
+            flex-wrap: wrap;
+        }
+
+        @media print {
+            body {
+                background: white;
+                padding: 0;
+            }
+
+            .container {
+                box-shadow: none;
+                max-width: 100%;
+                padding: 10px;
+            }
+
+            .search, .actions, .message {
+                display: none !important;
+            }
+
+            .receipt {
+                border: none;
+                background: white;
+                padding: 0;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .container {
+                padding: 18px;
+            }
+
+            .search {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+
+<body>
+<div class="container">
+
+    <div class="header">
+        <h1>Hotel Payment Receipt</h1>
+        <p>Thank you for your booking!</p>
+    </div>
+
+    <form id="receipt-form" class="search">
+        <input
+                type="text"
+                id="payment-id"
+                placeholder="Enter Payment ID (e.g. PAY-12345678)"
+                required
+        >
+        <button type="submit">Get Receipt</button>
+    </form>
+
+    <div class="receipt">
+        <div id="receipt-content" class="message">
+            Enter a payment ID to view your receipt.
+        </div>
+    </div>
+
+    <div class="actions">
+        <button type="button" id="print-button" disabled>
+            Print Receipt
+        </button>
+
+        <a class="home-link" href="/index.html">
+            Back to Home
+        </a>
+    </div>
+
+</div>
+
+<script>
+    const form = document.getElementById("receipt-form");
+    const paymentIdInput = document.getElementById("payment-id");
+    const receiptContent = document.getElementById("receipt-content");
+    const printButton = document.getElementById("print-button");
+
+    async function loadReceipt(paymentId) {
+        if (!paymentId) {
+            receiptContent.textContent = "Please enter a payment ID.";
+            receiptContent.className = "message error";
+            printButton.disabled = true;
+            return;
+        }
+
+        receiptContent.textContent = "Loading receipt...";
+        receiptContent.className = "message";
+        printButton.disabled = true;
+
+        try {
+            const response = await fetch(
+                "/api/payments/" + encodeURIComponent(paymentId) + "/receipt"
+            );
+
+            const receiptText = await response.text();
+
+            if (!response.ok) {
+                throw new Error(receiptText || "Unable to load receipt.");
+            }
+
+            receiptContent.textContent = receiptText;
+            receiptContent.className = "";
+            printButton.disabled = false;
+        } catch (error) {
+            receiptContent.textContent =
+                "Could not load receipt. Check the payment ID and ensure the server is running.\n\n"
+                + error.message;
+
+            receiptContent.className = "message error";
+        }
+    }
+
+    form.addEventListener("submit", function (event) {
+        event.preventDefault();
+
+        const paymentId = paymentIdInput.value.trim();
+
+        if (paymentId) {
+            loadReceipt(paymentId);
+        }
+    });
+
+    printButton.addEventListener("click", function () {
+        window.print();
+    });
+
+    // Support URLs such as /receipt.html?paymentId=PAY-12345678
+    const params = new URLSearchParams(window.location.search);
+    const paymentIdFromUrl = params.get("paymentId");
+
+    if (paymentIdFromUrl) {
+        paymentIdInput.value = paymentIdFromUrl;
+        loadReceipt(paymentIdFromUrl);
+    }
+</script>
+
+</body>
+</html>
