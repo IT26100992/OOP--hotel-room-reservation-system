@@ -57,6 +57,13 @@ public class HotelApplication {
                 ctx.json(Map.of("error", "Resource not found"));
             });
 
+            config.routes.exception(AppException.class, (e, ctx) -> {
+                ctx.status(e.getStatusCode()).json(
+                        Map.of("error", e.getMessage())
+                );
+            });
+
+
             // Search & Availability feature - Sithum
             RoomRepository roomRepository = new RoomRepository();
 
