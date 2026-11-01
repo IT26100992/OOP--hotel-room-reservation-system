@@ -4,10 +4,10 @@ import com.hotel.payment.model.Payment;
 import com.hotel.payment.service.PaymentService;
 import io.javalin.config.JavalinConfig;
 
-import java.util.List;
 import java.util.Map;
 
 public class PaymentApi {
+
     private final PaymentService paymentService;
 
     public PaymentApi(PaymentService paymentService) {
@@ -15,45 +15,81 @@ public class PaymentApi {
     }
 
     public void registerRoutes(JavalinConfig config) {
+
+        // Create a pending payment.
         config.routes.post("/api/payments", ctx -> {
-            Payment created = paymentService.createPayment(ctx.bodyAsClass(Payment.class));
+            Payment payment = ctx.bodyAsClass(Payment.class);
+
+            Payment created = paymentService.createPayment(payment);
+
             ctx.status(201).json(created);
         });
 
-        config.routes.get("/api/payments/generate-id", ctx ->
-                ctx.json(Map.of("paymentId", paymentService.generatePaymentId())));
+        // List all payments, or filter by reservation.
+        config.routes.get("/api/payments", ctx -> {
+            String reservationId = ctx.queryParam("reservationId");
 
-        config.routes.get("/api/payments/generate-receipt-number", ctx ->
-                ctx.json(Map.of("receiptNumber", paymentService.generateReceiptNumber())));
-
-        config.routes.get("/api/payments", ctx ->
-                ctx.json(paymentService.getAllPayments()));
-
-        config.routes.get("/api/payments/reservation/{reservationId}", ctx ->
-                ctx.json(paymentService.getPaymentsByReservationId(
-                        ctx.pathParam("reservationId"))));
-
-        config.routes.get("/api/payments/{id}/receipt", ctx -> {
-            ctx.contentType("text/plain; charset=utf-8");
-            ctx.result(paymentService.generateReceipt(ctx.pathParam("id")));
+            if (reservationId == null) {
+                ctx.json(paymentService.getAllPayments());
+            } else {
+                ctx.json(
+                        paymentService.getPaymentsByReservationId(
+                                reservationId)
+                );
+            }
         });
 
-        config.routes.post("/api/payments/{id}/process", ctx ->
-                ctx.json(paymentService.processPayment(ctx.pathParam("id"))));
+        // Find one payment.
+        config.routes.get("/api/payments/{id}", ctx -> {
+            ctx.json(
+                    paymentService.getPaymentById(
+                            ctx.pathParam("id"))
+            );
+        });
 
-        config.routes.post("/api/payments/{id}/fail", ctx ->
-                ctx.json(paymentService.failPayment(ctx.pathParam("id"))));
+        // Update permitted payment details.
+        config.routes.put("/api/payments/{id}", ctx -> {
+            Payment updated = ctx.bodyAsClass(Payment.class);
 
-        config.routes.get("/api/payments/{id}", ctx ->
-                ctx.json(paymentService.getPaymentById(ctx.pathParam("id"))));
+            ctx.json(
+                    paymentService.updatePayment(
+                            ctx.pathParam("id"),
+                            updated)
+            );
+        });
 
-        config.routes.put("/api/payments/{id}", ctx ->
-                ctx.json(paymentService.updatePayment(
-                        ctx.pathParam("id"), ctx.bodyAsClass(Payment.class))));
-
+        // Delete an eligible payment.
         config.routes.delete("/api/payments/{id}", ctx -> {
             paymentService.deletePayment(ctx.pathParam("id"));
-            ctx.status(204);
+
+            ctx.json(Map.of(
+                    "message", "Payment deleted successfully."
+            ));
+        });
+
+        // Simulate successful payment processing.
+        config.routes.post("/api/payments/{id}/process", ctx -> {
+            ctx.json(
+                    paymentService.processPayment(
+                            ctx.pathParam("id"))
+            );
+        });
+
+        // Mark a pending payment as failed.
+        config.routes.post("/api/payments/{id}/fail", ctx -> {
+            ctx.json(
+                    paymentService.failPayment(
+                            ctx.pathParam("id"))
+            );
+        });
+
+        // Return a completed payment's printable receipt.
+        config.routes.get("/api/payments/{id}/receipt", ctx -> {
+            String receipt = paymentService.generateReceipt(
+                    ctx.pathParam("id"));
+
+            ctx.contentType("text/plain; charset=utf-8");
+            ctx.result(receipt);
         });
     }
 }
