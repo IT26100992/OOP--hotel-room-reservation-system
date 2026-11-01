@@ -73,7 +73,7 @@ public class PaymentService {
                 null
         );
 
-        // Initial status and payment date are controlled by the service.
+        // The service controls the initial status and payment date.
         payment.setStatus(PaymentStatus.PENDING);
         payment.setPaidAt(null);
 
@@ -92,7 +92,6 @@ public class PaymentService {
 
         ensureReservationCanBePaid(payment.getReservationId());
 
-        // Exclude this payment from the duplicate check.
         ensureNoActivePayment(
                 payment.getReservationId(),
                 paymentId
@@ -121,6 +120,42 @@ public class PaymentService {
         payment.setStatus(PaymentStatus.FAILED);
         payment.setPaidAt(null);
 
+        return paymentRepository.update(paymentId, payment);
+    }
+
+    // Cancel a pending payment.
+    public synchronized Payment cancelPayment(String paymentId) {
+
+        Payment payment = getPaymentById(paymentId);
+
+        if (payment.getStatus() != PaymentStatus.PENDING) {
+            throw new ValidationException(
+                    "Only pending payments can be cancelled.");
+        }
+
+        payment.setStatus(PaymentStatus.VOIDED);
+        payment.setPaidAt(null);
+
+        return paymentRepository.update(paymentId, payment);
+    }
+
+    // Simulate a full refund of a completed payment.
+    public synchronized Payment refundPayment(String paymentId) {
+
+        Payment payment = getPaymentById(paymentId);
+
+        if (payment.getStatus() != PaymentStatus.COMPLETED) {
+            throw new ValidationException(
+                    "Only completed payments can be refunded.");
+        }
+
+        /*
+         * University project simulation.
+         * No real money is transferred.
+         */
+        payment.setStatus(PaymentStatus.REFUNDED);
+
+        // Preserve the original payment date and receipt number.
         return paymentRepository.update(paymentId, payment);
     }
 
@@ -159,7 +194,7 @@ public class PaymentService {
                 .toList();
     }
 
-    // Update payment details without changing its status.
+    // Only pending payments can be edited.
     public synchronized Payment updatePayment(
             String id,
             Payment updated) {
@@ -178,9 +213,9 @@ public class PaymentService {
                     "URL payment ID must match the updated payment ID.");
         }
 
-        if (existing.getStatus() == PaymentStatus.COMPLETED) {
+        if (existing.getStatus() != PaymentStatus.PENDING) {
             throw new ValidationException(
-                    "Completed payments cannot be edited.");
+                    "Only pending payments can be edited.");
         }
 
         if (updated.getStatus() != existing.getStatus()) {
@@ -190,12 +225,10 @@ public class PaymentService {
 
         ensureReservationCanBePaid(updated.getReservationId());
 
-        if (updated.getStatus() == PaymentStatus.PENDING) {
-            ensureNoActivePayment(
-                    updated.getReservationId(),
-                    id
-            );
-        }
+        ensureNoActivePayment(
+                updated.getReservationId(),
+                id
+        );
 
         ensureReceiptIsUnique(
                 updated.getReceiptNumber(),
@@ -207,19 +240,21 @@ public class PaymentService {
         return paymentRepository.update(id, updated);
     }
 
+    // Preserve completed, failed, refunded and voided records.
     public synchronized boolean deletePayment(String id) {
 
         Payment existing = getPaymentById(id);
 
-        if (existing.getStatus() == PaymentStatus.COMPLETED) {
+        if (existing.getStatus() != PaymentStatus.PENDING) {
             throw new ValidationException(
-                    "Completed payments cannot be deleted.");
+                    "Only pending payments can be deleted.");
         }
 
         return paymentRepository.deleteById(id);
     }
 
     public String generatePaymentId() {
+
         return "PAY-" + UUID.randomUUID()
                 .toString()
                 .substring(0, 8)
