@@ -76,7 +76,8 @@ class PaymentServiceTest {
             }
 
             when(paymentRepository.findById("PAY-001"))
-                    .thenReturn(Optional.of(paymentWithStatus(status)));
+                    .thenReturn(Optional.of(
+                            paymentWithStatus(status)));
 
             ValidationException exception = assertThrows(
                     ValidationException.class,
@@ -252,6 +253,7 @@ class PaymentServiceTest {
     @Test
     void anotherCompletedPaymentBlocksProcessing() {
         Payment pending = newPaymentAttempt();
+
         Payment completed =
                 paymentWithStatus(PaymentStatus.COMPLETED);
 
@@ -305,6 +307,151 @@ class PaymentServiceTest {
 
         verify(paymentRepository, never())
                 .update(anyString(), any(Payment.class));
+    }
+
+    @Test
+    void pendingPaymentCanBeCancelled() {
+        Payment pending = paymentWithStatus(PaymentStatus.PENDING);
+
+        when(paymentRepository.findById("PAY-001"))
+                .thenReturn(Optional.of(pending));
+
+        when(paymentRepository.update("PAY-001", pending))
+                .thenReturn(pending);
+
+        Payment cancelled = paymentService.cancelPayment("PAY-001");
+
+        assertEquals(PaymentStatus.VOIDED, cancelled.getStatus());
+        assertNull(cancelled.getPaidAt());
+        assertEquals("REC-001", cancelled.getReceiptNumber());
+
+        verify(paymentRepository).update("PAY-001", pending);
+    }
+
+    @Test
+    void nonPendingPaymentsCannotBeCancelled() {
+        for (PaymentStatus status : PaymentStatus.values()) {
+            if (status == PaymentStatus.PENDING) {
+                continue;
+            }
+
+            Payment payment = paymentWithStatus(status);
+
+            when(paymentRepository.findById("PAY-001"))
+                    .thenReturn(Optional.of(payment));
+
+            assertThrows(
+                    ValidationException.class,
+                    () -> paymentService.cancelPayment("PAY-001")
+            );
+
+            assertEquals(status, payment.getStatus());
+        }
+
+        verify(paymentRepository, never())
+                .update(anyString(), any(Payment.class));
+    }
+
+    @Test
+    void completedPaymentCanBeRefunded() {
+        Payment completed =
+                paymentWithStatus(PaymentStatus.COMPLETED);
+
+        LocalDateTime originalPaidAt = completed.getPaidAt();
+
+        when(paymentRepository.findById("PAY-001"))
+                .thenReturn(Optional.of(completed));
+
+        when(paymentRepository.update("PAY-001", completed))
+                .thenReturn(completed);
+
+        Payment refunded = paymentService.refundPayment("PAY-001");
+
+        assertEquals(PaymentStatus.REFUNDED, refunded.getStatus());
+        assertEquals(originalPaidAt, refunded.getPaidAt());
+        assertEquals("REC-001", refunded.getReceiptNumber());
+        assertEquals(
+                new BigDecimal("15000.00"),
+                refunded.getAmount()
+        );
+
+        verify(paymentRepository).update("PAY-001", completed);
+    }
+
+    @Test
+    void nonCompletedPaymentsCannotBeRefunded() {
+        for (PaymentStatus status : PaymentStatus.values()) {
+            if (status == PaymentStatus.COMPLETED) {
+                continue;
+            }
+
+            Payment payment = paymentWithStatus(status);
+
+            when(paymentRepository.findById("PAY-001"))
+                    .thenReturn(Optional.of(payment));
+
+            assertThrows(
+                    ValidationException.class,
+                    () -> paymentService.refundPayment("PAY-001")
+            );
+
+            assertEquals(status, payment.getStatus());
+        }
+
+        verify(paymentRepository, never())
+                .update(anyString(), any(Payment.class));
+    }
+
+    @Test
+    void missingPaymentCannotBeCancelledOrRefunded() {
+        when(paymentRepository.findById("PAY-MISSING"))
+                .thenReturn(Optional.empty());
+
+        assertThrows(
+                ResourceNotFoundException.class,
+                () -> paymentService.cancelPayment("PAY-MISSING")
+        );
+
+        assertThrows(
+                ResourceNotFoundException.class,
+                () -> paymentService.refundPayment("PAY-MISSING")
+        );
+
+        verify(paymentRepository, never())
+                .update(anyString(), any(Payment.class));
+    }
+
+    @Test
+    void historicalPaymentsCannotBeEditedOrDeleted() {
+        for (PaymentStatus status : PaymentStatus.values()) {
+            if (status == PaymentStatus.PENDING) {
+                continue;
+            }
+
+            Payment existing = paymentWithStatus(status);
+            Payment updated = paymentWithStatus(status);
+
+            when(paymentRepository.findById("PAY-001"))
+                    .thenReturn(Optional.of(existing));
+
+            assertThrows(
+                    ValidationException.class,
+                    () -> paymentService.updatePayment(
+                            "PAY-001",
+                            updated)
+            );
+
+            assertThrows(
+                    ValidationException.class,
+                    () -> paymentService.deletePayment("PAY-001")
+            );
+        }
+
+        verify(paymentRepository, never())
+                .update(anyString(), any(Payment.class));
+
+        verify(paymentRepository, never())
+                .deleteById(anyString());
     }
 
     private Payment newPaymentAttempt() {

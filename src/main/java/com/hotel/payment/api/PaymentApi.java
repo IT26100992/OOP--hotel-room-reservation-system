@@ -47,7 +47,7 @@ public class PaymentApi {
             );
         });
 
-        // Update permitted payment details.
+        // Update a pending payment's details.
         config.routes.put("/api/payments/{id}", ctx -> {
             Payment updated = ctx.bodyAsClass(Payment.class);
 
@@ -58,7 +58,7 @@ public class PaymentApi {
             );
         });
 
-        // Delete an eligible payment.
+        // Delete an eligible pending payment.
         config.routes.delete("/api/payments/{id}", ctx -> {
             paymentService.deletePayment(ctx.pathParam("id"));
 
@@ -79,6 +79,22 @@ public class PaymentApi {
         config.routes.post("/api/payments/{id}/fail", ctx -> {
             ctx.json(
                     paymentService.failPayment(
+                            ctx.pathParam("id"))
+            );
+        });
+
+        // Cancel a pending payment.
+        config.routes.post("/api/payments/{id}/cancel", ctx -> {
+            ctx.json(
+                    paymentService.cancelPayment(
+                            ctx.pathParam("id"))
+            );
+        });
+
+        // Simulate refunding a completed payment.
+        config.routes.post("/api/payments/{id}/refund", ctx -> {
+            ctx.json(
+                    paymentService.refundPayment(
                             ctx.pathParam("id"))
             );
         });
