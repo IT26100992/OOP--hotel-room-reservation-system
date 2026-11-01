@@ -111,8 +111,6 @@
         }
 
         .hero {
-            position: relative;
-            overflow: hidden;
             padding: 38px;
             border-radius: 14px;
             background: linear-gradient(120deg, #0f172a, #26354c);
@@ -377,6 +375,41 @@
             color: #b91c1c;
         }
 
+        .status.refunded {
+            background: #eff6ff;
+            color: #1d4ed8;
+        }
+
+        .status.voided {
+            background: #f1f5f9;
+            color: #475569;
+        }
+
+        .payment-action,
+        td .receipt-link {
+            margin: 4px;
+        }
+
+        .payment-action.cancel {
+            background: white;
+            border-color: #fecaca;
+            color: #b91c1c;
+        }
+
+        .payment-action.cancel:hover {
+            background: #fef2f2;
+        }
+
+        .payment-action.refund {
+            background: #fffbeb;
+            border-color: #fde68a;
+            color: #92400e;
+        }
+
+        .payment-action.refund:hover {
+            background: #fef3c7;
+        }
+
         .empty-state {
             padding: 36px 16px;
             text-align: center;
@@ -445,7 +478,8 @@
         <nav aria-label="Main navigation">
             <a href="/index.html">Home</a>
             <a href="/search.html">Explore Rooms</a>
-            <a href="/payment.html" class="active"
+            <a href="/payment.html"
+               class="active"
                aria-current="page">Payments</a>
             <a href="/receipt.html">Receipts</a>
         </nav>
@@ -509,8 +543,8 @@
         </form>
 
         <p class="simulation-note">
-            Payment processing is simulated for this university project.
-            No real transaction is made.
+            Payment processing and refunds are simulated for this
+            university project. No real money is transferred.
         </p>
     </section>
 
@@ -519,7 +553,8 @@
             <div>
                 <h2 id="history-title">Payment History</h2>
                 <p class="section-description">
-                    Review payments and access completed receipts.
+                    Review payments, cancel pending payments,
+                    and simulate refunds for completed payments.
                 </p>
             </div>
 
@@ -540,6 +575,7 @@
                     <th scope="col">Actions</th>
                 </tr>
                 </thead>
+
                 <tbody id="payment-rows">
                 <tr>
                     <td colspan="6" class="empty-state">
@@ -583,7 +619,9 @@
         try {
             data = text ? JSON.parse(text) : null;
         } catch {
-            throw new Error("The server returned an unexpected response.");
+            throw new Error(
+                "The server returned an unexpected response."
+            );
         }
 
         if (!response.ok) {
@@ -610,14 +648,76 @@
 
         cell.colSpan = 6;
         cell.className = "empty-state";
+
         rows.appendChild(row);
+    }
+
+    function addPaymentAction(container, payment, action, label) {
+        const button = document.createElement("button");
+
+        button.type = "button";
+        button.textContent = label;
+        button.className = "payment-action " + action;
+
+        button.addEventListener("click", async () => {
+            const buttons = container.querySelectorAll("button");
+
+            buttons.forEach(item => {
+                item.disabled = true;
+            });
+
+            button.textContent = "Updating...";
+
+            let succeeded = false;
+
+            try {
+                const updated = await request(
+                    "/api/payments/"
+                    + encodeURIComponent(payment.id)
+                    + "/" + action,
+                    { method: "POST" }
+                );
+
+                succeeded = true;
+
+                showMessage(
+                    "Payment " + updated.id + ": " + updated.status
+                );
+
+                try {
+                    await loadPayments();
+                } catch {
+                    button.textContent = "Updated";
+
+                    showMessage(
+                        "Payment updated successfully. "
+                        + "Click Refresh Payments to reload the list.",
+                        true
+                    );
+                }
+            } catch (error) {
+                showMessage(error.message, true);
+            } finally {
+                if (!succeeded) {
+                    buttons.forEach(item => {
+                        item.disabled = false;
+                    });
+
+                    button.textContent = label;
+                }
+            }
+        });
+
+        container.appendChild(button);
     }
 
     async function loadPayments() {
         const payments = await request("/api/payments");
 
         if (!Array.isArray(payments)) {
-            throw new Error("The server returned an invalid payment list.");
+            throw new Error(
+                "The server returned an invalid payment list."
+            );
         }
 
         rows.replaceChildren();
@@ -633,6 +733,7 @@
             addCell(row, payment.id);
             addCell(row, payment.reservationId);
             addCell(row, Number(payment.amount).toFixed(2));
+
             addCell(
                 row,
                 methodLabels[payment.method] || payment.method
@@ -640,14 +741,21 @@
 
             const statusCell = document.createElement("td");
             const statusBadge = document.createElement("span");
+
             statusBadge.className = "status";
 
-            if (payment.status === "COMPLETED") {
-                statusBadge.classList.add("completed");
-            } else if (payment.status === "PENDING") {
-                statusBadge.classList.add("pending");
-            } else if (payment.status === "FAILED") {
-                statusBadge.classList.add("failed");
+            const statusClasses = {
+                COMPLETED: "completed",
+                PENDING: "pending",
+                FAILED: "failed",
+                REFUNDED: "refunded",
+                VOIDED: "voided"
+            };
+
+            if (statusClasses[payment.status]) {
+                statusBadge.classList.add(
+                    statusClasses[payment.status]
+                );
             }
 
             statusBadge.textContent = payment.status;
@@ -657,44 +765,19 @@
             const actions = document.createElement("td");
 
             if (payment.status === "PENDING") {
-                const processButton = document.createElement("button");
-                processButton.type = "button";
-                processButton.textContent = "Process Payment";
+                addPaymentAction(
+                    actions,
+                    payment,
+                    "process",
+                    "Process Payment"
+                );
 
-                processButton.addEventListener("click", async () => {
-                    processButton.disabled = true;
-                    processButton.textContent = "Processing...";
-
-                    try {
-                        await request(
-                            "/api/payments/"
-                            + encodeURIComponent(payment.id)
-                            + "/process",
-                            { method: "POST" }
-                        );
-
-                        showMessage(
-                            "Payment " + payment.id + " completed."
-                        );
-
-                        try {
-                            await loadPayments();
-                        } catch {
-                            showMessage(
-                                "Payment completed, but the list could not "
-                                + "refresh. Click Refresh Payments.",
-                                true
-                            );
-                        }
-                    } catch (error) {
-                        showMessage(error.message, true);
-                    } finally {
-                        processButton.disabled = false;
-                        processButton.textContent = "Process Payment";
-                    }
-                });
-
-                actions.appendChild(processButton);
+                addPaymentAction(
+                    actions,
+                    payment,
+                    "cancel",
+                    "Cancel Payment"
+                );
             }
 
             if (payment.status === "COMPLETED") {
@@ -706,6 +789,13 @@
                     + encodeURIComponent(payment.id);
 
                 actions.appendChild(receiptLink);
+
+                addPaymentAction(
+                    actions,
+                    payment,
+                    "refund",
+                    "Simulate Refund"
+                );
             }
 
             if (!actions.hasChildNodes()) {
@@ -744,7 +834,10 @@
                 })
             });
 
-            showMessage("Pending payment created: " + payment.id);
+            showMessage(
+                "Pending payment created: " + payment.id
+            );
+
             form.reset();
 
             try {
@@ -779,8 +872,10 @@
 
     loadPayments().catch(error => {
         showTableMessage(
-            "Unable to load payments. Click Refresh Payments to retry."
+            "Unable to load payments. "
+            + "Click Refresh Payments to retry."
         );
+
         showMessage(error.message, true);
     });
 </script>
