@@ -1,18 +1,25 @@
-//Test if the local host port 7070 is working and backend API is running.
 package com.hotel;
 
 import com.hotel.common.AppException;
+
 import com.hotel.room.repository.RoomRepository;
 import com.hotel.reservation.repository.ReservationRepository;
-import com.hotel.search.service.RoomAvailabilityService;
+import com.hotel.user.repository.UserRepository;
+
 import com.hotel.search.api.RoomSearchApi;
+import com.hotel.search.api.SearchPreferenceApi;
+import com.hotel.search.repository.SearchPreferenceRepository;
+import com.hotel.search.service.RoomAvailabilityService;
+import com.hotel.search.service.SearchPreferenceService;
+
+import com.hotel.payment.api.PaymentApi;
+import com.hotel.payment.repository.PaymentRepository;
+import com.hotel.payment.service.PaymentService;
+
 import io.javalin.Javalin;
 import io.javalin.http.staticfiles.Location;
+
 import java.util.Map;
-import com.hotel.search.repository.SearchPreferenceRepository;
-import com.hotel.search.service.SearchPreferenceService;
-import com.hotel.search.api.SearchPreferenceApi;
-import com.hotel.user.repository.UserRepository;
 
 public class HotelApplication {
 
@@ -20,49 +27,67 @@ public class HotelApplication {
 
         Javalin app = Javalin.create(config -> {
 
-            // Serve HTML, CSS and JavaScript from resources/public
-            config.staticFiles.add("/public", Location.CLASSPATH);
-
-            /*app.exception(AppException.class, (exception, ctx) -> {
-                ctx.status(exception.getStatusCode().json)
-                        .json(Map.of("error", exception.getMessage()));
-            });*/
-
-            // Test the backend API
-            config.routes.get("/api/health", ctx ->
-                    ctx.json(Map.of(
-                            "status", "ok",
-                            "message", "Hotel Reservation API is running"
-                    ))
+            // Serve HTML, CSS and JavaScript.
+            config.staticFiles.add(
+                    "/public",
+                    Location.CLASSPATH
             );
 
-            // Handle our application's custom exceptions
-            // Handle unexpected server errors
-            config.routes.exception(Exception.class, (e, ctx) -> {
-                e.printStackTrace();
-
-                ctx.status(500).json(
-                        Map.of("error", "An unexpected server error occurred")
-                );
-            });
-            // Handle unexpected server errors
-            config.routes.exception(Exception.class, (e, ctx) -> {
-                ctx.status(500).json(
-                        Map.of("error", "An unexpected server error occurred")
-                );
+            // Health check.
+            config.routes.get("/api/health", ctx -> {
+                ctx.json(Map.of(
+                        "status", "ok",
+                        "message", "Hotel Reservation API is running"
+                ));
             });
 
-            // Return a consistent response for unknown routes
+            // Handle application-specific exceptions.
+            config.routes.exception(
+                    AppException.class,
+                    (exception, ctx) -> {
+                        ctx.status(exception.getStatusCode());
+                        ctx.json(Map.of(
+                                "error", exception.getMessage()
+                        ));
+                    }
+            );
+
+            // Handle unexpected server errors.
+            config.routes.exception(
+                    Exception.class,
+                    (exception, ctx) -> {
+                        exception.printStackTrace();
+
+                        ctx.status(500);
+                        ctx.json(Map.of(
+                                "error",
+                                "An unexpected server error occurred"
+                        ));
+                    }
+            );
+
+            // Preserve specific not-found messages.
             config.routes.error(404, ctx -> {
-                ctx.json(Map.of("error", "Resource not found"));
+                String responseBody = ctx.result();
+
+                if (responseBody == null || responseBody.isBlank()) {
+                    ctx.json(Map.of(
+                            "error", "Resource not found"
+                    ));
+                }
             });
 
-            // Search & Availability feature - Sithum
-            RoomRepository roomRepository = new RoomRepository();
+            // Shared repositories.
+            RoomRepository roomRepository =
+                    new RoomRepository();
 
             ReservationRepository reservationRepository =
                     new ReservationRepository();
 
+            UserRepository userRepository =
+                    new UserRepository();
+
+            // Room Search & Availability - Sithum.
             RoomAvailabilityService availabilityService =
                     new RoomAvailabilityService(
                             roomRepository,
@@ -74,12 +99,9 @@ public class HotelApplication {
 
             roomSearchApi.registerRoutes(config);
 
-            // Saved Search Preferences - Sithum
+            // Saved Search Preferences - Sithum.
             SearchPreferenceRepository preferenceRepository =
                     new SearchPreferenceRepository();
-
-            UserRepository userRepository =
-                    new UserRepository();
 
             SearchPreferenceService preferenceService =
                     new SearchPreferenceService(
@@ -92,10 +114,23 @@ public class HotelApplication {
 
             preferenceApi.registerRoutes(config);
 
+            // Payment & Receipt Management - Kaveesha.
+            PaymentRepository paymentRepository =
+                    new PaymentRepository();
 
+            PaymentService paymentService =
+                    new PaymentService(
+                            paymentRepository,
+                            reservationRepository
+                    );
+
+            PaymentApi paymentApi =
+                    new PaymentApi(paymentService);
+
+            paymentApi.registerRoutes(config);
         });
 
-
+        // Start the server.
         app.start(7070);
     }
 }
