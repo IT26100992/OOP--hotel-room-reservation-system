@@ -229,7 +229,7 @@
             display: inline-flex;
             justify-content: center;
             align-items: center;
-            padding: 11px 18px;
+            padding: 10px 14px;
             border: 1px solid transparent;
             border-radius: 6px;
             background: var(--navy);
@@ -266,14 +266,16 @@
         }
 
         #refresh-button,
-        .receipt-link {
+        .receipt-link,
+        .payment-action.edit {
             border-color: var(--border);
             background: white;
             color: var(--navy);
         }
 
         #refresh-button:hover,
-        .receipt-link:hover {
+        .receipt-link:hover,
+        .payment-action.edit:hover {
             background: #f1f5f9;
         }
 
@@ -349,6 +351,14 @@
             font-weight: 600;
         }
 
+        .action-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            min-width: 200px;
+            max-width: 290px;
+        }
+
         .status {
             display: inline-block;
             padding: 4px 10px;
@@ -385,18 +395,15 @@
             color: #475569;
         }
 
-        .payment-action,
-        td .receipt-link {
-            margin: 4px;
-        }
-
-        .payment-action.cancel {
+        .payment-action.cancel,
+        .payment-action.delete {
             background: white;
             border-color: #fecaca;
             color: #b91c1c;
         }
 
-        .payment-action.cancel:hover {
+        .payment-action.cancel:hover,
+        .payment-action.delete:hover {
             background: #fef2f2;
         }
 
@@ -553,8 +560,8 @@
             <div>
                 <h2 id="history-title">Payment History</h2>
                 <p class="section-description">
-                    Review payments, cancel pending payments,
-                    and simulate refunds for completed payments.
+                    Edit or delete pending payments, process payments,
+                    cancel pending payments, and simulate refunds.
                 </p>
             </div>
 
@@ -652,7 +659,54 @@
         rows.appendChild(row);
     }
 
-    function addPaymentAction(container, payment, action, label) {
+    async function runPaymentChange(
+        container,
+        button,
+        operation,
+        successMessage
+    ) {
+        const buttons = container.querySelectorAll("button");
+        const originalLabel = button.textContent;
+
+        buttons.forEach(item => item.disabled = true);
+        button.textContent = "Updating...";
+
+        let succeeded = false;
+
+        try {
+            await operation();
+            succeeded = true;
+
+            showMessage(successMessage);
+
+            try {
+                await loadPayments();
+            } catch {
+                button.textContent = "Updated";
+
+                showMessage(
+                    "Change saved successfully. "
+                    + "Click Refresh Payments to reload the list.",
+                    true
+                );
+            }
+        } catch (error) {
+            showMessage(error.message, true);
+        } finally {
+            if (!succeeded) {
+                buttons.forEach(item => item.disabled = false);
+                button.textContent = originalLabel;
+            }
+        }
+    }
+
+    function addPaymentAction(
+        container,
+        payment,
+        action,
+        label,
+        successStatus
+    ) {
         const button = document.createElement("button");
 
         button.type = "button";
@@ -660,52 +714,121 @@
         button.className = "payment-action " + action;
 
         button.addEventListener("click", async () => {
-            const buttons = container.querySelectorAll("button");
-
-            buttons.forEach(item => {
-                item.disabled = true;
-            });
-
-            button.textContent = "Updating...";
-
-            let succeeded = false;
-
-            try {
-                const updated = await request(
+            await runPaymentChange(
+                container,
+                button,
+                () => request(
                     "/api/payments/"
                     + encodeURIComponent(payment.id)
                     + "/" + action,
                     { method: "POST" }
-                );
+                ),
+                "Payment " + payment.id + ": " + successStatus
+            );
+        });
 
-                succeeded = true;
+        container.appendChild(button);
+    }
 
-                showMessage(
-                    "Payment " + updated.id + ": " + updated.status
-                );
+    function addEditButton(container, payment) {
+        const button = document.createElement("button");
 
-                try {
-                    await loadPayments();
-                } catch {
-                    button.textContent = "Updated";
+        button.type = "button";
+        button.className = "payment-action edit";
+        button.textContent = "Edit";
 
-                    showMessage(
-                        "Payment updated successfully. "
-                        + "Click Refresh Payments to reload the list.",
-                        true
-                    );
-                }
-            } catch (error) {
-                showMessage(error.message, true);
-            } finally {
-                if (!succeeded) {
-                    buttons.forEach(item => {
-                        item.disabled = false;
-                    });
+        button.addEventListener("click", async () => {
+            const enteredAmount = window.prompt(
+                "Enter the new payment amount:",
+                Number(payment.amount).toFixed(2)
+            );
 
-                    button.textContent = label;
-                }
+            if (enteredAmount === null) {
+                return;
             }
+
+            const amount = enteredAmount.trim();
+
+            if (!/^\d+(\.\d{1,2})?$/.test(amount)
+                || !Number.isFinite(Number(amount))
+                || Number(amount) <= 0) {
+                showMessage(
+                    "Enter a positive amount with at most "
+                    + "two decimal places.",
+                    true
+                );
+                return;
+            }
+
+            const enteredMethod = window.prompt(
+                "Enter CASH, BANK_TRANSFER, or CARD:",
+                payment.method
+            );
+
+            if (enteredMethod === null) {
+                return;
+            }
+
+            const method = enteredMethod.trim().toUpperCase();
+
+            if (!["CASH", "BANK_TRANSFER", "CARD"].includes(method)) {
+                showMessage(
+                    "Payment method must be CASH, "
+                    + "BANK_TRANSFER, or CARD.",
+                    true
+                );
+                return;
+            }
+
+            await runPaymentChange(
+                container,
+                button,
+                () => request(
+                    "/api/payments/" + encodeURIComponent(payment.id),
+                    {
+                        method: "PUT",
+                        headers: {
+                            "Content-Type": "application/json"
+                        },
+                        body: JSON.stringify({
+                            ...payment,
+                            amount,
+                            method
+                        })
+                    }
+                ),
+                "Payment " + payment.id + " updated."
+            );
+        });
+
+        container.appendChild(button);
+    }
+
+    function addDeleteButton(container, payment) {
+        const button = document.createElement("button");
+
+        button.type = "button";
+        button.className = "payment-action delete";
+        button.textContent = "Delete";
+
+        button.addEventListener("click", async () => {
+            const confirmed = window.confirm(
+                "Delete pending payment " + payment.id + "?"
+            );
+
+            if (!confirmed) {
+                return;
+            }
+
+            await runPaymentChange(
+                container,
+                button,
+                () => request(
+                    "/api/payments/" + encodeURIComponent(payment.id),
+                    { method: "DELETE" }
+                ),
+                "Payment " + payment.id + " deleted."
+            );
         });
 
         container.appendChild(button);
@@ -762,22 +885,30 @@
             statusCell.appendChild(statusBadge);
             row.appendChild(statusCell);
 
-            const actions = document.createElement("td");
+            const actionsCell = document.createElement("td");
+            const actions = document.createElement("div");
+
+            actions.className = "action-group";
 
             if (payment.status === "PENDING") {
                 addPaymentAction(
                     actions,
                     payment,
                     "process",
-                    "Process Payment"
+                    "Process Payment",
+                    "COMPLETED"
                 );
 
                 addPaymentAction(
                     actions,
                     payment,
                     "cancel",
-                    "Cancel Payment"
+                    "Cancel Payment",
+                    "VOIDED"
                 );
+
+                addEditButton(actions, payment);
+                addDeleteButton(actions, payment);
             }
 
             if (payment.status === "COMPLETED") {
@@ -794,7 +925,8 @@
                     actions,
                     payment,
                     "refund",
-                    "Simulate Refund"
+                    "Simulate Refund",
+                    "REFUNDED"
                 );
             }
 
@@ -802,7 +934,8 @@
                 actions.textContent = "—";
             }
 
-            row.appendChild(actions);
+            actionsCell.appendChild(actions);
+            row.appendChild(actionsCell);
             rows.appendChild(row);
         }
     }
