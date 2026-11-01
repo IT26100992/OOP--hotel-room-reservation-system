@@ -36,6 +36,13 @@ public class HotelApplication {
                     ))
             );
 
+            //newly add missing exception handler
+            config.routes.exception(AppException.class, (e, ctx) -> {
+                ctx.status(e.getStatusCode()).json(
+                        Map.of("error", e.getMessage())
+                );
+            });
+
             // Handle our application's custom exceptions
             // Handle unexpected server errors
             config.routes.exception(Exception.class, (e, ctx) -> {
@@ -46,11 +53,11 @@ public class HotelApplication {
                 );
             });
             // Handle unexpected server errors
-            config.routes.exception(Exception.class, (e, ctx) -> {
+            /*config.routes.exception(Exception.class, (e, ctx) -> {
                 ctx.status(500).json(
                         Map.of("error", "An unexpected server error occurred")
                 );
-            });
+            }); */
 
             // Return a consistent response for unknown routes
             config.routes.error(404, ctx -> {
