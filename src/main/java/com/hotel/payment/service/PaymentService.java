@@ -1,4 +1,3 @@
-
 package com.hotel.payment.service;
 
 import com.hotel.common.ResourceNotFoundException;
@@ -7,6 +6,7 @@ import com.hotel.payment.model.Payment;
 import com.hotel.payment.model.PaymentStatus;
 import com.hotel.payment.repository.PaymentRepository;
 import com.hotel.reservation.model.Reservation;
+import com.hotel.reservation.model.ReservationStatus;
 import com.hotel.reservation.repository.ReservationRepository;
 
 import java.math.BigDecimal;
@@ -38,46 +38,50 @@ public class PaymentService {
                 "ReservationRepository is required.");
     }
 
-    // CREATE PAYMENT
-    public Payment createPayment(Payment payment) {
+    // Create a pending payment.
+    public synchronized Payment createPayment(Payment payment) {
 
         if (payment == null) {
-            throw new ValidationException("Payment cannot be null.");
+            throw new ValidationException(
+                    "Payment cannot be null.");
         }
 
-        // Generate an ID if the client did not provide one.
         if (blank(payment.getId())) {
             payment.setId(generatePaymentId());
         }
 
-        // Generate a receipt number if one was not provided.
         if (blank(payment.getReceiptNumber())) {
             payment.setReceiptNumber(generateReceiptNumber());
         }
 
-        // Validate the payment details.
         validatePayment(payment);
 
-        // Ensure the reservation exists.
-        getReservation(payment.getReservationId());
+        ensureReservationCanBePaid(payment.getReservationId());
 
-        // Prevent duplicate payment IDs.
+        ensureNoActivePayment(
+                payment.getReservationId(),
+                null
+        );
+
         if (paymentRepository.findById(payment.getId()).isPresent()) {
-            throw new ValidationException("Payment ID already exists.");
+            throw new ValidationException(
+                    "Payment ID already exists.");
         }
 
-        // Prevent duplicate receipt numbers.
-        ensureReceiptIsUnique(payment.getReceiptNumber(), null);
+        ensureReceiptIsUnique(
+                payment.getReceiptNumber(),
+                null
+        );
 
-        // The service controls the initial payment status.
+        // Initial status and payment date are controlled by the service.
         payment.setStatus(PaymentStatus.PENDING);
         payment.setPaidAt(null);
 
         return paymentRepository.create(payment);
     }
 
-    // PROCESS PAYMENT
-    public Payment processPayment(String paymentId) {
+    // Simulate successful payment processing.
+    public synchronized Payment processPayment(String paymentId) {
 
         Payment payment = getPaymentById(paymentId);
 
@@ -86,11 +90,16 @@ public class PaymentService {
                     "Only pending payments can be processed.");
         }
 
-        // Verify that the reservation still exists.
-        getReservation(payment.getReservationId());
+        ensureReservationCanBePaid(payment.getReservationId());
+
+        // Exclude this payment from the duplicate check.
+        ensureNoActivePayment(
+                payment.getReservationId(),
+                paymentId
+        );
 
         /*
-         * University project simulation only.
+         * University project simulation.
          * No real bank or payment gateway is contacted.
          */
         payment.setStatus(PaymentStatus.COMPLETED);
@@ -99,8 +108,8 @@ public class PaymentService {
         return paymentRepository.update(paymentId, payment);
     }
 
-    // MARK PAYMENT AS FAILED
-    public Payment failPayment(String paymentId) {
+    // Mark a pending payment as failed.
+    public synchronized Payment failPayment(String paymentId) {
 
         Payment payment = getPaymentById(paymentId);
 
@@ -115,16 +124,15 @@ public class PaymentService {
         return paymentRepository.update(paymentId, payment);
     }
 
-    // GET ALL PAYMENTS
     public List<Payment> getAllPayments() {
         return paymentRepository.findAll();
     }
 
-    // GET PAYMENT BY ID
     public Payment getPaymentById(String id) {
 
         if (blank(id)) {
-            throw new ValidationException("Payment ID is required.");
+            throw new ValidationException(
+                    "Payment ID is required.");
         }
 
         return paymentRepository.findById(id)
@@ -133,7 +141,6 @@ public class PaymentService {
                                 "Payment not found: " + id));
     }
 
-    // GET PAYMENTS BY RESERVATION ID
     public List<Payment> getPaymentsByReservationId(
             String reservationId) {
 
@@ -142,18 +149,20 @@ public class PaymentService {
                     "Reservation ID is required.");
         }
 
-        // Verify that the reservation exists.
         getReservation(reservationId);
 
         return paymentRepository.findAll()
                 .stream()
                 .filter(payment ->
-                        reservationId.equals(payment.getReservationId()))
+                        reservationId.equals(
+                                payment.getReservationId()))
                 .toList();
     }
 
-    // UPDATE PAYMENT
-    public Payment updatePayment(String id, Payment updated) {
+    // Update payment details without changing its status.
+    public synchronized Payment updatePayment(
+            String id,
+            Payment updated) {
 
         Payment existing = getPaymentById(id);
 
@@ -164,38 +173,41 @@ public class PaymentService {
 
         validatePayment(updated);
 
-        // URL ID and body ID must match.
         if (!id.equals(updated.getId())) {
             throw new ValidationException(
                     "URL payment ID must match the updated payment ID.");
         }
 
-        // Completed payments cannot be edited.
         if (existing.getStatus() == PaymentStatus.COMPLETED) {
             throw new ValidationException(
                     "Completed payments cannot be edited.");
         }
 
-        // Status changes must use the processing methods.
         if (updated.getStatus() != existing.getStatus()) {
             throw new ValidationException(
                     "Use the payment-processing methods to change payment status.");
         }
 
-        // Verify the referenced reservation.
-        getReservation(updated.getReservationId());
+        ensureReservationCanBePaid(updated.getReservationId());
 
-        // Ensure the receipt number is unique.
-        ensureReceiptIsUnique(updated.getReceiptNumber(), id);
+        if (updated.getStatus() == PaymentStatus.PENDING) {
+            ensureNoActivePayment(
+                    updated.getReservationId(),
+                    id
+            );
+        }
 
-        // Preserve the existing payment date.
+        ensureReceiptIsUnique(
+                updated.getReceiptNumber(),
+                id
+        );
+
         updated.setPaidAt(existing.getPaidAt());
 
         return paymentRepository.update(id, updated);
     }
 
-    // DELETE PAYMENT
-    public boolean deletePayment(String id) {
+    public synchronized boolean deletePayment(String id) {
 
         Payment existing = getPaymentById(id);
 
@@ -207,16 +219,13 @@ public class PaymentService {
         return paymentRepository.deleteById(id);
     }
 
-    // GENERATE PAYMENT ID
     public String generatePaymentId() {
-
         return "PAY-" + UUID.randomUUID()
                 .toString()
                 .substring(0, 8)
                 .toUpperCase(Locale.ROOT);
     }
 
-    // GENERATE UNIQUE RECEIPT NUMBER
     public String generateReceiptNumber() {
 
         String receiptNumber;
@@ -233,7 +242,6 @@ public class PaymentService {
         return receiptNumber;
     }
 
-    // GENERATE PAYMENT RECEIPT
     public String generateReceipt(String paymentId) {
 
         Payment payment = getPaymentById(paymentId);
@@ -286,7 +294,6 @@ public class PaymentService {
         );
     }
 
-    // VALIDATE PAYMENT DETAILS
     private void validatePayment(Payment payment) {
 
         if (payment == null) {
@@ -328,7 +335,6 @@ public class PaymentService {
         }
     }
 
-    // FIND RESERVATION OR THROW AN ERROR
     private Reservation getReservation(String reservationId) {
 
         if (blank(reservationId)) {
@@ -339,10 +345,43 @@ public class PaymentService {
         return reservationRepository.findById(reservationId)
                 .orElseThrow(() ->
                         new ResourceNotFoundException(
-                                "Reservation not found: " + reservationId));
+                                "Reservation not found: "
+                                        + reservationId));
     }
 
-    // ENSURE RECEIPT NUMBER IS UNIQUE
+    private void ensureReservationCanBePaid(String reservationId) {
+
+        Reservation reservation = getReservation(reservationId);
+
+        if (reservation.getStatus() == ReservationStatus.CANCELLED) {
+            throw new ValidationException(
+                    "Cancelled reservations cannot be paid.");
+        }
+    }
+
+    private void ensureNoActivePayment(
+            String reservationId,
+            String excludedPaymentId) {
+
+        boolean duplicate = paymentRepository.findAll()
+                .stream()
+                .anyMatch(existing ->
+                        reservationId.equals(
+                                existing.getReservationId())
+                                && !Objects.equals(
+                                existing.getId(),
+                                excludedPaymentId)
+                                && (existing.getStatus()
+                                == PaymentStatus.PENDING
+                                || existing.getStatus()
+                                == PaymentStatus.COMPLETED));
+
+        if (duplicate) {
+            throw new ValidationException(
+                    "This reservation already has a pending or completed payment.");
+        }
+    }
+
     private void ensureReceiptIsUnique(
             String receiptNumber,
             String excludedPaymentId) {
@@ -363,7 +402,6 @@ public class PaymentService {
         }
     }
 
-    // CHECK WHETHER A RECEIPT NUMBER ALREADY EXISTS
     private boolean receiptNumberExists(String receiptNumber) {
 
         return paymentRepository.findAll()
@@ -374,7 +412,6 @@ public class PaymentService {
                                 .equalsIgnoreCase(receiptNumber));
     }
 
-    // CHECK NULL OR EMPTY STRINGS
     private boolean blank(String value) {
         return value == null || value.isBlank();
     }
