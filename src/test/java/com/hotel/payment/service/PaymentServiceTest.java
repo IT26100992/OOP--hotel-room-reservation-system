@@ -253,7 +253,6 @@ class PaymentServiceTest {
     @Test
     void anotherCompletedPaymentBlocksProcessing() {
         Payment pending = newPaymentAttempt();
-
         Payment completed =
                 paymentWithStatus(PaymentStatus.COMPLETED);
 
@@ -452,6 +451,160 @@ class PaymentServiceTest {
 
         verify(paymentRepository, never())
                 .deleteById(anyString());
+    }
+
+    @Test
+    void pendingPaymentCanBeEdited() {
+        Payment existing = paymentWithStatus(PaymentStatus.PENDING);
+        Payment updated = paymentWithStatus(PaymentStatus.PENDING);
+
+        updated.setAmount(new BigDecimal("125.50"));
+        updated.setMethod(PaymentMethod.BANK_TRANSFER);
+
+        when(paymentRepository.findById("PAY-001"))
+                .thenReturn(Optional.of(existing));
+
+        when(reservationRepository.findById("RES-001"))
+                .thenReturn(Optional.of(
+                        reservationWithStatus(
+                                ReservationStatus.CONFIRMED)));
+
+        when(paymentRepository.findAll())
+                .thenReturn(List.of(existing));
+
+        when(paymentRepository.update("PAY-001", updated))
+                .thenReturn(updated);
+
+        Payment result =
+                paymentService.updatePayment("PAY-001", updated);
+
+        assertEquals(new BigDecimal("125.50"), result.getAmount());
+        assertEquals(
+                PaymentMethod.BANK_TRANSFER,
+                result.getMethod()
+        );
+        assertEquals(PaymentStatus.PENDING, result.getStatus());
+        assertEquals("RES-001", result.getReservationId());
+        assertEquals("REC-001", result.getReceiptNumber());
+        assertNull(result.getPaidAt());
+
+        verify(paymentRepository).update("PAY-001", updated);
+    }
+
+    @Test
+    void pendingPaymentCanBeDeleted() {
+        Payment pending = paymentWithStatus(PaymentStatus.PENDING);
+
+        when(paymentRepository.findById("PAY-001"))
+                .thenReturn(Optional.of(pending));
+
+        when(paymentRepository.deleteById("PAY-001"))
+                .thenReturn(true);
+
+        assertTrue(paymentService.deletePayment("PAY-001"));
+
+        verify(paymentRepository).deleteById("PAY-001");
+    }
+
+    @Test
+    void invalidAmountsCannotCreatePayments() {
+        for (BigDecimal amount : List.of(
+                BigDecimal.ZERO,
+                new BigDecimal("-1.00"),
+                new BigDecimal("10.001"))) {
+
+            Payment candidate = newPaymentAttempt();
+            candidate.setAmount(amount);
+
+            assertThrows(
+                    ValidationException.class,
+                    () -> paymentService.createPayment(candidate),
+                    "Amount should be rejected: " + amount
+            );
+        }
+
+        verify(paymentRepository, never())
+                .create(any(Payment.class));
+
+        verifyNoInteractions(reservationRepository);
+    }
+
+    @Test
+    void missingAmountCannotCreatePayment() {
+        Payment candidate = newPaymentAttempt();
+        candidate.setAmount(null);
+
+        assertThrows(
+                ValidationException.class,
+                () -> paymentService.createPayment(candidate)
+        );
+
+        verify(paymentRepository, never())
+                .create(any(Payment.class));
+    }
+
+    @Test
+    void missingMethodCannotCreatePayment() {
+        Payment candidate = newPaymentAttempt();
+        candidate.setMethod(null);
+
+        assertThrows(
+                ValidationException.class,
+                () -> paymentService.createPayment(candidate)
+        );
+
+        verify(paymentRepository, never())
+                .create(any(Payment.class));
+    }
+
+    @Test
+    void missingReservationCannotReceivePayment() {
+        Payment candidate = newPaymentAttempt();
+
+        when(reservationRepository.findById("RES-001"))
+                .thenReturn(Optional.empty());
+
+        assertThrows(
+                ResourceNotFoundException.class,
+                () -> paymentService.createPayment(candidate)
+        );
+
+        verify(paymentRepository, never())
+                .create(any(Payment.class));
+    }
+
+    @Test
+    void updateCannotChangePaymentStatus() {
+        Payment existing = paymentWithStatus(PaymentStatus.PENDING);
+        Payment updated = paymentWithStatus(PaymentStatus.COMPLETED);
+
+        when(paymentRepository.findById("PAY-001"))
+                .thenReturn(Optional.of(existing));
+
+        assertThrows(
+                ValidationException.class,
+                () -> paymentService.updatePayment("PAY-001", updated)
+        );
+
+        verify(paymentRepository, never())
+                .update(anyString(), any(Payment.class));
+    }
+
+    @Test
+    void updateCannotChangePaymentId() {
+        Payment existing = paymentWithStatus(PaymentStatus.PENDING);
+        Payment updated = newPaymentAttempt();
+
+        when(paymentRepository.findById("PAY-001"))
+                .thenReturn(Optional.of(existing));
+
+        assertThrows(
+                ValidationException.class,
+                () -> paymentService.updatePayment("PAY-001", updated)
+        );
+
+        verify(paymentRepository, never())
+                .update(anyString(), any(Payment.class));
     }
 
     private Payment newPaymentAttempt() {
