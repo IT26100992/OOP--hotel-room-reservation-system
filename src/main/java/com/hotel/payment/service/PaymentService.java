@@ -238,6 +238,11 @@ public class PaymentService {
 
         Payment payment = getPaymentById(paymentId);
 
+        if (payment.getStatus() != PaymentStatus.COMPLETED) {
+            throw new ValidationException(
+                    "Receipts are available only for completed payments.");
+        }
+
         Reservation reservation =
                 getReservation(payment.getReservationId());
 
