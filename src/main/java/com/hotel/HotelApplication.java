@@ -13,6 +13,8 @@ import com.hotel.search.repository.SearchPreferenceRepository;
 import com.hotel.search.service.SearchPreferenceService;
 import com.hotel.search.api.SearchPreferenceApi;
 import com.hotel.user.repository.UserRepository;
+import com.hotel.room.api.RoomApi;
+import com.hotel.room.service.RoomService;
 
 public class HotelApplication {
 
@@ -38,6 +40,12 @@ public class HotelApplication {
 
             // Handle our application's custom exceptions
             // Handle unexpected server errors
+            config.routes.exception(AppException.class, (e, ctx) -> {
+                ctx.status(e.getStatusCode()).json(
+                        Map.of("error", e.getMessage())
+                );
+            });
+
             config.routes.exception(Exception.class, (e, ctx) -> {
                 e.printStackTrace();
 
@@ -62,6 +70,19 @@ public class HotelApplication {
 
             ReservationRepository reservationRepository =
                     new ReservationRepository();
+
+
+// Room Management Feature - Renu
+
+            RoomService roomService = new RoomService(
+                    roomRepository,
+                    reservationRepository
+            );
+
+            RoomApi roomApi = new RoomApi(roomService);
+
+            roomApi.registerRoutes(config);
+
 
             RoomAvailabilityService availabilityService =
                     new RoomAvailabilityService(
