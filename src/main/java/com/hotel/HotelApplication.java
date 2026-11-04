@@ -13,6 +13,12 @@ import com.hotel.search.repository.SearchPreferenceRepository;
 import com.hotel.search.service.SearchPreferenceService;
 import com.hotel.search.api.SearchPreferenceApi;
 import com.hotel.user.repository.UserRepository;
+import com.hotel.admin.api.AdminReportApi;
+import com.hotel.admin.service.AdminReportService;
+import com.hotel.payment.repository.PaymentRepository;
+import com.hotel.room.repository.RoomRepository;
+import com.hotel.reservation.repository.ReservationRepository;
+import com.hotel.user.repository.UserRepository;
 
 public class HotelApplication {
 
@@ -91,6 +97,26 @@ public class HotelApplication {
                     new SearchPreferenceApi(preferenceService);
 
             preferenceApi.registerRoutes(config);
+
+
+// Admin Dashboard & Reports Feature - Mihiri
+
+            PaymentRepository paymentRepository =
+                    new PaymentRepository();
+
+            AdminReportService adminReportService =
+                    new AdminReportService(
+                            roomRepository,
+                            userRepository,
+                            reservationRepository,
+                            paymentRepository
+                    );
+
+            AdminReportApi adminReportApi =
+                    new AdminReportApi(adminReportService);
+
+            adminReportApi.registerRoutes(config);
+
 
 
         });
