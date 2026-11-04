@@ -1,4 +1,4 @@
-package com.hotel.user.Security;
+package com.hotel.user.security;
 
 import com.hotel.common.ValidationException;
 
