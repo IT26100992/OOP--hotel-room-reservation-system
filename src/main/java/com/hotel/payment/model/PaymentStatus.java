@@ -1,7 +1,9 @@
 package com.hotel.payment.model;
 
 public enum PaymentStatus {
-    CASH,
-    BANK_TRANSFER,
-    CARD
+    PENDING,
+    COMPLETED,
+    FAILED,
+    REFUNDED,
+    VOIDED
 }

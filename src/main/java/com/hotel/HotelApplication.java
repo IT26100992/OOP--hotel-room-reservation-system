@@ -16,9 +16,8 @@ import com.hotel.user.repository.UserRepository;
 import com.hotel.admin.api.AdminReportApi;
 import com.hotel.admin.service.AdminReportService;
 import com.hotel.payment.repository.PaymentRepository;
-import com.hotel.room.repository.RoomRepository;
-import com.hotel.reservation.repository.ReservationRepository;
-import com.hotel.user.repository.UserRepository;
+import com.hotel.admin.repository.ReportRepository;
+import io.javalin.http.NotFoundResponse;
 
 public class HotelApplication {
 
@@ -42,6 +41,14 @@ public class HotelApplication {
                     ))
             );
 
+            //newly add missing exception handler
+            config.routes.exception(AppException.class, (e, ctx) -> {
+                ctx.status(e.getStatusCode()).json(
+                        Map.of("error", e.getMessage())
+                );
+            });
+
+
             // Handle our application's custom exceptions
             // Handle unexpected server errors
             config.routes.exception(Exception.class, (e, ctx) -> {
@@ -52,15 +59,22 @@ public class HotelApplication {
                 );
             });
             // Handle unexpected server errors
-            config.routes.exception(Exception.class, (e, ctx) -> {
+            /*config.routes.exception(Exception.class, (e, ctx) -> {
                 ctx.status(500).json(
                         Map.of("error", "An unexpected server error occurred")
                 );
+            });*/
+
+            config.routes.exception(NotFoundResponse.class, (e, ctx) -> {
+                ctx.status(404).json(
+                        Map.of("error", "Resource not found")
+                );
             });
 
-            // Return a consistent response for unknown routes
-            config.routes.error(404, ctx -> {
-                ctx.json(Map.of("error", "Resource not found"));
+            config.routes.exception(AppException.class, (e, ctx) -> {
+                ctx.status(e.getStatusCode()).json(
+                        Map.of("error", e.getMessage())
+                );
             });
 
             // Search & Availability feature - Sithum
@@ -104,13 +118,19 @@ public class HotelApplication {
             PaymentRepository paymentRepository =
                     new PaymentRepository();
 
+
+            ReportRepository reportRepository =
+                    new ReportRepository();
+
             AdminReportService adminReportService =
                     new AdminReportService(
                             roomRepository,
                             userRepository,
                             reservationRepository,
-                            paymentRepository
+                            paymentRepository,
+                            reportRepository
                     );
+
 
             AdminReportApi adminReportApi =
                     new AdminReportApi(adminReportService);
