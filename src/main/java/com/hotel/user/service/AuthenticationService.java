@@ -5,17 +5,28 @@ import com.hotel.user.dto.RegisterRequest;
 import com.hotel.user.dto.UserResponse;
 import com.hotel.user.model.User;
 import com.hotel.user.model.UserRole;
-import com.hotel.user.Security.PasswordHasher;
+import com.hotel.user.security.PasswordHasher;
+import com.hotel.user.dto.LoginRequest;
+import com.hotel.user.repository.UserRepository;
+import java.util.Locale;
+import com.hotel.user.exception.InvalidCredentialsException;
 
 import java.util.UUID;
 
 public class AuthenticationService {
 
-    private final UserService userService;
 
-    public AuthenticationService(UserService userService) {
+    private final UserService userService;
+    private final UserRepository userRepository;
+
+    public AuthenticationService(
+            UserService userService,
+            UserRepository userRepository) {
+
         this.userService = userService;
+        this.userRepository = userRepository;
     }
+
 
     // Register a new customer account
     public UserResponse register(RegisterRequest request) {
@@ -79,4 +90,46 @@ public class AuthenticationService {
         // Never expose the password hash
         return new UserResponse(createdUser);
     }
+
+    public User login(LoginRequest request) {
+
+        if (request == null ||
+                request.getEmail() == null ||
+                request.getEmail().isBlank() ||
+                request.getPassword() == null ||
+                request.getPassword().isEmpty()) {
+
+            throw new ValidationException(
+                    "Email and password are required.");
+        }
+
+        String email = request.getEmail()
+                .trim()
+                .toLowerCase(Locale.ROOT);
+
+        // Find the customer by email
+        User user = userRepository.findAll().stream()
+                .filter(existing ->
+                        existing.getEmail() != null &&
+                                existing.getEmail().equalsIgnoreCase(email))
+                .findFirst()
+                .orElse(null);
+
+        // Return the same error for invalid email or password
+        if (user == null ||
+                !PasswordHasher.verifyPassword(
+                        request.getPassword(),
+                        user.getPasswordHash())) {
+
+            throw new InvalidCredentialsException();
+        }
+
+        // A deactivated account cannot log in
+        if (!user.isActive()) {
+            throw new InvalidCredentialsException();
+        }
+
+        return user;
+    }
+
 }

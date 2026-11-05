@@ -1,6 +1,10 @@
 //Test if the local host port 7070 is working and backend API is running.
 package com.hotel;
 
+import com.hotel.user.api.AuthApi;
+import com.hotel.user.repository.UserRepository;
+import com.hotel.user.service.UserService;
+import com.hotel.user.service.AuthenticationService;
 import com.hotel.common.AppException;
 import com.hotel.room.repository.RoomRepository;
 import com.hotel.reservation.repository.ReservationRepository;
@@ -12,7 +16,6 @@ import java.util.Map;
 import com.hotel.search.repository.SearchPreferenceRepository;
 import com.hotel.search.service.SearchPreferenceService;
 import com.hotel.search.api.SearchPreferenceApi;
-import com.hotel.user.repository.UserRepository;
 
 public class HotelApplication {
 
@@ -36,37 +39,34 @@ public class HotelApplication {
                     ))
             );
 
-            //newly add missing exception handler
+            // Handle our application's custom exceptions
+
+
+            // Handle our application's custom exceptions
             config.routes.exception(AppException.class, (e, ctx) -> {
                 ctx.status(e.getStatusCode()).json(
                         Map.of("error", e.getMessage())
                 );
             });
 
-            // Handle our application's custom exceptions
             // Handle unexpected server errors
             config.routes.exception(Exception.class, (e, ctx) -> {
+
+                // Show the actual exception in IntelliJ
                 e.printStackTrace();
 
                 ctx.status(500).json(
-                        Map.of("error", "An unexpected server error occurred")
+                        Map.of(
+                                "error",
+                                "An unexpected server error occurred"
+                        )
                 );
             });
-            // Handle unexpected server errors
-            /*config.routes.exception(Exception.class, (e, ctx) -> {
-                ctx.status(500).json(
-                        Map.of("error", "An unexpected server error occurred")
-                );
-            }); */
 
-            // Return a consistent response for unknown routes
+            // Handle unknown API routes
             config.routes.error(404, ctx -> {
-                ctx.json(Map.of("error", "Resource not found"));
-            });
-
-            config.routes.exception(AppException.class, (e, ctx) -> {
-                ctx.status(e.getStatusCode()).json(
-                        Map.of("error", e.getMessage())
+                ctx.json(
+                        Map.of("error", "Resource not found")
                 );
             });
 
@@ -105,6 +105,25 @@ public class HotelApplication {
                     new SearchPreferenceApi(preferenceService);
 
             preferenceApi.registerRoutes(config);
+
+
+            // User Registration API - Authentication Feature
+
+            UserService userService = new UserService(userRepository);
+
+            AuthenticationService authenticationService =
+                    new AuthenticationService(
+                            userService,
+                            userRepository
+                    );
+
+            AuthApi authApi = new AuthApi(
+                    authenticationService,
+                    userService
+            );
+
+            authApi.registerRoutes(config);
+
 
 
         });
