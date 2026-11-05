@@ -5,10 +5,12 @@ import com.hotel.common.ValidationException;
 import com.hotel.reservation.repository.ReservationRepository;
 import com.hotel.room.model.Room;
 import com.hotel.room.repository.RoomRepository;
+import java.util.UUID;
+import com.hotel.room.exception.DuplicateRoomException;
+import com.hotel.room.exception.RoomHasReservationsException;
 
 import java.math.BigDecimal;
 import java.util.List;
-import java.util.UUID;
 
 public class RoomService {
 
@@ -41,8 +43,9 @@ public class RoomService {
                                 room.getRoomNumber().trim()));
 
         if (numberExists) {
-            throw new ValidationException(
-                    "Room number already exists.");
+            throw new DuplicateRoomException(
+                    room.getRoomNumber().trim()
+            );
         }
 
         room.setRoomNumber(room.getRoomNumber().trim());
@@ -83,8 +86,9 @@ public class RoomService {
                                                 updatedRoom.getRoomNumber().trim()));
 
         if (numberUsedByAnotherRoom) {
-            throw new ValidationException(
-                    "Another room already uses this room number.");
+            throw new DuplicateRoomException(
+                    updatedRoom.getRoomNumber().trim()
+            );
         }
 
         updatedRoom.setRoomNumber(
@@ -101,9 +105,7 @@ public class RoomService {
                         reservation.getRoomId().equals(id));
 
         if (referenced) {
-            throw new ValidationException(
-                    "This room has reservation history. "
-                            + "Set its status to INACTIVE instead.");
+            throw new RoomHasReservationsException(id);
         }
 
         return roomRepository.deleteById(id);
