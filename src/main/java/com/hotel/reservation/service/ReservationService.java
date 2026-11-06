@@ -3,6 +3,7 @@ package com.hotel.reservation.service;
 
 import com.hotel.common.ResourceNotFoundException;
 import com.hotel.common.ValidationException;
+import com.hotel.algorithm.ReservationQuickSort;
 import com.hotel.reservation.model.Reservation;
 import com.hotel.reservation.model.ReservationStatus;
 import com.hotel.reservation.repository.ReservationRepository;
@@ -10,10 +11,12 @@ import com.hotel.room.model.Room;
 import com.hotel.room.model.RoomStatus;
 import com.hotel.room.repository.RoomRepository;
 import com.hotel.user.model.User;
+import com.hotel.user.model.UserRole;
 import com.hotel.user.repository.UserRepository;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Objects;
 
 public class ReservationService {
 
@@ -37,24 +40,13 @@ public class ReservationService {
                 .orElseThrow(() -> new ResourceNotFoundException(
                         "User not found: " + reservation.getUserId()));
 
-        if (!user.isActive()) {
-            throw new ValidationException(
-                    "An inactive user cannot make a reservation.");
-        }
+        validateCustomer(user);
 
         Room room = roomRepository.findById(reservation.getRoomId())
                 .orElseThrow(() -> new ResourceNotFoundException(
                         "Room not found: " + reservation.getRoomId()));
 
-        if (room.getStatus() != RoomStatus.AVAILABLE) {
-            throw new ValidationException(
-                    "This room is not operational for booking.");
-        }
-
-        if (reservation.getGuestCount() > room.getCapacity()) {
-            throw new ValidationException(
-                    "Guest count exceeds room capacity.");
-        }
+        validateRoom(room, reservation);
 
         ensureNoOverlap(reservation, null);
 
@@ -62,7 +54,11 @@ public class ReservationService {
     }
 
     public List<Reservation> getAllReservations() {
-        return reservationRepository.findAll();
+        List<Reservation> reservations = reservationRepository.findAll();
+
+        ReservationQuickSort.sortByCheckInDate(reservations);
+
+        return reservations;
     }
 
     public Reservation getReservationById(String id) {
@@ -73,6 +69,7 @@ public class ReservationService {
 
     public Reservation updateReservation(
             String id, Reservation updated) {
+
         getReservationById(id);
         validateDates(updated);
 
@@ -80,26 +77,16 @@ public class ReservationService {
                 .orElseThrow(() -> new ResourceNotFoundException(
                         "User not found: " + updated.getUserId()));
 
-        if (!user.isActive()) {
-            throw new ValidationException(
-                    "An inactive user cannot hold a reservation.");
-        }
+        validateCustomer(user);
 
         Room room = roomRepository.findById(updated.getRoomId())
                 .orElseThrow(() -> new ResourceNotFoundException(
                         "Room not found: " + updated.getRoomId()));
 
-        if (room.getStatus() != RoomStatus.AVAILABLE) {
-            throw new ValidationException(
-                    "This room is not operational for booking.");
-        }
-
-        if (updated.getGuestCount() > room.getCapacity()) {
-            throw new ValidationException(
-                    "Guest count exceeds room capacity.");
-        }
+        validateRoom(room, updated);
 
         ensureNoOverlap(updated, id);
+
         return reservationRepository.update(id, updated);
     }
 
@@ -113,19 +100,47 @@ public class ReservationService {
         }
 
         reservation.setStatus(ReservationStatus.CANCELLED);
+
         return reservationRepository.update(id, reservation);
+    }
+
+    private void validateCustomer(User user) {
+        if (!user.isActive()) {
+            throw new ValidationException(
+                    "An inactive user cannot make or hold a reservation.");
+        }
+
+        if (user.getRole() != UserRole.CUSTOMER) {
+            throw new ValidationException(
+                    "Only customers can make reservations.");
+        }
+    }
+
+    private void validateRoom(Room room, Reservation reservation) {
+        if (room.getStatus() != RoomStatus.AVAILABLE) {
+            throw new ValidationException(
+                    "This room is not operational for booking.");
+        }
+
+        if (reservation.getGuestCount() > room.getCapacity()) {
+            throw new ValidationException(
+                    "Guest count exceeds room capacity.");
+        }
     }
 
     private void ensureNoOverlap(
             Reservation candidate, String reservationIdBeingUpdated) {
 
         boolean overlap = reservationRepository.findAll().stream()
+                .filter(existing -> existing != null)
                 .filter(existing ->
                         reservationIdBeingUpdated == null
-                                || !existing.getId().equals(
+                                || !Objects.equals(
+                                existing.getId(),
                                 reservationIdBeingUpdated))
                 .filter(existing ->
-                        existing.getRoomId().equals(
+                        Objects.equals(
+                                existing.getRoomId(),
                                 candidate.getRoomId()))
                 .filter(existing ->
                         existing.getStatus() == ReservationStatus.PENDING
