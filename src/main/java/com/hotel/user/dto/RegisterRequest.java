@@ -1,3 +1,4 @@
+//2
 package com.hotel.user.dto;
 
 public class RegisterRequest {

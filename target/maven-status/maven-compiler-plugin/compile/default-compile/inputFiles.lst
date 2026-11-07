@@ -30,7 +30,15 @@ C:\Users\sithu_2pb16va\Desktop\OOP--hotel-room-reservation-system\src\main\java\
 C:\Users\sithu_2pb16va\Desktop\OOP--hotel-room-reservation-system\src\main\java\com\hotel\search\repository\SearchPreferenceRepository.java
 C:\Users\sithu_2pb16va\Desktop\OOP--hotel-room-reservation-system\src\main\java\com\hotel\search\service\RoomAvailabilityService.java
 C:\Users\sithu_2pb16va\Desktop\OOP--hotel-room-reservation-system\src\main\java\com\hotel\search\service\SearchPreferenceService.java
+C:\Users\sithu_2pb16va\Desktop\OOP--hotel-room-reservation-system\src\main\java\com\hotel\user\api\AuthApi.java
+C:\Users\sithu_2pb16va\Desktop\OOP--hotel-room-reservation-system\src\main\java\com\hotel\user\dto\LoginRequest.java
+C:\Users\sithu_2pb16va\Desktop\OOP--hotel-room-reservation-system\src\main\java\com\hotel\user\dto\RegisterRequest.java
+C:\Users\sithu_2pb16va\Desktop\OOP--hotel-room-reservation-system\src\main\java\com\hotel\user\dto\UpdateProfileRequest.java
+C:\Users\sithu_2pb16va\Desktop\OOP--hotel-room-reservation-system\src\main\java\com\hotel\user\dto\UserResponse.java
+C:\Users\sithu_2pb16va\Desktop\OOP--hotel-room-reservation-system\src\main\java\com\hotel\user\exception\InvalidCredentialsException.java
 C:\Users\sithu_2pb16va\Desktop\OOP--hotel-room-reservation-system\src\main\java\com\hotel\user\model\User.java
 C:\Users\sithu_2pb16va\Desktop\OOP--hotel-room-reservation-system\src\main\java\com\hotel\user\model\UserRole.java
 C:\Users\sithu_2pb16va\Desktop\OOP--hotel-room-reservation-system\src\main\java\com\hotel\user\repository\UserRepository.java
+C:\Users\sithu_2pb16va\Desktop\OOP--hotel-room-reservation-system\src\main\java\com\hotel\user\security\PasswordHasher.java
+C:\Users\sithu_2pb16va\Desktop\OOP--hotel-room-reservation-system\src\main\java\com\hotel\user\service\AuthenticationService.java
 C:\Users\sithu_2pb16va\Desktop\OOP--hotel-room-reservation-system\src\main\java\com\hotel\user\service\UserService.java
