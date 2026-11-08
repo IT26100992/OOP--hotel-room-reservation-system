@@ -1,18 +1,26 @@
-//Test if the local host port 7070 is working and backend API is running.
+
 package com.hotel;
 
 import com.hotel.common.AppException;
+
 import com.hotel.room.repository.RoomRepository;
 import com.hotel.reservation.repository.ReservationRepository;
+import com.hotel.reservation.service.ReservationService;
+import com.hotel.reservation.api.ReservationApi;
+
+import com.hotel.user.repository.UserRepository;
+
 import com.hotel.search.service.RoomAvailabilityService;
 import com.hotel.search.api.RoomSearchApi;
-import io.javalin.Javalin;
-import io.javalin.http.staticfiles.Location;
-import java.util.Map;
+
 import com.hotel.search.repository.SearchPreferenceRepository;
 import com.hotel.search.service.SearchPreferenceService;
 import com.hotel.search.api.SearchPreferenceApi;
-import com.hotel.user.repository.UserRepository;
+
+import io.javalin.Javalin;
+import io.javalin.http.staticfiles.Location;
+
+import java.util.Map;
 
 public class HotelApplication {
 
@@ -20,15 +28,13 @@ public class HotelApplication {
 
         Javalin app = Javalin.create(config -> {
 
-            // Serve HTML, CSS and JavaScript from resources/public
-            config.staticFiles.add("/public", Location.CLASSPATH);
+            // Serve frontend files
+            config.staticFiles.add(
+                    "/public",
+                    Location.CLASSPATH
+            );
 
-            /*app.exception(AppException.class, (exception, ctx) -> {
-                ctx.status(exception.getStatusCode().json)
-                        .json(Map.of("error", exception.getMessage()));
-            });*/
-
-            // Test the backend API
+            // Health check API
             config.routes.get("/api/health", ctx ->
                     ctx.json(Map.of(
                             "status", "ok",
@@ -36,46 +42,63 @@ public class HotelApplication {
                     ))
             );
 
-            //newly add missing exception handler
+            // Handle application exceptions
             config.routes.exception(AppException.class, (e, ctx) -> {
                 ctx.status(e.getStatusCode()).json(
                         Map.of("error", e.getMessage())
                 );
             });
 
-            // Handle our application's custom exceptions
-            // Handle unexpected server errors
+            // Handle unexpected exceptions
             config.routes.exception(Exception.class, (e, ctx) -> {
+
                 e.printStackTrace();
 
                 ctx.status(500).json(
-                        Map.of("error", "An unexpected server error occurred")
+                        Map.of(
+                                "error",
+                                "An unexpected server error occurred"
+                        )
                 );
             });
-            // Handle unexpected server errors
-            /*config.routes.exception(Exception.class, (e, ctx) -> {
-                ctx.status(500).json(
-                        Map.of("error", "An unexpected server error occurred")
-                );
-            }); */
 
-            // Return a consistent response for unknown routes
+            // Handle unknown routes
             config.routes.error(404, ctx -> {
-                ctx.json(Map.of("error", "Resource not found"));
+                ctx.json(Map.of(
+                        "error",
+                        "Resource not found"
+                ));
             });
 
-            config.routes.exception(AppException.class, (e, ctx) -> {
-                ctx.status(e.getStatusCode()).json(
-                        Map.of("error", e.getMessage())
-                );
-            });
-
-
-            // Search & Availability feature - Sithum
-            RoomRepository roomRepository = new RoomRepository();
+            // Shared repositories
+            RoomRepository roomRepository =
+                    new RoomRepository();
 
             ReservationRepository reservationRepository =
                     new ReservationRepository();
+
+            UserRepository userRepository =
+                    new UserRepository();
+
+            // --------------------------------
+            // RESERVATION MANAGEMENT - ASHAN
+            // --------------------------------
+
+            ReservationService reservationService =
+                    new ReservationService(
+                            reservationRepository,
+                            userRepository,
+                            roomRepository
+                    );
+
+            ReservationApi reservationApi =
+                    new ReservationApi(reservationService);
+
+            reservationApi.registerRoutes(config);
+
+            // --------------------------------
+            // ROOM SEARCH & AVAILABILITY
+            // --------------------------------
 
             RoomAvailabilityService availabilityService =
                     new RoomAvailabilityService(
@@ -88,12 +111,12 @@ public class HotelApplication {
 
             roomSearchApi.registerRoutes(config);
 
-            // Saved Search Preferences - Sithum
+            // --------------------------------
+            // SAVED SEARCH PREFERENCES
+            // --------------------------------
+
             SearchPreferenceRepository preferenceRepository =
                     new SearchPreferenceRepository();
-
-            UserRepository userRepository =
-                    new UserRepository();
 
             SearchPreferenceService preferenceService =
                     new SearchPreferenceService(
@@ -106,10 +129,13 @@ public class HotelApplication {
 
             preferenceApi.registerRoutes(config);
 
-
         });
 
-
+        // Start backend server
         app.start(7070);
+
+        System.out.println(
+                "Hotel Reservation System running on port 7070"
+        );
     }
 }
