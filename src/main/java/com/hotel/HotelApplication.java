@@ -1,30 +1,33 @@
 
 package com.hotel;
 
-// Authentication
+// Authentication - Ashini
 import com.hotel.user.api.AuthApi;
 import com.hotel.user.repository.UserRepository;
 import com.hotel.user.service.UserService;
 import com.hotel.user.service.AuthenticationService;
 
-// Room Management
+// Room Management - Renu
 import com.hotel.room.repository.RoomRepository;
 import com.hotel.room.api.RoomApi;
 import com.hotel.room.service.RoomService;
 
-// Reservation Management
+// Reservation Management - Ashan
 import com.hotel.reservation.repository.ReservationRepository;
 import com.hotel.reservation.service.ReservationService;
 import com.hotel.reservation.api.ReservationApi;
 
-// Search and Availability
+// Search and Availability - Sithum
 import com.hotel.search.service.RoomAvailabilityService;
 import com.hotel.search.api.RoomSearchApi;
-
-// Saved Search Preferences
 import com.hotel.search.repository.SearchPreferenceRepository;
 import com.hotel.search.service.SearchPreferenceService;
 import com.hotel.search.api.SearchPreferenceApi;
+
+// Payment and Receipt - Kaveesha
+import com.hotel.payment.api.PaymentApi;
+import com.hotel.payment.repository.PaymentRepository;
+import com.hotel.payment.service.PaymentService;
 
 // Exception Handling
 import com.hotel.common.AppException;
@@ -41,13 +44,19 @@ public class HotelApplication {
 
         Javalin app = Javalin.create(config -> {
 
-            // Serve frontend files
+            // --------------------------------
+            // FRONTEND STATIC FILES
+            // --------------------------------
+
             config.staticFiles.add(
                     "/public",
                     Location.CLASSPATH
             );
 
-            // Health check API
+            // --------------------------------
+            // HEALTH CHECK
+            // --------------------------------
+
             config.routes.get("/api/health", ctx ->
                     ctx.json(Map.of(
                             "status", "ok",
@@ -60,37 +69,49 @@ public class HotelApplication {
             // EXCEPTION HANDLING
             // --------------------------------
 
-            // Custom application exceptions
+            // Handle custom application exceptions
             config.routes.exception(
                     AppException.class,
-                    (e, ctx) -> {
-                        ctx.status(e.getStatusCode()).json(
-                                Map.of("error", e.getMessage())
-                        );
+                    (exception, ctx) -> {
+                        ctx.status(exception.getStatusCode());
+
+                        ctx.json(Map.of(
+                                "error",
+                                exception.getMessage()
+                        ));
                     }
             );
 
-            // Unexpected server exceptions
+            // Handle unexpected server exceptions
             config.routes.exception(
                     Exception.class,
-                    (e, ctx) -> {
+                    (exception, ctx) -> {
 
-                        e.printStackTrace();
+                        exception.printStackTrace();
 
-                        ctx.status(500).json(
-                                Map.of(
-                                        "error",
-                                        "An unexpected server error occurred"
-                                )
-                        );
+                        ctx.status(500);
+
+                        ctx.json(Map.of(
+                                "error",
+                                "An unexpected server error occurred"
+                        ));
                     }
             );
 
-            // Unknown routes
+            // Handle unknown routes
+            // Preserve existing error responses if present
             config.routes.error(404, ctx -> {
-                ctx.json(
-                        Map.of("error", "Resource not found")
-                );
+
+                String responseBody = ctx.result();
+
+                if (responseBody == null ||
+                        responseBody.isBlank()) {
+
+                    ctx.json(Map.of(
+                            "error",
+                            "Resource not found"
+                    ));
+                }
             });
 
             // --------------------------------
@@ -174,7 +195,7 @@ public class HotelApplication {
             roomSearchApi.registerRoutes(config);
 
             // --------------------------------
-            // SAVED SEARCH PREFERENCES
+            // SAVED SEARCH PREFERENCES - SITHUM
             // --------------------------------
 
             SearchPreferenceRepository preferenceRepository =
@@ -191,9 +212,30 @@ public class HotelApplication {
 
             preferenceApi.registerRoutes(config);
 
+            // --------------------------------
+            // PAYMENT & RECEIPT - KAVEESHA
+            // --------------------------------
+
+            PaymentRepository paymentRepository =
+                    new PaymentRepository();
+
+            PaymentService paymentService =
+                    new PaymentService(
+                            paymentRepository,
+                            reservationRepository
+                    );
+
+            PaymentApi paymentApi =
+                    new PaymentApi(paymentService);
+
+            paymentApi.registerRoutes(config);
+
         });
 
-        // Start backend server
+        // --------------------------------
+        // START SERVER
+        // --------------------------------
+
         app.start(7070);
 
         System.out.println(
