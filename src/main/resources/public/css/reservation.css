@@ -1,0 +1,397 @@
+
+:root {
+    --primary: #183b56;
+    --primary-light: #285b7b;
+    --accent: #d6a85f;
+    --background: #f3f6f9;
+    --white: #ffffff;
+    --text: #243746;
+    --muted: #758493;
+    --border: #e2e8ee;
+    --success: #198754;
+    --danger: #dc3545;
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: "Segoe UI", Arial, sans-serif;
+    background: var(--background);
+    color: var(--text);
+    line-height: 1.6;
+}
+
+.topbar {
+    min-height: 76px;
+    background: var(--primary);
+    color: white;
+    padding: 12px 7%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 20px;
+}
+
+.brand {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.brand-icon {
+    width: 44px;
+    height: 44px;
+    border-radius: 10px;
+    background: var(--accent);
+    color: var(--primary);
+    display: grid;
+    place-items: center;
+    font-size: 25px;
+    font-weight: bold;
+}
+
+.brand h2 {
+    font-size: 20px;
+}
+
+.brand small {
+    color: #d5e0e8;
+}
+
+.topbar nav {
+    display: flex;
+    gap: 25px;
+}
+
+.topbar nav a {
+    text-decoration: none;
+    color: #e5edf3;
+    font-size: 14px;
+    font-weight: 600;
+}
+
+.topbar nav a.active,
+.topbar nav a:hover {
+    color: var(--accent);
+}
+
+.container {
+    width: min(1180px, 92%);
+    margin: 35px auto;
+}
+
+.welcome {
+    background: linear-gradient(120deg, #183b56, #285b7b);
+    color: white;
+    padding: 38px;
+    border-radius: 15px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 25px;
+}
+
+.welcome h1 {
+    font-size: clamp(25px, 4vw, 34px);
+    margin: 7px 0;
+}
+
+.welcome p:not(.eyebrow) {
+    color: #dce6ed;
+}
+
+.welcome-icon {
+    font-size: 65px;
+}
+
+.eyebrow {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    color: var(--accent);
+}
+
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 18px;
+    margin-bottom: 25px;
+}
+
+.stat-card {
+    background: var(--white);
+    padding: 22px;
+    border-radius: 12px;
+    border: 1px solid var(--border);
+    box-shadow: 0 3px 12px rgba(0, 0, 0, 0.025);
+}
+
+.stat-card span {
+    display: block;
+    font-size: 13px;
+    color: var(--muted);
+}
+
+.stat-card strong {
+    display: block;
+    font-size: 30px;
+    color: var(--primary);
+    margin-top: 5px;
+}
+
+.panel {
+    background: var(--white);
+    padding: 28px;
+    border-radius: 14px;
+    margin-bottom: 25px;
+    border: 1px solid var(--border);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.025);
+}
+
+.section-heading {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 15px;
+    margin-bottom: 25px;
+}
+
+.section-heading h2 {
+    font-size: 22px;
+    color: var(--primary);
+}
+
+.heading-icon {
+    font-size: 30px;
+}
+
+.muted {
+    color: var(--muted);
+    font-size: 13px;
+}
+
+.form-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 22px;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.form-group label {
+    font-weight: 600;
+    font-size: 14px;
+}
+
+.form-group input {
+    width: 100%;
+    padding: 12px 14px;
+    border: 1px solid var(--border);
+    border-radius: 7px;
+    font-size: 14px;
+    background: #fcfdff;
+    color: var(--text);
+    outline: none;
+    transition: border 0.2s, box-shadow 0.2s;
+}
+
+.form-group input:focus {
+    border-color: var(--primary-light);
+    box-shadow: 0 0 0 3px rgba(40, 91, 123, 0.1);
+}
+
+.form-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-top: 25px;
+}
+
+.btn {
+    border: none;
+    padding: 11px 19px;
+    border-radius: 7px;
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 600;
+    transition: opacity 0.2s, transform 0.2s;
+}
+
+.btn:hover:not(:disabled) {
+    opacity: 0.9;
+    transform: translateY(-1px);
+}
+
+.btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.btn-primary {
+    background: var(--primary);
+    color: white;
+}
+
+.btn-secondary {
+    background: #e8eef3;
+    color: var(--primary);
+}
+
+.btn-light {
+    background: #f1f3f5;
+    color: #555;
+}
+
+#reservation-message {
+    margin-top: 17px;
+    font-size: 14px;
+    font-weight: 600;
+    min-height: 22px;
+}
+
+.table-wrapper {
+    overflow-x: auto;
+    width: 100%;
+}
+
+table {
+    width: 100%;
+    min-width: 850px;
+    border-collapse: collapse;
+}
+
+th, td {
+    padding: 14px 12px;
+    text-align: left;
+    border-bottom: 1px solid var(--border);
+    font-size: 13px;
+}
+
+th {
+    background: #f4f7fa;
+    color: var(--primary);
+    font-weight: 700;
+    white-space: nowrap;
+}
+
+tbody tr:hover {
+    background: #f9fbfd;
+}
+
+.empty-state {
+    text-align: center;
+    color: var(--muted);
+    padding: 35px;
+}
+
+.status-badge {
+    display: inline-block;
+    padding: 5px 10px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 700;
+    background: #e8eef3;
+    color: var(--primary);
+}
+
+.status-PENDING {
+    background: #fff2d8;
+    color: #946200;
+}
+
+.status-CONFIRMED {
+    background: #d9f2e3;
+    color: #146c43;
+}
+
+.status-CANCELLED {
+    background: #fde2e2;
+    color: #b02a37;
+}
+
+.status-COMPLETED {
+    background: #e3e8ed;
+    color: #475569;
+}
+
+.table-action {
+    display: flex;
+    gap: 6px;
+}
+
+.table-action button {
+    padding: 7px 10px;
+    font-size: 11px;
+}
+
+.edit-button {
+    background: #e5edf5;
+    color: var(--primary);
+}
+
+.cancel-button {
+    background: #fde8e8;
+    color: var(--danger);
+}
+
+footer {
+    background: var(--primary);
+    color: #dce6ed;
+    text-align: center;
+    padding: 22px;
+    font-size: 12px;
+}
+
+@media (max-width: 800px) {
+    .stats-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 600px) {
+    .topbar {
+        padding: 14px 4%;
+        flex-direction: column;
+    }
+
+    .welcome {
+        padding: 25px;
+    }
+
+    .welcome-icon {
+        font-size: 40px;
+    }
+
+    .container {
+        width: 94%;
+        margin: 20px auto;
+    }
+
+    .panel {
+        padding: 18px;
+    }
+
+    .form-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .stats-grid {
+        gap: 10px;
+    }
+
+    .stat-card {
+        padding: 15px;
+    }
+
+    .stat-card strong {
+        font-size: 24px;
+    }
+}
