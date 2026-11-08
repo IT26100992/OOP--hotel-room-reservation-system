@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>Room Management | Hotel Reservation</title>
+
+    <link rel="stylesheet" href="/css/rooms.css">
+    <script src="/js/rooms.js" defer></script>
+</head>
+
+<body>
+
+<header class="dashboard-header">
+
+    <a class="brand" href="/rooms.html">
+        HOTEL RESERVATION
+    </a>
+
+    <nav class="dashboard-nav">
+        <a href="/search.html">Search Rooms</a>
+        <a href="/rooms.html" aria-current="page">
+            Room Management
+        </a>
+    </nav>
+
+</header>
+
+<main class="dashboard-container">
+
+    <!-- Dashboard heading -->
+    <section class="dashboard-heading">
+
+        <div>
+            <span class="eyebrow">HOTEL OPERATIONS</span>
+
+            <h1>Room Management</h1>
+
+            <p>
+                Manage room details, pricing, capacity
+                and operational status.
+            </p>
+        </div>
+
+        <button type="button"
+                id="addRoomButton"
+                class="primary-button">
+            + Add New Room
+        </button>
+
+    </section>
+
+    <!-- Summary statistics -->
+    <section class="stats-grid">
+
+        <article class="stat-card">
+            <span>Total Rooms</span>
+            <strong id="totalRooms">0</strong>
+        </article>
+
+        <article class="stat-card">
+            <span>Available</span>
+            <strong id="availableRooms">0</strong>
+        </article>
+
+        <article class="stat-card">
+            <span>Maintenance</span>
+            <strong id="maintenanceRooms">0</strong>
+        </article>
+
+        <article class="stat-card">
+            <span>Inactive</span>
+            <strong id="inactiveRooms">0</strong>
+        </article>
+
+    </section>
+
+    <!-- Room listing -->
+    <section class="content-card">
+
+        <div class="section-heading">
+            <div>
+                <h2>All Rooms</h2>
+                <p>View and manage hotel room inventory.</p>
+            </div>
+
+            <button type="button"
+                    id="refreshRoomsButton"
+                    class="secondary-button">
+                Refresh
+            </button>
+        </div>
+
+        <div class="filter-bar">
+
+            <input type="search"
+                   id="searchRoomInput"
+                   placeholder="Search by room number..."
+                   aria-label="Search rooms by number">
+
+            <select id="statusFilter"
+                    aria-label="Filter rooms by status">
+                <option value="ALL">All Statuses</option>
+                <option value="AVAILABLE">Available</option>
+                <option value="MAINTENANCE">Maintenance</option>
+                <option value="INACTIVE">Inactive</option>
+            </select>
+
+        </div>
+
+        <div class="table-container">
+
+            <table class="rooms-table">
+                <thead>
+                <tr>
+                    <th>Room No.</th>
+                    <th>Type</th>
+                    <th>Price / Night</th>
+                    <th>Capacity</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                </tr>
+                </thead>
+
+                <tbody id="roomsTableBody">
+
+                <tr>
+                    <td colspan="6" class="empty-state">
+                        Loading rooms...
+                    </td>
+                </tr>
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    </section>
+
+    <!-- Add / Edit room form -->
+    <section class="content-card"
+             id="roomFormSection"
+             hidden>
+
+        <div class="section-heading">
+            <div>
+                <h2 id="roomFormTitle">Add New Room</h2>
+                <p>Enter the room information below.</p>
+            </div>
+
+            <button type="button"
+                    id="closeFormButton"
+                    class="secondary-button">
+                Cancel
+            </button>
+        </div>
+
+        <form id="roomForm">
+
+            <div class="form-grid">
+
+                <div class="form-group">
+                    <label for="roomNumber">
+                        Room Number
+                    </label>
+
+                    <input type="text"
+                           id="roomNumber"
+                           placeholder="e.g. 205"
+                           maxlength="20"
+                           required>
+                </div>
+
+                <div class="form-group">
+                    <label for="roomType">
+                        Room Type
+                    </label>
+
+                    <select id="roomType" required>
+                        <option value="">Select a room type</option>
+                        <option value="SINGLE">Single Room</option>
+                        <option value="DOUBLE">Double Room</option>
+                        <option value="TWIN">Twin Room</option>
+                        <option value="DELUXE">Deluxe Room</option>
+                        <option value="SUITE">Suite</option>
+                    </select>
+
+                </div>
+
+                <div class="form-group">
+                    <label for="pricePerNight">
+                        Price per Night (LKR)
+                    </label>
+
+                    <input type="number"
+                           id="pricePerNight"
+                           placeholder="15000"
+                           min="0.01"
+                           step="0.01"
+                           required>
+                </div>
+
+                <div class="form-group">
+                    <label for="capacity">
+                        Guest Capacity
+                    </label>
+
+                    <input type="number"
+                           id="capacity"
+                           placeholder="2"
+                           min="1"
+                           step="1"
+                           required>
+                </div>
+
+                <div class="form-group">
+                    <label for="status">
+                        Room Status
+                    </label>
+
+                    <select id="status" required>
+                        <option value="AVAILABLE">
+                            Available
+                        </option>
+
+                        <option value="MAINTENANCE">
+                            Maintenance
+                        </option>
+
+                        <option value="INACTIVE">
+                            Inactive
+                        </option>
+                    </select>
+                </div>
+
+                <div class="form-group form-group-wide">
+                    <label for="description">
+                        Room Description
+                    </label>
+
+                    <textarea id="description"
+                              rows="4"
+                              placeholder="Describe the room...">
+
+                    </textarea>
+                </div>
+
+            </div>
+
+            <div class="form-actions">
+
+                <button type="submit"
+                        id="saveRoomButton"
+                        class="primary-button">
+                    Save Room
+                </button>
+
+                <button type="button"
+                        id="cancelFormButton"
+                        class="secondary-button">
+                    Cancel
+                </button>
+
+            </div>
+
+        </form>
+
+    </section>
+
+    <!-- Success / Error notifications -->
+    <div id="roomMessage"
+         class="notification"
+         role="status"
+         aria-live="polite">
+    </div>
+
+</main>
+
+</body>
+</html>
