@@ -23,9 +23,9 @@ public class RoomSearchApi {
 
         config.routes.get("/api/rooms/available", ctx -> {
 
-            String checkInText = ctx.queryParam("checkIn");
-            String checkOutText = ctx.queryParam("checkOut");
-            String guestsText = ctx.queryParam("guests");
+                String checkInText = ctx.queryParam("checkIn");
+                String checkOutText = ctx.queryParam("checkOut");
+                String guestsText = ctx.queryParam("guests");
 
             if (checkInText == null ||
                     checkOutText == null ||
