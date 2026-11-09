@@ -256,7 +256,11 @@ public class HotelApplication {
                     );
 
             PaymentApi paymentApi =
-                    new PaymentApi(paymentService);
+                    new PaymentApi(
+                            paymentService,
+                            reservationService,
+                            accessControl
+                    );
 
             paymentApi.registerRoutes(config);
 
