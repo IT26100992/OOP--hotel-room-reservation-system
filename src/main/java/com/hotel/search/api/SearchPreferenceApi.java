@@ -1,28 +1,38 @@
 
 package com.hotel.search.api;
 
-import com.hotel.common.ValidationException;
+import com.hotel.common.AccessControl;
 import com.hotel.search.model.SearchPreference;
 import com.hotel.search.service.SearchPreferenceService;
+import com.hotel.user.model.User;
 import io.javalin.config.JavalinConfig;
 
 public class SearchPreferenceApi {
 
     private final SearchPreferenceService preferenceService;
+    private final AccessControl accessControl;
 
     public SearchPreferenceApi(
-            SearchPreferenceService preferenceService) {
+            SearchPreferenceService preferenceService,
+            AccessControl accessControl) {
 
         this.preferenceService = preferenceService;
+        this.accessControl = accessControl;
     }
 
     public void registerRoutes(JavalinConfig config) {
 
-        // CREATE - Save a search preference
+        // CREATE - Save a search for logged-in customer.
         config.routes.post("/api/search-preferences", ctx -> {
+
+            User customer = accessControl.requireCustomer(ctx);
 
             SearchPreference preference =
                     ctx.bodyAsClass(SearchPreference.class);
+
+            // Set ownership from the authenticated session.
+            // Never trust a userId sent by the frontend.
+            preference.setUserId(customer.getId());
 
             SearchPreference created =
                     preferenceService.createPreference(preference);
@@ -30,62 +40,65 @@ public class SearchPreferenceApi {
             ctx.status(201).json(created);
         });
 
-        // READ - Retrieve all preferences for a user
+        // READ - Get my saved searches.
         config.routes.get("/api/search-preferences", ctx -> {
 
-            String userId = requireUserId(ctx.queryParam("userId"));
+            User customer = accessControl.requireCustomer(ctx);
 
             ctx.json(
-                    preferenceService.getPreferencesByUser(userId)
+                    preferenceService.getPreferencesByUser(
+                            customer.getId()
+                    )
             );
         });
 
-        // READ - Retrieve a preference by ID
+        // READ - Get one of my saved searches.
         config.routes.get("/api/search-preferences/{id}", ctx -> {
 
+            User customer = accessControl.requireCustomer(ctx);
+
             String id = ctx.pathParam("id");
-            String userId = requireUserId(ctx.queryParam("userId"));
 
             ctx.json(
-                    preferenceService.getPreferenceById(id, userId)
+                    preferenceService.getPreferenceById(
+                            id,
+                            customer.getId()
+                    )
             );
         });
 
-        // UPDATE - Update a preference
+        // UPDATE - Modify my saved search.
         config.routes.put("/api/search-preferences/{id}", ctx -> {
 
+            User customer = accessControl.requireCustomer(ctx);
+
             String id = ctx.pathParam("id");
-            String userId = requireUserId(ctx.queryParam("userId"));
 
             SearchPreference updated =
                     ctx.bodyAsClass(SearchPreference.class);
 
             ctx.json(
                     preferenceService.updatePreference(
-                            id, userId, updated
+                            id,
+                            customer.getId(),
+                            updated
                     )
             );
         });
 
-        // DELETE - Delete a preference
+        // DELETE - Delete my saved search.
         config.routes.delete("/api/search-preferences/{id}", ctx -> {
 
-            String id = ctx.pathParam("id");
-            String userId = requireUserId(ctx.queryParam("userId"));
+            User customer = accessControl.requireCustomer(ctx);
 
-            preferenceService.deletePreference(id, userId);
+            String id = ctx.pathParam("id");
+
+            preferenceService.deletePreference(
+                    id,
+                    customer.getId()
+            );
 
             ctx.status(204);
         });
-    }
-
-    private String requireUserId(String userId) {
-
-        if (userId == null || userId.isBlank()) {
-            throw new ValidationException(
-                    "User ID is required.");
-        }
-
-        return userId;
     }
 }

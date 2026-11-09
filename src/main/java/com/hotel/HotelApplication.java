@@ -240,7 +240,10 @@ public class HotelApplication {
                     );
 
             SearchPreferenceApi preferenceApi =
-                    new SearchPreferenceApi(preferenceService);
+                    new SearchPreferenceApi(
+                            preferenceService,
+                            accessControl
+                    );
 
             preferenceApi.registerRoutes(config);
 

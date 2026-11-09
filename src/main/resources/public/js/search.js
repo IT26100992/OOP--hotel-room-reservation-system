@@ -167,17 +167,6 @@ const savedSearchMessage =
 const savedSearchResults =
     document.getElementById("savedSearchResults");
 
-function getTestUserId() {
-    const userId = document
-        .getElementById("savedSearchUserId")
-        .value.trim();
-
-    if (!userId) {
-        throw new Error("Please enter a test user ID.");
-    }
-
-    return userId;
-}
 
 async function readApiResponse(response) {
     if (response.status === 204) {
@@ -199,7 +188,6 @@ async function readApiResponse(response) {
 saveSearchBtn.addEventListener("click", async () => {
 
     try {
-        const userId = getTestUserId();
 
         const checkInDate =
             document.getElementById("checkIn").value;
@@ -243,7 +231,6 @@ saveSearchBtn.addEventListener("click", async () => {
         }
 
         const preference = {
-            userId: userId,
             checkInDate: checkInDate,
             checkOutDate: checkOutDate,
             guestCount: guestCount,
@@ -292,13 +279,10 @@ loadSavedSearchesBtn.addEventListener(
 async function loadSavedSearches() {
 
     try {
-        const userId = getTestUserId();
 
         const response = await fetch(
-            "/api/search-preferences?userId=" +
-            encodeURIComponent(userId)
+            "/api/search-preferences"
         );
-
         const preferences =
             await readApiResponse(response);
 
@@ -408,7 +392,6 @@ const cancelEditBtn =
     document.getElementById("cancelEditBtn");
 
 let editingPreferenceId = null;
-let editingUserId = null;
 
 // Fill the main search form with a saved preference
 function fillSearchForm(preference) {
@@ -487,7 +470,6 @@ function getPreferenceFormData() {
 // Start editing a preference
 function startEditing(preference) {
     editingPreferenceId = preference.id;
-    editingUserId = getTestUserId();
 
     fillSearchForm(preference);
 
@@ -508,7 +490,6 @@ function startEditing(preference) {
 // Return to normal mode
 function stopEditing() {
     editingPreferenceId = null;
-    editingUserId = null;
 
     updateSearchBtn.hidden = true;
     cancelEditBtn.hidden = true;
@@ -527,13 +508,6 @@ updateSearchBtn.addEventListener("click", async () => {
     }
 
     try {
-        const userId = getTestUserId();
-
-        if (userId !== editingUserId) {
-            throw new Error(
-                "Do not change the test user while editing."
-            );
-        }
 
         const updatedData = getPreferenceFormData();
 
@@ -541,8 +515,7 @@ updateSearchBtn.addEventListener("click", async () => {
 
         const response = await fetch(
             "/api/search-preferences/" +
-            encodeURIComponent(editingPreferenceId) +
-            "?userId=" + encodeURIComponent(userId),
+            encodeURIComponent(editingPreferenceId),
             {
                 method: "PUT",
                 headers: {
@@ -570,7 +543,6 @@ updateSearchBtn.addEventListener("click", async () => {
 // DELETE - Remove a preference
 async function deleteSavedPreference(preferenceId) {
     try {
-        const userId = getTestUserId();
 
         if (!confirm(
             "Are you sure you want to delete this saved search?"
@@ -580,8 +552,7 @@ async function deleteSavedPreference(preferenceId) {
 
         const response = await fetch(
             "/api/search-preferences/" +
-            encodeURIComponent(preferenceId) +
-            "?userId=" + encodeURIComponent(userId),
+            encodeURIComponent(preferenceId),
             { method: "DELETE" }
         );
 
