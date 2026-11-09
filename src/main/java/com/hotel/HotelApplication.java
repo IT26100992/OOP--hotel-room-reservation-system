@@ -1,6 +1,6 @@
 
 package com.hotel;
-
+import com.hotel.common.AccessControl;
 // ======================================
 // USER AUTHENTICATION - ASHINI
 // ======================================
@@ -140,6 +140,9 @@ public class HotelApplication {
             UserRepository userRepository =
                     new UserRepository();
 
+            AccessControl accessControl =
+                    new AccessControl(userRepository);
+
             RoomRepository roomRepository =
                     new RoomRepository();
 
@@ -200,7 +203,7 @@ public class HotelApplication {
                     );
 
             RoomApi roomApi =
-                    new RoomApi(roomService);
+                    new RoomApi(roomService, accessControl);
 
             roomApi.registerRoutes(config);
 
@@ -268,7 +271,10 @@ public class HotelApplication {
                     );
 
             AdminReportApi adminReportApi =
-                    new AdminReportApi(adminReportService);
+                    new AdminReportApi(
+                            adminReportService,
+                            accessControl
+                    );
 
             adminReportApi.registerRoutes(config);
 

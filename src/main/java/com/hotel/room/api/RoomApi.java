@@ -3,15 +3,21 @@ package com.hotel.room.api;
 import com.hotel.common.ValidationException;
 import com.hotel.room.model.Room;
 import com.hotel.room.service.RoomService;
+import com.hotel.common.AccessControl;
 
 import io.javalin.config.JavalinConfig;
 
 public class RoomApi {
 
     private final RoomService roomService;
+    private final AccessControl accessControl;
 
-    public RoomApi(RoomService roomService) {
+    public RoomApi(
+            RoomService roomService,
+            AccessControl accessControl) {
+
         this.roomService = roomService;
+        this.accessControl = accessControl;
     }
 
     public void registerRoutes(JavalinConfig config) {
@@ -19,6 +25,7 @@ public class RoomApi {
         // CREATE - Add a new room
         config.routes.post("/api/rooms", ctx -> {
 
+            accessControl.requireAdmin(ctx);
             Room room;
 
             try {
@@ -35,13 +42,11 @@ public class RoomApi {
 
         // READ - Get all rooms
         config.routes.get("/api/rooms", ctx -> {
-
             ctx.json(roomService.getAllRooms());
         });
 
         // READ - Get one room by ID
         config.routes.get("/api/rooms/{id}", ctx -> {
-
             String roomId = ctx.pathParam("id");
 
             ctx.json(roomService.getRoomById(roomId));
@@ -49,7 +54,7 @@ public class RoomApi {
 
         // UPDATE - Modify room details
         config.routes.put("/api/rooms/{id}", ctx -> {
-
+            accessControl.requireAdmin(ctx);
             String roomId = ctx.pathParam("id");
 
             Room updatedRoom;
@@ -71,7 +76,7 @@ public class RoomApi {
 
         // DELETE - Remove an unused room
         config.routes.delete("/api/rooms/{id}", ctx -> {
-
+            accessControl.requireAdmin(ctx);
             String roomId = ctx.pathParam("id");
 
             roomService.deleteRoom(roomId);
