@@ -219,7 +219,10 @@ public class HotelApplication {
                     );
 
             ReservationApi reservationApi =
-                    new ReservationApi(reservationService);
+                    new ReservationApi(
+                            reservationService,
+                            accessControl
+                    );
 
             reservationApi.registerRoutes(config);
 
