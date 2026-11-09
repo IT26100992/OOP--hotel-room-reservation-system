@@ -8,6 +8,10 @@ import com.hotel.payment.repository.PaymentRepository;
 import com.hotel.reservation.model.Reservation;
 import com.hotel.reservation.model.ReservationStatus;
 import com.hotel.reservation.repository.ReservationRepository;
+import com.hotel.room.model.Room;
+import com.hotel.room.repository.RoomRepository;
+import java.time.temporal.ChronoUnit;
+import java.util.Objects;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -17,28 +21,42 @@ import java.util.Locale;
 import java.util.Objects;
 import java.util.UUID;
 
+
 public class PaymentService {
 
+    // Shared repositories
     private final PaymentRepository paymentRepository;
     private final ReservationRepository reservationRepository;
+    private final RoomRepository roomRepository;
 
+    // Receipt date formatter
     private static final DateTimeFormatter RECEIPT_DATE_FORMAT =
             DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
+    // Constructor - all three repositories are required
     public PaymentService(
             PaymentRepository paymentRepository,
-            ReservationRepository reservationRepository) {
+            ReservationRepository reservationRepository,
+            RoomRepository roomRepository) {
 
         this.paymentRepository = Objects.requireNonNull(
                 paymentRepository,
-                "PaymentRepository is required.");
+                "PaymentRepository is required."
+        );
 
         this.reservationRepository = Objects.requireNonNull(
                 reservationRepository,
-                "ReservationRepository is required.");
+                "ReservationRepository is required."
+        );
+
+        this.roomRepository = Objects.requireNonNull(
+                roomRepository,
+                "RoomRepository is required."
+        );
     }
 
-    // Create a pending payment.
+
+    // CREATE - Create a pending payment
     public synchronized Payment createPayment(Payment payment) {
 
         if (payment == null) {
@@ -56,14 +74,24 @@ public class PaymentService {
 
         validatePayment(payment);
 
-        ensureReservationCanBePaid(payment.getReservationId());
+        // Check the reservation exists and can be paid.
+        ensureReservationCanBePaid(
+                payment.getReservationId()
+        );
 
+        // Check the amount against the room price
+        // and number of reservation nights.
+        validateAmountMatchesReservation(payment);
+
+        // Prevent multiple active payments.
         ensureNoActivePayment(
                 payment.getReservationId(),
                 null
         );
 
-        if (paymentRepository.findById(payment.getId()).isPresent()) {
+        if (paymentRepository.findById(
+                payment.getId()).isPresent()) {
+
             throw new ValidationException(
                     "Payment ID already exists.");
         }
@@ -73,12 +101,12 @@ public class PaymentService {
                 null
         );
 
-        // The service controls the initial status and payment date.
         payment.setStatus(PaymentStatus.PENDING);
         payment.setPaidAt(null);
 
         return paymentRepository.create(payment);
     }
+
 
     // Simulate successful payment processing.
 
@@ -111,6 +139,7 @@ public class PaymentService {
                 payment.getReservationId(),
                 paymentId
         );
+        validateAmountMatchesReservation(payment);
 
         // 4. Simulate successful payment.
         // No real money is transferred.
@@ -274,6 +303,7 @@ public class PaymentService {
         }
 
         ensureReservationCanBePaid(updated.getReservationId());
+        validateAmountMatchesReservation(updated);
 
         ensureNoActivePayment(
                 updated.getReservationId(),
@@ -500,4 +530,48 @@ public class PaymentService {
     private boolean blank(String value) {
         return value == null || value.isBlank();
     }
+
+
+    private void validateAmountMatchesReservation(Payment payment) {
+
+        Reservation reservation =
+                getReservation(payment.getReservationId());
+
+        Room room = roomRepository
+                .findById(reservation.getRoomId())
+                .orElseThrow(() ->
+                        new ResourceNotFoundException(
+                                "Room not found: " +
+                                        reservation.getRoomId()
+                        ));
+
+        long nights = ChronoUnit.DAYS.between(
+                reservation.getCheckInDate(),
+                reservation.getCheckOutDate()
+        );
+
+        if (nights <= 0) {
+            throw new ValidationException(
+                    "Invalid reservation date range.");
+        }
+
+        if (room.getPricePerNight() == null ||
+                room.getPricePerNight().signum() <= 0) {
+            throw new ValidationException(
+                    "Invalid room price.");
+        }
+
+        BigDecimal expectedAmount =
+                room.getPricePerNight().multiply(
+                        BigDecimal.valueOf(nights)
+                );
+
+        if (payment.getAmount().compareTo(expectedAmount) != 0) {
+            throw new ValidationException(
+                    "Incorrect payment amount. Expected LKR " +
+                            expectedAmount.toPlainString()
+            );
+        }
+    }
+
 }

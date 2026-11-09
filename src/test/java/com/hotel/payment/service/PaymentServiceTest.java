@@ -11,6 +11,10 @@ import com.hotel.reservation.model.ReservationStatus;
 import com.hotel.reservation.repository.ReservationRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import com.hotel.room.model.Room;
+import com.hotel.room.model.RoomType;
+import com.hotel.room.model.RoomStatus;
+import com.hotel.room.repository.RoomRepository;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -26,17 +30,34 @@ class PaymentServiceTest {
     private PaymentRepository paymentRepository;
     private ReservationRepository reservationRepository;
     private PaymentService paymentService;
+    private RoomRepository roomRepository;
 
     @BeforeEach
     void setUp() {
+
         paymentRepository = mock(PaymentRepository.class);
         reservationRepository = mock(ReservationRepository.class);
+        roomRepository = mock(RoomRepository.class);
+
+        Room room = new Room();
+
+        room.setId("ROOM-001");
+        room.setRoomNumber("R001");
+        room.setRoomType(RoomType.DOUBLE);
+        room.setPricePerNight(new BigDecimal("7500.00"));
+        room.setCapacity(2);
+        room.setStatus(RoomStatus.AVAILABLE);
+
+        when(roomRepository.findById("ROOM-001"))
+                .thenReturn(Optional.of(room));
 
         paymentService = new PaymentService(
                 paymentRepository,
-                reservationRepository
+                reservationRepository,
+                roomRepository
         );
     }
+
 
     @Test
     void completedPaymentProducesReceipt() {
@@ -458,7 +479,7 @@ class PaymentServiceTest {
         Payment existing = paymentWithStatus(PaymentStatus.PENDING);
         Payment updated = paymentWithStatus(PaymentStatus.PENDING);
 
-        updated.setAmount(new BigDecimal("125.50"));
+        updated.setAmount(new BigDecimal("15000.00"));
         updated.setMethod(PaymentMethod.BANK_TRANSFER);
 
         when(paymentRepository.findById("PAY-001"))
@@ -478,7 +499,7 @@ class PaymentServiceTest {
         Payment result =
                 paymentService.updatePayment("PAY-001", updated);
 
-        assertEquals(new BigDecimal("125.50"), result.getAmount());
+        assertEquals(new BigDecimal("15000.00"), result.getAmount());
         assertEquals(
                 PaymentMethod.BANK_TRANSFER,
                 result.getMethod()
@@ -649,6 +670,30 @@ class PaymentServiceTest {
                 any(Reservation.class)
         );
     }
+
+    @Test
+    void incorrectPaymentAmountShouldBeRejected() {
+
+        Payment payment =
+                paymentWithStatus(PaymentStatus.PENDING);
+
+        payment.setAmount(new BigDecimal("100.00"));
+
+        when(reservationRepository.findById("RES-001"))
+                .thenReturn(Optional.of(
+                        reservationWithStatus(
+                                ReservationStatus.PENDING)
+                ));
+
+        assertThrows(
+                ValidationException.class,
+                () -> paymentService.createPayment(payment)
+        );
+
+        verify(paymentRepository, never())
+                .create(any(Payment.class));
+    }
+
 
 
     private Payment newPaymentAttempt() {

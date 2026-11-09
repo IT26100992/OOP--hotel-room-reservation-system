@@ -245,7 +245,8 @@ public class HotelApplication {
             PaymentService paymentService =
                     new PaymentService(
                             paymentRepository,
-                            reservationRepository
+                            reservationRepository,
+                            roomRepository
                     );
 
             PaymentApi paymentApi =
