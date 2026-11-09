@@ -15,6 +15,56 @@ document.addEventListener("DOMContentLoaded", () => {
     let editingReservationId = null;
     let reservationsCache = [];
 
+
+    const bookingParams = new URLSearchParams(window.location.search);
+
+    const selectedRoomId = bookingParams.get("roomId");
+    const selectedCheckIn = bookingParams.get("checkIn");
+    const selectedCheckOut = bookingParams.get("checkOut");
+    const selectedGuests = bookingParams.get("guests");
+
+    if (selectedRoomId) {
+        document.getElementById("roomId").value = selectedRoomId;
+    }
+
+    if (selectedCheckIn) {
+        document.getElementById("checkInDate").value = selectedCheckIn;
+    }
+
+    if (selectedCheckOut) {
+        document.getElementById("checkOutDate").value = selectedCheckOut;
+    }
+
+    if (selectedGuests) {
+        document.getElementById("guestCount").value = selectedGuests;
+    }
+
+// Retrieve the logged-in customer.
+    const userIdInput = document.getElementById("userId");
+    userIdInput.readOnly = true;
+
+    fetch("/api/auth/me", {
+        credentials: "same-origin"
+    })
+        .then(async response => {
+            if (!response.ok) {
+                throw new Error("Please log in before making a reservation.");
+            }
+
+            return response.json();
+        })
+        .then(user => {
+            if (user.role !== "CUSTOMER") {
+                throw new Error("Only customers can create reservations.");
+            }
+
+            userIdInput.value = user.id;
+        })
+        .catch(error => {
+            showMessage(error.message, true);
+        });
+
+
     function showMessage(message, isError = false) {
         statusMessage.textContent = message;
         statusMessage.style.color = isError ? "#dc3545" : "#198754";
@@ -329,9 +379,18 @@ document.addEventListener("DOMContentLoaded", () => {
                 throw new Error(await getErrorMessage(response));
             }
 
-            await response.json();
+
+            const savedReservation = await response.json();
+
+            if (!isEditing) {
+                window.location.href =
+                    "/payment.html?reservationId=" +
+                    encodeURIComponent(savedReservation.id);
+                return;
+            }
 
             resetEditMode();
+
 
             showMessage(
                 isEditing

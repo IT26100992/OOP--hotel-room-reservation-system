@@ -607,6 +607,50 @@ class PaymentServiceTest {
                 .update(anyString(), any(Payment.class));
     }
 
+
+    @Test
+    void successfulPaymentShouldConfirmPendingReservation() {
+
+        Payment payment =
+                paymentWithStatus(PaymentStatus.PENDING);
+
+        Reservation reservation =
+                reservationWithStatus(ReservationStatus.PENDING);
+
+        when(paymentRepository.findById("PAY-001"))
+                .thenReturn(Optional.of(payment));
+
+        when(reservationRepository.findById("RES-001"))
+                .thenReturn(Optional.of(reservation));
+
+        when(paymentRepository.findAll())
+                .thenReturn(List.of(payment));
+
+        when(paymentRepository.update(
+                eq("PAY-001"),
+                any(Payment.class)
+        )).thenReturn(payment);
+
+        Payment result =
+                paymentService.processPayment("PAY-001");
+
+        assertEquals(
+                PaymentStatus.COMPLETED,
+                result.getStatus()
+        );
+
+        assertEquals(
+                ReservationStatus.CONFIRMED,
+                reservation.getStatus()
+        );
+
+        verify(reservationRepository).update(
+                eq("RES-001"),
+                any(Reservation.class)
+        );
+    }
+
+
     private Payment newPaymentAttempt() {
         Payment payment = paymentWithStatus(PaymentStatus.PENDING);
         payment.setId("PAY-NEW");

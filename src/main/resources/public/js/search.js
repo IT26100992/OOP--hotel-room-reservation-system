@@ -118,13 +118,33 @@ function displayRooms(rooms) {
         const description = document.createElement("p");
         description.textContent = room.description || "";
 
+
+        const bookButton = document.createElement("button");
+        bookButton.type = "button";
+        bookButton.className = "search-button";
+        bookButton.textContent = "Book Now";
+
+        bookButton.addEventListener("click", () => {
+            const params = new URLSearchParams({
+                roomId: room.id,
+                checkIn: document.getElementById("checkIn").value,
+                checkOut: document.getElementById("checkOut").value,
+                guests: document.getElementById("guests").value
+            });
+
+            window.location.href =
+                "/reservation.html?" + params.toString();
+        });
+
         card.append(
             title,
             type,
             capacity,
             price,
-            description
+            description,
+            bookButton
         );
+
 
         roomResults.appendChild(card);
     });

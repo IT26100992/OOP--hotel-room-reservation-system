@@ -81,8 +81,10 @@ public class PaymentService {
     }
 
     // Simulate successful payment processing.
+
     public synchronized Payment processPayment(String paymentId) {
 
+        // 1. Find the payment.
         Payment payment = getPaymentById(paymentId);
 
         if (payment.getStatus() != PaymentStatus.PENDING) {
@@ -90,21 +92,69 @@ public class PaymentService {
                     "Only pending payments can be processed.");
         }
 
-        ensureReservationCanBePaid(payment.getReservationId());
+        // 2. Find the reservation linked to this payment.
+        Reservation reservation =
+                getReservation(payment.getReservationId());
 
+        if (reservation.getStatus() == ReservationStatus.CANCELLED) {
+            throw new ValidationException(
+                    "Cancelled reservations cannot be paid.");
+        }
+
+        if (reservation.getStatus() == ReservationStatus.COMPLETED) {
+            throw new ValidationException(
+                    "Completed reservations cannot be paid again.");
+        }
+
+        // 3. Prevent duplicate active payments.
         ensureNoActivePayment(
                 payment.getReservationId(),
                 paymentId
         );
 
-        /*
-         * University project simulation.
-         * No real bank or payment gateway is contacted.
-         */
+        // 4. Simulate successful payment.
+        // No real money is transferred.
+        PaymentStatus previousStatus = payment.getStatus();
+        LocalDateTime previousPaidAt = payment.getPaidAt();
+
         payment.setStatus(PaymentStatus.COMPLETED);
         payment.setPaidAt(LocalDateTime.now());
 
-        return paymentRepository.update(paymentId, payment);
+        Payment savedPayment =
+                paymentRepository.update(paymentId, payment);
+
+        // 5. Confirm the linked reservation.
+        if (reservation.getStatus() == ReservationStatus.PENDING) {
+
+            reservation.setStatus(ReservationStatus.CONFIRMED);
+
+            try {
+                reservationRepository.update(
+                        reservation.getId(),
+                        reservation
+                );
+
+            } catch (RuntimeException error) {
+
+                // Try to restore payment if reservation update fails.
+                payment.setStatus(previousStatus);
+                payment.setPaidAt(previousPaidAt);
+
+                try {
+                    paymentRepository.update(paymentId, payment);
+                } catch (RuntimeException rollbackError) {
+                    error.addSuppressed(rollbackError);
+                }
+
+                throw new IllegalStateException(
+                        "Payment processing could not complete " +
+                                "because reservation confirmation failed.",
+                        error
+                );
+            }
+        }
+
+        return savedPayment;
     }
 
     // Mark a pending payment as failed.

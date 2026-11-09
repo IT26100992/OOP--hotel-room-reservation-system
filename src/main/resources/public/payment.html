@@ -606,6 +606,91 @@
     const createButton = document.getElementById("create-button");
     const refreshButton = document.getElementById("refresh-button");
 
+
+    const paymentParams = new URLSearchParams(window.location.search);
+    const selectedReservationId = paymentParams.get("reservationId");
+
+    function normalizeBookingDate(value) {
+        if (Array.isArray(value)) {
+            return [
+                value[0],
+                String(value[1]).padStart(2, "0"),
+                String(value[2]).padStart(2, "0")
+            ].join("-");
+        }
+
+        return value;
+    }
+
+    async function prefillPaymentDetails() {
+        if (!selectedReservationId) return;
+
+        const reservationInput =
+            document.getElementById("reservation-id");
+
+        const amountInput =
+            document.getElementById("amount");
+
+        reservationInput.value = selectedReservationId;
+
+        try {
+            const reservationResponse = await fetch(
+                "/api/reservations/" +
+                encodeURIComponent(selectedReservationId)
+            );
+
+            if (!reservationResponse.ok) {
+                throw new Error("Could not load reservation.");
+            }
+
+            const reservation = await reservationResponse.json();
+
+            const roomResponse = await fetch(
+                "/api/rooms/" +
+                encodeURIComponent(reservation.roomId)
+            );
+
+            if (!roomResponse.ok) {
+                throw new Error("Could not load room details.");
+            }
+
+            const room = await roomResponse.json();
+
+            const checkIn = normalizeBookingDate(
+                reservation.checkInDate
+            );
+
+            const checkOut = normalizeBookingDate(
+                reservation.checkOutDate
+            );
+
+            const nights =
+                (Date.parse(checkOut + "T00:00:00Z") -
+                    Date.parse(checkIn + "T00:00:00Z")) / 86400000;
+
+            if (!Number.isInteger(nights) || nights <= 0) {
+                throw new Error("Invalid reservation dates.");
+            }
+
+            const estimatedTotal =
+                nights * Number(room.pricePerNight);
+
+            if (!Number.isFinite(estimatedTotal) ||
+                estimatedTotal <= 0) {
+                throw new Error("Invalid room price.");
+            }
+
+            amountInput.value = estimatedTotal.toFixed(2);
+
+        } catch (error) {
+            console.error(error);
+            showMessage(error.message, true);
+        }
+    }
+
+    prefillPaymentDetails();
+
+
     const methodLabels = {
         CASH: "Cash",
         BANK_TRANSFER: "Bank Transfer",
