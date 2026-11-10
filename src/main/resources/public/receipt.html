@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Receipts | Grand Celestial</title>
+    <title>Receipts | GrandStay</title>
 
     <style>
         :root {
@@ -508,32 +508,77 @@
             }
         }
     </style>
+    <link rel="stylesheet" href="/css/design-system.css">
+    <link rel="stylesheet" href="/css/grandstay-payments.css">
+
+    <script src="/js/navigation.js" defer></script>
 </head>
 
 <body>
-<header class="site-header">
-    <div class="header-inner">
-        <a class="brand" href="/index.html">
-            <span class="brand-mark" aria-hidden="true">G</span>
+
+<header class="gs-header">
+    <div class="gs-header-inner">
+
+        <a class="gs-brand" href="/search.html">
+            <span class="gs-brand-mark">G</span>
+
             <span>
-                <span class="brand-name">Grand Celestial</span>
-                <span class="brand-caption">Hotel &amp; Resorts</span>
+                <strong>GrandStay</strong>
+                <small>Hotel & Resorts</small>
             </span>
         </a>
 
-        <nav aria-label="Main navigation">
-            <a href="/index.html">Home</a>
-            <a href="/search.html">Explore Rooms</a>
-            <a href="/payment.html">Payments</a>
-            <a href="/receipt.html" class="active"
-               aria-current="page">Receipts</a>
+        <nav class="gs-nav" aria-label="Main navigation">
+
+            <a href="/search.html">
+                Explore Rooms
+            </a>
+
+            <a href="/reservation.html"
+               class="auth-only" hidden>
+                Reservations
+            </a>
+
+            <a href="/payment.html"
+               class="auth-only" hidden>
+                My Payments
+            </a>
+
+            <a href="/profile.html"
+               class="auth-only" hidden>
+                My Profile
+            </a>
+
+            <a href="/rooms.html"
+               class="admin-only" hidden>
+                Manage Rooms
+            </a>
+
+            <a href="/admin.html"
+               class="admin-only" hidden>
+                Dashboard
+            </a>
+
+            <a href="/login.html"
+               class="guest-only gs-sign-in">
+                Sign In
+            </a>
+
+            <button type="button"
+                    id="navLogout"
+                    class="auth-only" hidden>
+                Log Out
+            </button>
+
         </nav>
+
     </div>
 </header>
 
-<main>
+
+<main class="gs-receipt-main">
     <div class="page-heading">
-        <p class="eyebrow">Grand Celestial · Guest Services</p>
+        <p class="eyebrow">GrandStay · Guest Services</p>
         <h1>Payment Receipt</h1>
         <p class="page-description">
             View and print a receipt for your completed payment.
@@ -561,7 +606,7 @@
     <section class="receipt-card" aria-label="Payment receipt">
         <div class="receipt-heading">
             <span class="receipt-emblem" aria-hidden="true">G</span>
-            <h2>Grand Celestial</h2>
+            <h2>GrandStay</h2>
             <p>Hotel &amp; Resorts · Payment Receipt</p>
         </div>
 
@@ -575,7 +620,7 @@
         </div>
 
         <div class="receipt-footer">
-            Thank you for choosing Grand Celestial Hotel &amp; Resorts.
+            Thank you for choosing GrandStay Hotel &amp; Resorts.
         </div>
     </section>
 
@@ -590,8 +635,9 @@
     </div>
 </main>
 
-<footer class="page-footer">
-    Grand Celestial Hotel &amp; Resorts · Payment &amp; Receipt Management
+<footer class="gs-footer">
+    <p>GrandStay Hotel & Resorts</p>
+    <p>© 2026 GrandStay · Payment Receipt</p>
 </footer>
 
 <script>
@@ -729,7 +775,7 @@
             createElement(
                 "span",
                 "receipt-total-label",
-                "Payment Amount"
+                "Payment Amount (LKR)"
             ),
             createElement(
                 "strong",

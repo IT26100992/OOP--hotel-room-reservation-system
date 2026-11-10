@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Payments | Grand Celestial</title>
+    <title>Payments | GrandStay</title>
 
     <style>
         :root {
@@ -469,47 +469,102 @@
             }
         }
     </style>
+    <link rel="stylesheet" href="/css/design-system.css">
+    <link rel="stylesheet" href="/css/grandstay-payments.css">
+
+    <script src="/js/navigation.js" defer></script>
 </head>
 
 <body>
-<header class="site-header">
-    <div class="header-inner">
-        <a class="brand" href="/index.html">
-            <span class="brand-mark" aria-hidden="true">G</span>
+
+<header class="gs-header">
+    <div class="gs-header-inner">
+
+        <a class="gs-brand" href="/search.html">
+            <span class="gs-brand-mark">G</span>
+
             <span>
-                <span class="brand-name">Grand Celestial</span>
-                <span class="brand-caption">Hotel &amp; Resorts</span>
+                <strong>GrandStay</strong>
+                <small>Hotel & Resorts</small>
             </span>
         </a>
 
-        <nav aria-label="Main navigation">
-            <a href="/index.html">Home</a>
-            <a href="/search.html">Explore Rooms</a>
+        <nav class="gs-nav" aria-label="Main navigation">
+
+            <a href="/search.html">
+                Explore Rooms
+            </a>
+
+            <a href="/reservation.html"
+               class="auth-only" hidden>
+                Reservations
+            </a>
+
             <a href="/payment.html"
-               class="active"
-               aria-current="page">Payments</a>
-            <a href="/receipt.html">Receipts</a>
+               class="auth-only"
+               aria-current="page" hidden>
+                My Payments
+            </a>
+
+            <a href="/profile.html"
+               class="auth-only" hidden>
+                My Profile
+            </a>
+
+            <a href="/rooms.html"
+               class="admin-only" hidden>
+                Manage Rooms
+            </a>
+
+            <a href="/admin.html"
+               class="admin-only" hidden>
+                Dashboard
+            </a>
+
+            <a href="/login.html"
+               class="guest-only gs-sign-in">
+                Sign In
+            </a>
+
+            <button type="button"
+                    id="navLogout"
+                    class="auth-only" hidden>
+                Log Out
+            </button>
+
         </nav>
+
     </div>
 </header>
 
-<main>
+
+<main class="gs-payments-main">
+
     <div class="hero">
-        <p class="eyebrow">Grand Celestial · Guest Services</p>
-        <h1>Payments &amp; Receipts</h1>
+        <p class="eyebrow">
+            GRANDSTAY / GUEST SERVICES
+        </p>
+
+        <h1>Payments & Receipts</h1>
+
         <p>
-            Manage reservation payments, review payment history,
-            and access your completed payment receipts.
+            Review your booking payments, complete
+            pending transactions and access receipts
+            for your confirmed stays.
         </p>
     </div>
+
 
     <p id="message" role="status" aria-live="polite"></p>
 
     <section aria-labelledby="create-title">
         <span class="step-label">Reservation Payment</span>
-        <h2 id="create-title">Create a Payment</h2>
+        <h2 id="create-title">Complete Your Reservation Payment</h2>
         <p class="section-description">
-            Enter an existing reservation ID to create a pending payment.
+            Enter your reservation details to create a
+            pending payment. Once created, choose
+            Process Payment in your payment history
+            to confirm the reservation.
         </p>
 
         <form id="payment-form">
@@ -545,7 +600,7 @@
             <button id="create-button"
                     class="full-width"
                     type="submit">
-                Create Pending Payment
+                Continue to Payment
             </button>
         </form>
 
@@ -555,13 +610,14 @@
         </p>
     </section>
 
-    <section aria-labelledby="history-title">
+    <section id="payment-history"
+             aria-labelledby="history-title">
         <div class="section-heading">
             <div>
                 <h2 id="history-title">Payment History</h2>
                 <p class="section-description">
-                    Edit or delete pending payments, process payments,
-                    cancel pending payments, and simulate refunds.
+                    Review your payments, process pending
+                    transactions and open completed receipts.
                 </p>
             </div>
 
@@ -595,8 +651,9 @@
     </section>
 </main>
 
-<footer>
-    Grand Celestial Hotel &amp; Resorts · Payment &amp; Receipt Management
+<footer class="gs-footer">
+    <p>GrandStay Hotel & Resorts</p>
+    <p>© 2026 GrandStay · Payment Management</p>
 </footer>
 
 <script>
@@ -605,6 +662,7 @@
     const message = document.getElementById("message");
     const createButton = document.getElementById("create-button");
     const refreshButton = document.getElementById("refresh-button");
+    let currentUserRole = null;
 
 
     const paymentParams = new URLSearchParams(window.location.search);
@@ -681,6 +739,38 @@
             }
 
             amountInput.value = estimatedTotal.toFixed(2);
+
+            const existingPayments = await request(
+                "/api/payments?reservationId=" +
+                encodeURIComponent(selectedReservationId)
+            );
+
+            const activePayment = existingPayments.find(
+                payment =>
+                    payment.status === "PENDING" ||
+                    payment.status === "COMPLETED"
+            );
+
+            if (activePayment) {
+                createButton.disabled = true;
+
+                if (activePayment.status === "COMPLETED") {
+                    createButton.textContent = "Already Paid";
+
+                    showMessage(
+                        "This reservation has already been paid. " +
+                        "View your receipt in Payment History below."
+                    );
+                } else {
+                    createButton.textContent = "Payment Already Created";
+
+                    showMessage(
+                        "A pending payment already exists. " +
+                        "Use Process Payment in Payment History below."
+                    );
+                }
+            }
+
 
         } catch (error) {
             console.error(error);
@@ -996,7 +1086,10 @@
                 addDeleteButton(actions, payment);
             }
 
+
             if (payment.status === "COMPLETED") {
+
+                // Both customers and admins can view receipts.
                 const receiptLink = document.createElement("a");
 
                 receiptLink.className = "receipt-link";
@@ -1006,14 +1099,18 @@
 
                 actions.appendChild(receiptLink);
 
-                addPaymentAction(
-                    actions,
-                    payment,
-                    "refund",
-                    "Simulate Refund",
-                    "REFUNDED"
-                );
+                // Only admins can see the Refund button.
+                if (currentUserRole === "ADMIN") {
+                    addPaymentAction(
+                        actions,
+                        payment,
+                        "refund",
+                        "Simulate Refund",
+                        "REFUNDED"
+                    );
+                }
             }
+
 
             if (!actions.hasChildNodes()) {
                 actions.textContent = "—";
@@ -1071,7 +1168,7 @@
             showMessage(error.message, true);
         } finally {
             createButton.disabled = false;
-            createButton.textContent = "Create Pending Payment";
+            createButton.textContent = "Continue to Payment";
         }
     });
 
@@ -1088,14 +1185,42 @@
         }
     });
 
-    loadPayments().catch(error => {
-        showTableMessage(
-            "Unable to load payments. "
-            + "Click Refresh Payments to retry."
-        );
 
-        showMessage(error.message, true);
-    });
+    async function initializePaymentPage() {
+        try {
+            const response = await fetch("/api/auth/me", {
+                credentials: "same-origin"
+            });
+
+            if (!response.ok) {
+                showTableMessage(
+                    "Please sign in to view your payments."
+                );
+
+                showMessage(
+                    "Please sign in to manage payments.",
+                    true
+                );
+                return;
+            }
+
+            const user = await response.json();
+            currentUserRole = user.role;
+
+            await loadPayments();
+
+        } catch (error) {
+            showTableMessage(
+                "Unable to load payments. " +
+                "Click Refresh Payments to retry."
+            );
+
+            showMessage(error.message, true);
+        }
+    }
+
+    initializePaymentPage();
+
 </script>
 </body>
 </html>
