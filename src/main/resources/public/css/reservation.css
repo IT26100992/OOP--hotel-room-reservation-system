@@ -469,3 +469,14 @@ tbody tr:last-child td {
         width: 100%;
     }
 }
+
+.payment-link {
+    display: inline-block;
+    background: var(--gs-primary);
+    color: var(--gs-white);
+    text-decoration: none;
+}
+
+.payment-link:hover {
+    background: var(--gs-primary-dark);
+}

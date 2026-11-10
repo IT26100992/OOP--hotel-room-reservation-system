@@ -57,7 +57,8 @@ a {
 button:focus-visible,
 a:focus-visible,
 input:focus-visible,
-select:focus-visible {
+select:focus-visible,
+textarea:focus-visible {
     outline: 3px solid var(--gs-gold);
     outline-offset: 3px;
 }
@@ -91,7 +92,7 @@ select:focus-visible {
 }
 
 .gs-brand-mark {
-    width: 45px;
+    flex: 0 0 45px;
     height: 45px;
     border: 1px solid var(--gs-gold);
     border-radius: 10px;
@@ -117,8 +118,9 @@ select:focus-visible {
 .gs-nav {
     display: flex;
     align-items: center;
-    gap: 12px;
+    gap: 4px;
     flex-wrap: wrap;
+    justify-content: flex-end;
 }
 
 .gs-nav a,
@@ -146,6 +148,30 @@ select:focus-visible {
 }
 
 /* Shared page components */
+
+.gs-page-hero {
+    background:
+        radial-gradient(circle at 90% 15%, rgba(212, 180, 119, 0.22), transparent 38%),
+        linear-gradient(120deg, var(--gs-primary-dark), #27574b);
+    color: var(--gs-white);
+    padding: clamp(24px, 5vw, 46px);
+    border-radius: var(--gs-radius);
+    box-shadow: var(--gs-shadow);
+}
+
+.gs-page-hero .gs-eyebrow,
+.gs-page-hero .eyebrow {
+    color: var(--gs-gold);
+}
+
+.gs-session-status {
+    padding-block: 32px;
+}
+
+.gs-session-status a {
+    color: var(--gs-primary);
+    font-weight: 700;
+}
 
 .gs-container {
     max-width: 1180px;
@@ -178,14 +204,16 @@ select:focus-visible {
     .gs-header-inner {
         flex-direction: column;
         align-items: flex-start;
+        gap: 12px;
+        padding: 14px 16px;
     }
 
     .gs-nav {
         width: 100%;
-        gap: 5px;
+        justify-content: flex-start;
     }
 
     .gs-container {
-        padding: 0 16px;
+        padding-inline: 16px;
     }
 }

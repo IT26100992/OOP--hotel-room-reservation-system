@@ -1,13 +1,11 @@
-@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:wght@600;700&display=swap');
-
 :root {
-    --primary: #193f3b;
-    --primary-hover: #102f2c;
-    --background: #f7f7f4;
-    --text: #202725;
-    --muted: #747d79;
-    --border: #dfe4e0;
-    --error: #a62222;
+    --primary: var(--gs-primary);
+    --primary-hover: var(--gs-primary-dark);
+    --background: var(--gs-cream);
+    --text: var(--gs-text);
+    --muted: var(--gs-muted);
+    --border: var(--gs-border);
+    --error: var(--gs-danger);
     --success: #14663c;
 }
 
@@ -23,7 +21,7 @@ body {
 }
 
 .auth-layout {
-    min-height: 100vh;
+    min-height: min(680px, 85vh);
     display: grid;
     grid-template-columns: 1fr 1fr;
 }
@@ -31,13 +29,9 @@ body {
 .auth-visual {
     position: relative;
     background:
-            linear-gradient(
-                    rgba(10, 29, 26, 0.25),
-                    rgba(10, 29, 26, 0.75)
-            ),
-            url("https://images.unsplash.com/photo-1611892440504-42a792e24d32?auto=format&fit=crop&w=1400&q=85")
-            center / cover no-repeat;
-
+        linear-gradient(155deg, rgba(16, 46, 42, 0.55), var(--gs-primary-dark)),
+        url("https://images.unsplash.com/photo-1611892440504-42a792e24d32?auto=format&fit=crop&w=1400&q=85")
+        center / cover no-repeat;
     display: flex;
     align-items: flex-end;
     padding: 70px;
@@ -48,8 +42,8 @@ body {
     max-width: 520px;
 }
 
-.brand,
-.mobile-brand {
+.brand {
+    color: var(--gs-gold);
     font-size: 12px;
     font-weight: 700;
     letter-spacing: 3px;
@@ -77,12 +71,12 @@ body {
 
 .auth-card {
     width: 100%;
-    max-width: 440px;
-}
-
-.mobile-brand {
-    display: none;
-    color: var(--primary);
+    max-width: 470px;
+    padding: clamp(20px, 4vw, 40px);
+    border: 1px solid var(--gs-border);
+    border-radius: var(--gs-radius);
+    background: var(--gs-white);
+    box-shadow: var(--gs-shadow);
 }
 
 .auth-card h2 {
@@ -228,13 +222,7 @@ body {
     }
 
     .auth-panel {
-        min-height: 100vh;
-        padding: 35px 22px;
-    }
-
-    .mobile-brand {
-        display: block;
-        margin-bottom: 35px;
+        padding: 35px 16px;
     }
 
     .auth-card h2 {
@@ -246,50 +234,6 @@ body {
 /* ===========================
    Customer Profile Page
    =========================== */
-
-.profile-layout {
-    min-height: 100vh;
-    background: #f7f7f4;
-}
-
-.profile-header {
-    background: white;
-    padding: 22px 7%;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    border-bottom: 1px solid var(--border);
-}
-
-.profile-brand {
-    font-size: 13px;
-    font-weight: 700;
-    letter-spacing: 2px;
-    color: var(--primary);
-    text-decoration: none;
-}
-
-.profile-nav {
-    display: flex;
-    align-items: center;
-    gap: 25px;
-}
-
-.profile-nav a {
-    color: var(--primary);
-    text-decoration: none;
-    font-size: 13px;
-    font-weight: 600;
-}
-
-.profile-nav button {
-    background: transparent;
-    border: 1px solid var(--border);
-    padding: 10px 20px;
-    border-radius: 8px;
-    cursor: pointer;
-    font: inherit;
-}
 
 .profile-container {
     max-width: 760px;
@@ -307,12 +251,13 @@ body {
     margin: 0 0 10px;
 }
 
-.profile-heading p {
+.profile-heading p:not(.gs-eyebrow) {
     color: var(--muted);
     font-size: 14px;
 }
 
 .profile-card {
+    box-shadow: var(--gs-shadow);
     background: white;
     padding: 35px;
     border-radius: 16px;
@@ -342,11 +287,14 @@ body {
 }
 
 .profile-summary h2 {
+    font-family: "Playfair Display", Georgia, serif;
+    overflow-wrap: anywhere;
     font-size: 21px;
     margin: 0 0 6px;
 }
 
 .profile-summary p {
+    overflow-wrap: anywhere;
     color: var(--muted);
     font-size: 13px;
     margin: 0;
@@ -436,15 +384,6 @@ body {
 }
 
 @media (max-width: 600px) {
-    .profile-header {
-        padding: 20px;
-        gap: 15px;
-    }
-
-    .profile-nav {
-        gap: 12px;
-    }
-
     .profile-container {
         margin-top: 30px;
     }

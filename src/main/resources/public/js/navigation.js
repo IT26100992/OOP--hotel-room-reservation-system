@@ -1,68 +1,82 @@
+const GrandStaySession = (() => {
+    const returnPages = new Set([
+        "/search.html", "/reservation.html", "/payment.html", "/receipt.html",
+        "/profile.html", "/rooms.html", "/admin.html"
+    ]);
 
-document.addEventListener("DOMContentLoaded", async () => {
+    function signInUrl(destination = location.pathname + location.search + location.hash) {
+        return "/login.html?" + new URLSearchParams({ next: destination });
+    }
 
-    const authLinks =
-        document.querySelectorAll(".auth-only");
+    function afterLogin(role) {
+        const next = new URLSearchParams(location.search).get("next");
 
-    const guestLinks =
-        document.querySelectorAll(".guest-only");
+        const path = next?.split(/[?#]/, 1)[0];
+        const adminPage = path === "/rooms.html" || path === "/admin.html";
 
-    const adminLinks =
-        document.querySelectorAll(".admin-only");
-
-    try {
-        const response = await fetch("/api/auth/me", {
-            credentials: "same-origin"
-        });
-
-        if (response.ok) {
-            const user = await response.json();
-
-            // Hide Sign In after successful authentication.
-            guestLinks.forEach(element => {
-                element.hidden = true;
-            });
-
-            // Show customer/account navigation.
-            authLinks.forEach(element => {
-                element.hidden = false;
-            });
-
-            // Only administrators see management links.
-            if (user.role === "ADMIN") {
-                adminLinks.forEach(element => {
-                    element.hidden = false;
-                });
-            }
+        if (returnPages.has(path) && (!adminPage || role === "ADMIN")) {
+            return next;
         }
 
-    } catch (error) {
-        console.error("Session check failed:", error);
+        return role === "ADMIN" ? "/admin.html" : "/search.html";
     }
 
-    const logoutButton =
-        document.getElementById("navLogout");
-
-    if (logoutButton) {
-        logoutButton.addEventListener("click", async () => {
-            try {
-                const response = await fetch(
-                    "/api/auth/logout",
-                    {
-                        method: "POST",
-                        credentials: "same-origin"
-                    }
-                );
-
-                if (!response.ok) {
-                    throw new Error("Logout failed.");
-                }
-
-                window.location.href = "/login.html";
-
-            } catch (error) {
-                alert("Unable to log out. Please try again.");
-            }
+    function updateVisibility(selector, visible) {
+        document.querySelectorAll(selector).forEach(element => {
+            element.hidden = !visible;
         });
     }
-});
+
+    async function loadSession() {
+        const requiredRole = document.body.dataset.requires;
+        const status = document.querySelector("[data-session-status]");
+
+        try {
+            const response = await fetch("/api/auth/me", {
+                credentials: "same-origin",
+                cache: "no-store"
+            });
+
+            if (response.status === 401) {
+                if (requiredRole) location.replace(signInUrl());
+                return null;
+            }
+
+            if (!response.ok) throw new Error("Could not verify your session.");
+
+            const user = await response.json();
+            updateVisibility(".guest-only", false);
+            updateVisibility(".auth-only", true);
+            updateVisibility(".admin-only", user.role === "ADMIN");
+            updateVisibility(".customer-only", user.role === "CUSTOMER");
+
+            if (requiredRole === "ADMIN" && user.role !== "ADMIN") {
+                status.textContent = "Only administrators can access this page.";
+            } else if (requiredRole) {
+                status.parentElement.hidden = true;
+                updateVisibility("[data-session-content]", true);
+            }
+
+            return user;
+        } catch {
+            if (status) status.textContent = "Unable to verify your access. Refresh the page to try again.";
+            return null;
+        }
+    }
+
+    document.querySelector("[data-logout]")?.addEventListener("click", async event => {
+        const button = event.currentTarget;
+        button.disabled = true;
+
+        try {
+            const response = await fetch("/api/auth/logout", { method: "POST" });
+            if (!response.ok) throw new Error("Logout failed.");
+            location.replace("/login.html");
+        } catch {
+            button.disabled = false;
+            window.alert("Unable to log out. Please try again.");
+        }
+    });
+
+    return { ready: loadSession(), signInUrl, afterLogin };
+})();

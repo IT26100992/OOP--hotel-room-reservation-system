@@ -514,69 +514,37 @@
     <script src="/js/navigation.js" defer></script>
 </head>
 
-<body>
+<body data-requires="account">
 
 <header class="gs-header">
     <div class="gs-header-inner">
-
-        <a class="gs-brand" href="/search.html">
-            <span class="gs-brand-mark">G</span>
-
+        <a class="gs-brand" href="/">
+            <span class="gs-brand-mark" aria-hidden="true">G</span>
             <span>
                 <strong>GrandStay</strong>
-                <small>Hotel & Resorts</small>
+                <small>Hotel &amp; Resorts</small>
             </span>
         </a>
-
         <nav class="gs-nav" aria-label="Main navigation">
-
-            <a href="/search.html">
-                Explore Rooms
-            </a>
-
-            <a href="/reservation.html"
-               class="auth-only" hidden>
-                Reservations
-            </a>
-
-            <a href="/payment.html"
-               class="auth-only" hidden>
-                My Payments
-            </a>
-
-            <a href="/profile.html"
-               class="auth-only" hidden>
-                My Profile
-            </a>
-
-            <a href="/rooms.html"
-               class="admin-only" hidden>
-                Manage Rooms
-            </a>
-
-            <a href="/admin.html"
-               class="admin-only" hidden>
-                Dashboard
-            </a>
-
-            <a href="/login.html"
-               class="guest-only gs-sign-in">
-                Sign In
-            </a>
-
-            <button type="button"
-                    id="navLogout"
-                    class="auth-only" hidden>
-                Log Out
-            </button>
-
+            <a href="/search.html">Explore Rooms</a>
+            <a href="/reservation.html" class="auth-only" hidden>Reservations</a>
+            <a href="/payment.html" class="auth-only" hidden>My Payments</a>
+            <a href="/profile.html" class="auth-only" hidden>My Profile</a>
+            <a href="/rooms.html" class="admin-only" hidden>Manage Rooms</a>
+            <a href="/admin.html" class="admin-only" hidden>Dashboard</a>
+            <a href="/login.html" class="guest-only gs-sign-in">Sign In</a>
+            <a href="/register.html" class="guest-only">Register</a>
+            <button type="button" id="navLogout" data-logout class="auth-only" hidden>Log Out</button>
         </nav>
-
     </div>
 </header>
 
+<div class="gs-container gs-session-status">
+    <p data-session-status role="status">Checking access to your receipt…</p>
+    <a href="/search.html">Explore Rooms</a>
+</div>
 
-<main class="gs-receipt-main">
+<main class="gs-receipt-main" data-session-content hidden>
     <div class="page-heading">
         <p class="eyebrow">GrandStay · Guest Services</p>
         <h1>Payment Receipt</h1>
@@ -866,10 +834,13 @@
     const params = new URLSearchParams(window.location.search);
     const paymentIdFromUrl = params.get("paymentId");
 
-    if (paymentIdFromUrl) {
-        paymentIdInput.value = paymentIdFromUrl;
-        loadReceipt(paymentIdFromUrl.trim());
-    }
+    document.addEventListener("DOMContentLoaded", async () => {
+        const user = await GrandStaySession.ready;
+        if (user && paymentIdFromUrl) {
+            paymentIdInput.value = paymentIdFromUrl;
+            loadReceipt(paymentIdFromUrl.trim());
+        }
+    });
 </script>
 </body>
 </html>

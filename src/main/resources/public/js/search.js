@@ -68,7 +68,8 @@ searchForm.addEventListener("submit", async function (event) {
             );
         }
 
-        displayRooms(data);
+        const user = await GrandStaySession.ready;
+        displayRooms(data, { checkIn, checkOut, guests }, user);
 
     } catch (error) {
         message.textContent = error.message;
@@ -77,7 +78,7 @@ searchForm.addEventListener("submit", async function (event) {
     }
 });
 
-function displayRooms(rooms) {
+function displayRooms(rooms, criteria, user) {
 
     roomResults.replaceChildren();
 
@@ -119,32 +120,22 @@ function displayRooms(rooms) {
         description.textContent = room.description || "";
 
 
-        const bookButton = document.createElement("button");
-        bookButton.type = "button";
-        bookButton.className = "search-button";
-        bookButton.textContent = "Book Now";
+        card.append(title, type, capacity, price, description);
 
-        bookButton.addEventListener("click", () => {
-            const params = new URLSearchParams({
-                roomId: room.id,
-                checkIn: document.getElementById("checkIn").value,
-                checkOut: document.getElementById("checkOut").value,
-                guests: document.getElementById("guests").value
+        if (user?.role !== "ADMIN") {
+            const bookButton = document.createElement("button");
+            bookButton.type = "button";
+            bookButton.className = "search-button";
+            bookButton.textContent = user ? "Book Now" : "Sign In to Book";
+
+            bookButton.addEventListener("click", () => {
+                const params = new URLSearchParams({ ...criteria, roomId: room.id });
+                const bookingUrl = "/reservation.html?" + params;
+                window.location.href = user ? bookingUrl : GrandStaySession.signInUrl(bookingUrl);
             });
 
-            window.location.href =
-                "/reservation.html?" + params.toString();
-        });
-
-        card.append(
-            title,
-            type,
-            capacity,
-            price,
-            description,
-            bookButton
-        );
-
+            card.appendChild(bookButton);
+        }
 
         roomResults.appendChild(card);
     });
@@ -571,5 +562,3 @@ async function deleteSavedPreference(preferenceId) {
         savedSearchMessage.textContent = error.message;
     }
 }
-
-

@@ -475,70 +475,37 @@
     <script src="/js/navigation.js" defer></script>
 </head>
 
-<body>
+<body data-requires="account">
 
 <header class="gs-header">
     <div class="gs-header-inner">
-
-        <a class="gs-brand" href="/search.html">
-            <span class="gs-brand-mark">G</span>
-
+        <a class="gs-brand" href="/">
+            <span class="gs-brand-mark" aria-hidden="true">G</span>
             <span>
                 <strong>GrandStay</strong>
-                <small>Hotel & Resorts</small>
+                <small>Hotel &amp; Resorts</small>
             </span>
         </a>
-
         <nav class="gs-nav" aria-label="Main navigation">
-
-            <a href="/search.html">
-                Explore Rooms
-            </a>
-
-            <a href="/reservation.html"
-               class="auth-only" hidden>
-                Reservations
-            </a>
-
-            <a href="/payment.html"
-               class="auth-only"
-               aria-current="page" hidden>
-                My Payments
-            </a>
-
-            <a href="/profile.html"
-               class="auth-only" hidden>
-                My Profile
-            </a>
-
-            <a href="/rooms.html"
-               class="admin-only" hidden>
-                Manage Rooms
-            </a>
-
-            <a href="/admin.html"
-               class="admin-only" hidden>
-                Dashboard
-            </a>
-
-            <a href="/login.html"
-               class="guest-only gs-sign-in">
-                Sign In
-            </a>
-
-            <button type="button"
-                    id="navLogout"
-                    class="auth-only" hidden>
-                Log Out
-            </button>
-
+            <a href="/search.html">Explore Rooms</a>
+            <a href="/reservation.html" class="auth-only" hidden>Reservations</a>
+            <a href="/payment.html" class="auth-only" aria-current="page" hidden>My Payments</a>
+            <a href="/profile.html" class="auth-only" hidden>My Profile</a>
+            <a href="/rooms.html" class="admin-only" hidden>Manage Rooms</a>
+            <a href="/admin.html" class="admin-only" hidden>Dashboard</a>
+            <a href="/login.html" class="guest-only gs-sign-in">Sign In</a>
+            <a href="/register.html" class="guest-only">Register</a>
+            <button type="button" id="navLogout" data-logout class="auth-only" hidden>Log Out</button>
         </nav>
-
     </div>
 </header>
 
+<div class="gs-container gs-session-status">
+    <p data-session-status role="status">Checking access to your payments…</p>
+    <a href="/search.html">Explore Rooms</a>
+</div>
 
-<main class="gs-payments-main">
+<main class="gs-payments-main" data-session-content hidden>
 
     <div class="hero">
         <p class="eyebrow">
@@ -557,14 +524,12 @@
 
     <p id="message" role="status" aria-live="polite"></p>
 
-    <section aria-labelledby="create-title">
+    <section aria-labelledby="create-title" data-payment-details hidden>
         <span class="step-label">Reservation Payment</span>
         <h2 id="create-title">Complete Your Reservation Payment</h2>
         <p class="section-description">
-            Enter your reservation details to create a
-            pending payment. Once created, choose
-            Process Payment in your payment history
-            to confirm the reservation.
+            Review the total for your reservation and choose a payment method. Once created,
+            choose Process Payment in your payment history.
         </p>
 
         <form id="payment-form">
@@ -573,8 +538,7 @@
                 <input
                         id="reservation-id"
                         type="text"
-                        placeholder="Enter your reservation ID"
-                        required>
+                        readonly>
             </label>
 
             <label>
@@ -582,10 +546,7 @@
                 <input
                         id="amount"
                         type="number"
-                        placeholder="0.00"
-                        min="0.01"
-                        step="0.01"
-                        required>
+                        readonly>
             </label>
 
             <label>
@@ -599,7 +560,7 @@
 
             <button id="create-button"
                     class="full-width"
-                    type="submit">
+                    type="submit" disabled>
                 Continue to Payment
             </button>
         </form>
@@ -618,6 +579,7 @@
                 <p class="section-description">
                     Review your payments, process pending
                     transactions and open completed receipts.
+                    To start a payment, <a href="/reservation.html">open your reservations</a>.
                 </p>
             </div>
 
@@ -662,6 +624,7 @@
     const message = document.getElementById("message");
     const createButton = document.getElementById("create-button");
     const refreshButton = document.getElementById("refresh-button");
+    const paymentDetails = document.querySelector("[data-payment-details]");
     let currentUserRole = null;
 
 
@@ -681,7 +644,6 @@
     }
 
     async function prefillPaymentDetails() {
-        if (!selectedReservationId) return;
 
         const reservationInput =
             document.getElementById("reservation-id");
@@ -702,6 +664,10 @@
             }
 
             const reservation = await reservationResponse.json();
+
+            if (["CANCELLED", "COMPLETED"].includes(reservation.status)) {
+                throw new Error("This reservation is closed to new payments.");
+            }
 
             const roomResponse = await fetch(
                 "/api/rooms/" +
@@ -752,8 +718,7 @@
             );
 
             if (activePayment) {
-                createButton.disabled = true;
-
+                amountInput.value = Number(activePayment.amount).toFixed(2);
                 if (activePayment.status === "COMPLETED") {
                     createButton.textContent = "Already Paid";
 
@@ -769,16 +734,13 @@
                         "Use Process Payment in Payment History below."
                     );
                 }
+            } else {
+                createButton.disabled = false;
             }
-
-
         } catch (error) {
-            console.error(error);
             showMessage(error.message, true);
         }
     }
-
-    prefillPaymentDetails();
 
 
     const methodLabels = {
@@ -1125,13 +1087,7 @@
     form.addEventListener("submit", async event => {
         event.preventDefault();
 
-        const reservationId =
-            document.getElementById("reservation-id").value.trim();
-
-        if (!reservationId) {
-            showMessage("Reservation ID is required.", true);
-            return;
-        }
+        if (createButton.disabled || currentUserRole !== "CUSTOMER") return;
 
         createButton.disabled = true;
         createButton.textContent = "Creating Payment...";
@@ -1143,7 +1099,7 @@
                     "Content-Type": "application/json"
                 },
                 body: JSON.stringify({
-                    reservationId,
+                    reservationId: selectedReservationId,
                     amount: document.getElementById("amount").value,
                     method: document.getElementById("method").value
                 })
@@ -1153,7 +1109,7 @@
                 "Pending payment created: " + payment.id
             );
 
-            form.reset();
+            paymentDetails.hidden = true;
 
             try {
                 await loadPayments();
@@ -1167,7 +1123,7 @@
         } catch (error) {
             showMessage(error.message, true);
         } finally {
-            createButton.disabled = false;
+            createButton.disabled = paymentDetails.hidden;
             createButton.textContent = "Continue to Payment";
         }
     });
@@ -1188,26 +1144,16 @@
 
     async function initializePaymentPage() {
         try {
-            const response = await fetch("/api/auth/me", {
-                credentials: "same-origin"
-            });
+            const user = await GrandStaySession.ready;
+            if (!user) return;
 
-            if (!response.ok) {
-                showTableMessage(
-                    "Please sign in to view your payments."
-                );
-
-                showMessage(
-                    "Please sign in to manage payments.",
-                    true
-                );
-                return;
-            }
-
-            const user = await response.json();
             currentUserRole = user.role;
-
             await loadPayments();
+
+            if (selectedReservationId && currentUserRole === "CUSTOMER") {
+                paymentDetails.hidden = false;
+                await prefillPaymentDetails();
+            }
 
         } catch (error) {
             showTableMessage(
@@ -1219,7 +1165,7 @@
         }
     }
 
-    initializePaymentPage();
+    document.addEventListener("DOMContentLoaded", initializePaymentPage);
 
 </script>
 </body>

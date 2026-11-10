@@ -1,20 +1,97 @@
-
-body {
-    margin: 0;
-    font-family: Arial, sans-serif;
-    background: #f4f6f9;
-    color: #1f2937;
+.home-main {
+    padding-block: 36px 0;
 }
 
-.container {
-    max-width: 900px;
-    margin: 80px auto;
-    padding: 32px;
-    background: white;
-    border-radius: 12px;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+.home-hero {
+    background:
+        radial-gradient(circle at 90% 15%, rgba(212, 180, 119, 0.24), transparent 38%),
+        linear-gradient(120deg, var(--gs-primary-dark), #27574b);
+    border-radius: var(--gs-radius);
+    padding: clamp(28px, 7vw, 84px);
+    box-shadow: var(--gs-shadow);
+    color: var(--gs-white);
 }
 
-h1 {
-    color: #174a7e;
+.home-hero .gs-eyebrow {
+    color: var(--gs-gold-light);
+}
+
+.home-hero h1,
+.home-guide h2 {
+    font-family: "Playfair Display", Georgia, serif;
+    font-weight: 600;
+    line-height: 1.13;
+}
+
+.home-hero h1 {
+    max-width: 14ch;
+    margin: 12px 0;
+    font-size: clamp(36px, 7vw, 72px);
+}
+
+.home-hero p:not(.gs-eyebrow) {
+    max-width: 44ch;
+    color: #e1eae3;
+}
+
+.home-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-top: 28px;
+}
+
+.home-button,
+.home-secondary {
+    display: inline-block;
+    padding: 10px 18px;
+    border: 1px solid var(--gs-gold);
+    border-radius: 9px;
+    text-decoration: none;
+    font-weight: 700;
+}
+
+.home-button {
+    background: var(--gs-gold);
+    color: var(--gs-primary-dark);
+}
+
+.home-button:hover,
+.home-secondary:hover {
+    background: var(--gs-gold-light);
+    color: var(--gs-primary-dark);
+}
+
+.home-guide {
+    margin-top: 36px;
+}
+
+.home-guide h2 {
+    font-size: clamp(26px, 4vw, 34px);
+}
+
+.home-guide ol {
+    list-style: none;
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 16px;
+    padding: 0;
+}
+
+.home-guide li {
+    background: var(--gs-white);
+    border: 1px solid var(--gs-border);
+    border-radius: var(--gs-radius);
+    padding: 22px;
+    box-shadow: var(--gs-shadow);
+}
+
+.home-guide li p {
+    margin-bottom: 0;
+}
+
+@media (max-width: 680px) {
+    .home-guide ol {
+        grid-template-columns: 1fr;
+    }
 }

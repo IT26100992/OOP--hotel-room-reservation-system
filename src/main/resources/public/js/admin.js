@@ -730,4 +730,6 @@ async function initializeDashboard() {
     ]);
 }
 
-initializeDashboard();
+GrandStaySession.ready.then(user => {
+    if (user?.role === "ADMIN") initializeDashboard();
+});

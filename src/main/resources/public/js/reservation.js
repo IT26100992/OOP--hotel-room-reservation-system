@@ -14,7 +14,10 @@ document.addEventListener("DOMContentLoaded", () => {
 
     let editingReservationId = null;
     let reservationsCache = [];
-    let authenticatedCustomerId = "";
+    let user;
+    const bookingPanel = document.querySelector("[data-booking-panel]");
+    const userIdInput = document.getElementById("userId");
+    const columnCount = () => user.role === "ADMIN" ? 8 : 7;
 
 
     const bookingParams = new URLSearchParams(window.location.search);
@@ -39,33 +42,6 @@ document.addEventListener("DOMContentLoaded", () => {
     if (selectedGuests) {
         document.getElementById("guestCount").value = selectedGuests;
     }
-
-// Retrieve the logged-in customer.
-    const userIdInput = document.getElementById("userId");
-    userIdInput.readOnly = true;
-
-    fetch("/api/auth/me", {
-        credentials: "same-origin"
-    })
-        .then(async response => {
-            if (!response.ok) {
-                throw new Error("Please log in before making a reservation.");
-            }
-
-            return response.json();
-        })
-        .then(user => {
-            if (user.role !== "CUSTOMER") {
-                throw new Error("Only customers can create reservations.");
-            }
-
-            authenticatedCustomerId = user.id;
-            userIdInput.value = authenticatedCustomerId;
-        })
-        .catch(error => {
-            showMessage(error.message, true);
-        });
-
 
     function showMessage(message, isError = false) {
         statusMessage.textContent = message;
@@ -102,7 +78,8 @@ document.addEventListener("DOMContentLoaded", () => {
         form.reset();
 
         // Restore the authenticated user after resetting.
-        userIdInput.value = authenticatedCustomerId;
+        userIdInput.value = user.id;
+        bookingPanel.hidden = user.role !== "CUSTOMER";
 
         submitButton.textContent = "Create Reservation";
         editingHeading.textContent = "Create a Reservation";
@@ -123,7 +100,7 @@ document.addEventListener("DOMContentLoaded", () => {
         if (reservationsCache.length === 0) {
             const row = document.createElement("tr");
             const cell = addCell(row, "No reservations found.");
-            cell.colSpan = 8;
+            cell.colSpan = columnCount();
             cell.className = "empty-state";
             reservationList.appendChild(row);
             return;
@@ -134,7 +111,7 @@ document.addEventListener("DOMContentLoaded", () => {
             const row = document.createElement("tr");
 
             addCell(row, reservation.id);
-            addCell(row, reservation.userId);
+            if (user.role === "ADMIN") addCell(row, reservation.userId);
             addCell(row, reservation.roomId);
             addCell(row, reservation.checkInDate);
             addCell(row, reservation.checkOutDate);
@@ -180,6 +157,14 @@ document.addEventListener("DOMContentLoaded", () => {
             });
 
             actions.append(editButton, cancelButton);
+
+            if (user.role === "CUSTOMER" && !inactive) {
+                const paymentLink = document.createElement("a");
+                paymentLink.className = "btn payment-link";
+                paymentLink.textContent = "Payment";
+                paymentLink.href = "/payment.html?reservationId=" + encodeURIComponent(reservation.id);
+                actions.appendChild(paymentLink);
+            }
             actionsCell.appendChild(actions);
             row.appendChild(actionsCell);
 
@@ -218,7 +203,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
             const row = document.createElement("tr");
             const cell = addCell(row, error.message);
-            cell.colSpan = 8;
+            cell.colSpan = columnCount();
             cell.className = "empty-state";
 
             reservationList.appendChild(row);
@@ -233,6 +218,7 @@ document.addEventListener("DOMContentLoaded", () => {
     function editReservation(reservation) {
 
         editingReservationId = reservation.id;
+        bookingPanel.hidden = false;
 
         document.getElementById("userId").value =
             reservation.userId;
@@ -296,8 +282,10 @@ document.addEventListener("DOMContentLoaded", () => {
 
         event.preventDefault();
 
+        if (!user || (user.role !== "CUSTOMER" && !editingReservationId)) return;
+
         const reservation = {
-            userId: document.getElementById("userId").value.trim(),
+            userId: user.id,
             roomId: document.getElementById("roomId").value.trim(),
             checkInDate: document.getElementById("checkInDate").value,
             checkOutDate: document.getElementById("checkOutDate").value,
@@ -307,7 +295,6 @@ document.addEventListener("DOMContentLoaded", () => {
         };
 
         if (
-            !reservation.userId ||
             !reservation.roomId ||
             !reservation.checkInDate ||
             !reservation.checkOutDate ||
@@ -352,6 +339,7 @@ document.addEventListener("DOMContentLoaded", () => {
             method = "PUT";
 
             reservation.id = existing.id;
+            reservation.userId = existing.userId;
             reservation.status = existing.status;
             reservation.createdAt = existing.createdAt;
 
@@ -432,6 +420,12 @@ document.addEventListener("DOMContentLoaded", () => {
 
     refreshButton.addEventListener("click", loadReservations);
 
-    loadReservations();
+    GrandStaySession.ready.then(sessionUser => {
+        if (!sessionUser) return;
 
+        user = sessionUser;
+        userIdInput.value = user.id;
+        bookingPanel.hidden = user.role !== "CUSTOMER";
+        loadReservations();
+    });
 });

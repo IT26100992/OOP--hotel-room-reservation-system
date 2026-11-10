@@ -13,71 +13,38 @@
     <script src="/js/navigation.js" defer></script>
 </head>
 
-<body>
+<body data-requires="account">
 
 
 <header class="gs-header">
     <div class="gs-header-inner">
-
-        <a class="gs-brand" href="/search.html">
-            <span class="gs-brand-mark">G</span>
-
+        <a class="gs-brand" href="/">
+            <span class="gs-brand-mark" aria-hidden="true">G</span>
             <span>
                 <strong>GrandStay</strong>
-                <small>Hotel & Resorts</small>
+                <small>Hotel &amp; Resorts</small>
             </span>
         </a>
-
         <nav class="gs-nav" aria-label="Main navigation">
-
-            <a href="/search.html">
-                Explore Rooms
-            </a>
-
-            <a href="/reservation.html"
-               aria-current="page"
-               class="auth-only" hidden>
-                Reservations
-            </a>
-
-            <a href="/payment.html"
-               class="auth-only" hidden>
-                My Payments
-            </a>
-
-            <a href="/profile.html"
-               class="auth-only" hidden>
-                My Profile
-            </a>
-
-            <a href="/rooms.html"
-               class="admin-only" hidden>
-                Manage Rooms
-            </a>
-
-            <a href="/admin.html"
-               class="admin-only" hidden>
-                Dashboard
-            </a>
-
-            <a href="/login.html"
-               class="guest-only gs-sign-in">
-                Sign In
-            </a>
-
-            <button type="button"
-                    id="navLogout"
-                    class="auth-only" hidden>
-                Log Out
-            </button>
-
+            <a href="/search.html">Explore Rooms</a>
+            <a href="/reservation.html" class="auth-only" aria-current="page" hidden>Reservations</a>
+            <a href="/payment.html" class="auth-only" hidden>My Payments</a>
+            <a href="/profile.html" class="auth-only" hidden>My Profile</a>
+            <a href="/rooms.html" class="admin-only" hidden>Manage Rooms</a>
+            <a href="/admin.html" class="admin-only" hidden>Dashboard</a>
+            <a href="/login.html" class="guest-only gs-sign-in">Sign In</a>
+            <a href="/register.html" class="guest-only">Register</a>
+            <button type="button" id="navLogout" data-logout class="auth-only" hidden>Log Out</button>
         </nav>
-
     </div>
 </header>
 
+<div class="gs-container gs-session-status">
+    <p data-session-status role="status">Checking access to your reservations…</p>
+    <a href="/search.html">Explore Rooms</a>
+</div>
 
-<main class="container">
+<main class="container" data-session-content hidden>
 
 
     <section class="welcome">
@@ -87,7 +54,7 @@
                 YOUR GRANDSTAY EXPERIENCE
             </p>
 
-            <h1>Manage Your Reservations</h1>
+            <h1>Manage Reservations</h1>
 
             <p>
                 Review your upcoming stays, manage
@@ -130,7 +97,7 @@
         </article>
     </section>
 
-    <section class="panel">
+    <section class="panel" data-booking-panel hidden>
 
         <div class="section-heading">
             <div>
@@ -141,19 +108,9 @@
         </div>
 
         <form id="reservation-form">
+            <input type="hidden" id="userId" name="userId">
 
             <div class="form-grid">
-
-                <div class="form-group">
-                    <label for="userId"> Customer ID (Automatically Assigned)</label>
-                    <input
-                            type="text"
-                            id="userId"
-                            name="userId"
-                            placeholder="Enter customer ID"
-                            required
-                    >
-                </div>
 
                 <div class="form-group">
                     <label for="roomId">Room ID</label>
@@ -161,7 +118,7 @@
                             type="text"
                             id="roomId"
                             name="roomId"
-                            placeholder="Enter room ID"
+                            placeholder="Select a room from Explore Rooms"
                             required
                     >
                 </div>
@@ -247,7 +204,7 @@
                 <thead>
                 <tr>
                     <th>Reservation ID</th>
-                    <th>Customer ID</th>
+                    <th class="admin-only" hidden>Customer ID</th>
                     <th>Room ID</th>
                     <th>Check-in</th>
                     <th>Check-out</th>

@@ -16,6 +16,7 @@ togglePassword.addEventListener("click", () => {
 
     passwordInput.type = hidden ? "text" : "password";
     togglePassword.textContent = hidden ? "Hide" : "Show";
+    togglePassword.setAttribute("aria-label", hidden ? "Hide password" : "Show password");
 });
 
 // Handle login
@@ -55,8 +56,7 @@ loginForm.addEventListener("submit", async (event) => {
 
         showMessage("Login successful!", "success");
 
-        // Navigate to the existing room search page
-        window.location.href = "/search.html";
+        window.location.replace(GrandStaySession.afterLogin(data.role));
 
     } catch (error) {
         showMessage(

@@ -498,4 +498,6 @@ cancelFormButton.addEventListener("click", hideForm);
 // Initialize Dashboard
 // =====================================
 
-loadRooms();
+GrandStaySession.ready.then(user => {
+    if (user?.role === "ADMIN") loadRooms();
+});

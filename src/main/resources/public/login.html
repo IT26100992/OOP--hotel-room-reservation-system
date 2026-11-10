@@ -5,19 +5,44 @@
     <meta name="viewport"
           content="width=device-width, initial-scale=1.0">
 
-    <title>Sign In | Hotel Reservation</title>
+    <title>Sign In | GrandStay</title>
 
+    <link rel="stylesheet" href="/css/design-system.css">
     <link rel="stylesheet" href="/css/auth.css">
+    <script src="/js/navigation.js" defer></script>
     <script src="/js/login.js" defer></script>
 </head>
 
 <body>
 
+<header class="gs-header">
+    <div class="gs-header-inner">
+        <a class="gs-brand" href="/">
+            <span class="gs-brand-mark" aria-hidden="true">G</span>
+            <span>
+                <strong>GrandStay</strong>
+                <small>Hotel &amp; Resorts</small>
+            </span>
+        </a>
+        <nav class="gs-nav" aria-label="Main navigation">
+            <a href="/search.html">Explore Rooms</a>
+            <a href="/reservation.html" class="auth-only" hidden>Reservations</a>
+            <a href="/payment.html" class="auth-only" hidden>My Payments</a>
+            <a href="/profile.html" class="auth-only" hidden>My Profile</a>
+            <a href="/rooms.html" class="admin-only" hidden>Manage Rooms</a>
+            <a href="/admin.html" class="admin-only" hidden>Dashboard</a>
+            <a href="/login.html" class="guest-only gs-sign-in" aria-current="page">Sign In</a>
+            <a href="/register.html" class="guest-only">Register</a>
+            <button type="button" id="navLogout" data-logout class="auth-only" hidden>Log Out</button>
+        </nav>
+    </div>
+</header>
+
 <main class="auth-layout">
 
     <section class="auth-visual">
         <div class="visual-content">
-            <span class="brand">HOTEL RESERVATION</span>
+            <span class="brand">GRANDSTAY HOTEL &amp; RESORTS</span>
 
             <h1>Welcome back.</h1>
 
@@ -32,10 +57,7 @@
     <section class="auth-panel">
 
         <div class="auth-card">
-
-            <div class="mobile-brand">
-                HOTEL RESERVATION
-            </div>
+            <p class="gs-eyebrow">Your GrandStay account</p>
 
             <h2>Sign in to your account</h2>
 
@@ -74,6 +96,7 @@
                         <button
                                 type="button"
                                 id="togglePassword"
+                                aria-label="Show password"
                                 class="password-toggle">
                             Show
                         </button>

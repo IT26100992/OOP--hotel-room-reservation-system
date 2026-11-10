@@ -1,19 +1,17 @@
-@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:wght@600;700&display=swap');
-
 /* ==========================
    Global Theme
    ========================== */
 
 :root {
-    --primary: #193f3b;
-    --primary-hover: #102e2a;
-    --background: #f6f8f6;
-    --surface: #ffffff;
-    --text: #222d29;
-    --muted: #76817b;
-    --border: #e1e8e3;
-    --danger: #b42332;
-    --radius: 14px;
+    --primary: var(--gs-primary);
+    --primary-hover: var(--gs-primary-dark);
+    --background: var(--gs-cream);
+    --surface: var(--gs-white);
+    --text: var(--gs-text);
+    --muted: var(--gs-muted);
+    --border: var(--gs-border);
+    --danger: var(--gs-danger);
+    --radius: var(--gs-radius);
 }
 
 * {
@@ -43,50 +41,11 @@ button {
 }
 
 /* ==========================
-   Header
-   ========================== */
-
-.dashboard-header {
-    background: var(--primary);
-    padding: 22px 6%;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 20px;
-}
-
-.brand {
-    color: white;
-    font-size: 13px;
-    font-weight: 700;
-    letter-spacing: 2px;
-    text-decoration: none;
-}
-
-.dashboard-nav {
-    display: flex;
-    align-items: center;
-    gap: 28px;
-}
-
-.dashboard-nav a {
-    color: #d1e2da;
-    text-decoration: none;
-    font-size: 13px;
-    font-weight: 600;
-}
-
-.dashboard-nav a:hover,
-.dashboard-nav a[aria-current="page"] {
-    color: white;
-}
-
-/* ==========================
    Main Container
    ========================== */
 
 .dashboard-container {
-    max-width: 1250px;
+    max-width: 1180px;
     margin: 0 auto;
     padding: 48px 28px 80px;
 }
@@ -100,7 +59,6 @@ button {
 }
 
 .eyebrow {
-    color: #4a8073;
     font-size: 11px;
     font-weight: 700;
     letter-spacing: 2px;
@@ -113,7 +71,7 @@ button {
 }
 
 .dashboard-heading p {
-    color: var(--muted);
+    color: #e1eae3;
     font-size: 14px;
     line-height: 1.7;
     margin: 0;
@@ -132,6 +90,15 @@ button {
     font-weight: 700;
     font-size: 13px;
     transition: background 0.2s;
+}
+
+.dashboard-heading .primary-button {
+    background: var(--gs-gold);
+    color: var(--gs-primary-dark);
+}
+
+.dashboard-heading .primary-button:hover {
+    background: var(--gs-gold-light);
 }
 
 .primary-button:hover {
@@ -174,7 +141,7 @@ button {
     padding: 26px;
     border: 1px solid var(--border);
     border-radius: var(--radius);
-    box-shadow: 0 4px 20px rgba(20, 40, 30, 0.025);
+    box-shadow: var(--gs-shadow);
 }
 
 .stat-card span {
@@ -201,6 +168,7 @@ button {
     border-radius: var(--radius);
     padding: 30px;
     margin-bottom: 28px;
+    box-shadow: var(--gs-shadow);
 }
 
 .section-heading {
@@ -212,6 +180,7 @@ button {
 }
 
 .section-heading h2 {
+    font-family: "Playfair Display", Georgia, serif;
     margin: 0 0 7px;
     font-size: 21px;
 }
@@ -397,6 +366,7 @@ button {
    ========================== */
 
 .notification {
+    margin-bottom: 20px;
     padding: 15px 18px;
     border-radius: 9px;
     font-size: 13px;
@@ -435,17 +405,6 @@ button {
 }
 
 @media (max-width: 600px) {
-    .dashboard-header {
-        flex-direction: column;
-        align-items: flex-start;
-        padding: 20px;
-    }
-
-    .dashboard-nav {
-        flex-wrap: wrap;
-        gap: 16px;
-    }
-
     .dashboard-container {
         padding: 28px 16px 55px;
     }

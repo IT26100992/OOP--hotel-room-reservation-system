@@ -15,7 +15,6 @@ const saveButton = document.getElementById("saveButton");
 const profileForm = document.getElementById("profileForm");
 const profileMessage = document.getElementById("profileMessage");
 
-const logoutButton = document.getElementById("logoutButton");
 const deactivateButton =
     document.getElementById("deactivateButton");
 
@@ -44,33 +43,6 @@ function displayProfile(user) {
     document.getElementById("fullName").value = user.fullName;
     document.getElementById("email").value = user.email;
     document.getElementById("phone").value = user.phone || "";
-}
-
-// Load the logged-in customer's information
-async function loadProfile() {
-    try {
-        const response = await fetch("/api/auth/me", {
-            credentials: "same-origin"
-        });
-
-        if (response.status === 401) {
-            window.location.replace("/login.html");
-            return;
-        }
-
-        if (!response.ok) {
-            throw new Error("Could not load profile.");
-        }
-
-        const user = await response.json();
-        displayProfile(user);
-
-    } catch (error) {
-        showMessage(
-            "Unable to load your profile. Please refresh.",
-            "error"
-        );
-    }
 }
 
 // Show edit form
@@ -120,7 +92,7 @@ profileForm.addEventListener("submit", async (event) => {
         });
 
         if (response.status === 401) {
-            window.location.replace("/login.html");
+            window.location.replace(GrandStaySession.signInUrl());
             return;
         }
 
@@ -150,31 +122,6 @@ profileForm.addEventListener("submit", async (event) => {
     } finally {
         saveButton.disabled = false;
         saveButton.textContent = "Save Changes";
-    }
-});
-
-// Logout
-logoutButton.addEventListener("click", async () => {
-    logoutButton.disabled = true;
-
-    try {
-        const response = await fetch("/api/auth/logout", {
-            method: "POST",
-            credentials: "same-origin"
-        });
-
-        if (!response.ok) {
-            throw new Error("Logout failed.");
-        }
-
-        window.location.replace("/login.html");
-
-    } catch (error) {
-        showMessage(
-            "Unable to log out. Please try again.",
-            "error"
-        );
-        logoutButton.disabled = false;
     }
 });
 
@@ -214,4 +161,6 @@ deactivateButton.addEventListener("click", async () => {
 });
 
 // Initialize the page
-loadProfile();
+GrandStaySession.ready.then(user => {
+    if (user) displayProfile(user);
+});

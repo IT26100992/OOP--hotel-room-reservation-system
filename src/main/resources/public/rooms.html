@@ -5,33 +5,48 @@
     <meta name="viewport"
           content="width=device-width, initial-scale=1.0">
 
-    <title>Room Management | Hotel Reservation</title>
+    <title>Room Management | GrandStay</title>
 
+    <link rel="stylesheet" href="/css/design-system.css">
     <link rel="stylesheet" href="/css/rooms.css">
+    <script src="/js/navigation.js" defer></script>
     <script src="/js/rooms.js" defer></script>
 </head>
 
-<body>
+<body data-requires="ADMIN">
 
-<header class="dashboard-header">
-
-    <a class="brand" href="/rooms.html">
-        HOTEL RESERVATION
-    </a>
-
-    <nav class="dashboard-nav">
-        <a href="/search.html">Search Rooms</a>
-        <a href="/rooms.html" aria-current="page">
-            Room Management
+<header class="gs-header">
+    <div class="gs-header-inner">
+        <a class="gs-brand" href="/">
+            <span class="gs-brand-mark" aria-hidden="true">G</span>
+            <span>
+                <strong>GrandStay</strong>
+                <small>Hotel &amp; Resorts</small>
+            </span>
         </a>
-    </nav>
-
+        <nav class="gs-nav" aria-label="Main navigation">
+            <a href="/search.html">Explore Rooms</a>
+            <a href="/reservation.html" class="auth-only" hidden>Reservations</a>
+            <a href="/payment.html" class="auth-only" hidden>My Payments</a>
+            <a href="/profile.html" class="auth-only" hidden>My Profile</a>
+            <a href="/rooms.html" class="admin-only" aria-current="page" hidden>Manage Rooms</a>
+            <a href="/admin.html" class="admin-only" hidden>Dashboard</a>
+            <a href="/login.html" class="guest-only gs-sign-in">Sign In</a>
+            <a href="/register.html" class="guest-only">Register</a>
+            <button type="button" id="navLogout" data-logout class="auth-only" hidden>Log Out</button>
+        </nav>
+    </div>
 </header>
 
-<main class="dashboard-container">
+<div class="gs-container gs-session-status">
+    <p data-session-status role="status">Checking access to room management…</p>
+    <a href="/search.html">Explore Rooms</a>
+</div>
+
+<main class="dashboard-container" data-session-content hidden>
 
     <!-- Dashboard heading -->
-    <section class="dashboard-heading">
+    <section class="dashboard-heading gs-page-hero">
 
         <div>
             <span class="eyebrow">HOTEL OPERATIONS</span>
@@ -76,6 +91,8 @@
         </article>
 
     </section>
+
+    <div id="roomMessage" class="notification" role="status" aria-live="polite"></div>
 
     <!-- Room listing -->
     <section class="content-card">
@@ -269,13 +286,6 @@
         </form>
 
     </section>
-
-    <!-- Success / Error notifications -->
-    <div id="roomMessage"
-         class="notification"
-         role="status"
-         aria-live="polite">
-    </div>
 
 </main>
 
