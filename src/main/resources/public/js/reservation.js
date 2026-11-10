@@ -14,6 +14,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     let editingReservationId = null;
     let reservationsCache = [];
+    let authenticatedCustomerId = "";
 
 
     const bookingParams = new URLSearchParams(window.location.search);
@@ -58,7 +59,8 @@ document.addEventListener("DOMContentLoaded", () => {
                 throw new Error("Only customers can create reservations.");
             }
 
-            userIdInput.value = user.id;
+            authenticatedCustomerId = user.id;
+            userIdInput.value = authenticatedCustomerId;
         })
         .catch(error => {
             showMessage(error.message, true);
@@ -96,7 +98,11 @@ document.addEventListener("DOMContentLoaded", () => {
 
     function resetEditMode() {
         editingReservationId = null;
+
         form.reset();
+
+        // Restore the authenticated user after resetting.
+        userIdInput.value = authenticatedCustomerId;
 
         submitButton.textContent = "Create Reservation";
         editingHeading.textContent = "Create a Reservation";
@@ -415,14 +421,14 @@ document.addEventListener("DOMContentLoaded", () => {
         showMessage("Edit cancelled.");
     });
 
-    document.getElementById("clear-form").addEventListener("click", () => {
-        if (editingReservationId !== null) {
+    document.getElementById("clear-form")
+        .addEventListener("click", event => {
+
+            event.preventDefault();
+
             resetEditMode();
-            showMessage("Form cleared. Edit mode cancelled.");
-        } else {
             showMessage("Form cleared.");
-        }
-    });
+        });
 
     refreshButton.addEventListener("click", loadReservations);
 

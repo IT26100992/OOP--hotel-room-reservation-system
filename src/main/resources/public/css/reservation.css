@@ -1,182 +1,198 @@
 
+/* ==========================================
+   GRANDSTAY - RESERVATION MANAGEMENT
+   ========================================== */
+
 :root {
-    --primary: #183b56;
-    --primary-light: #285b7b;
-    --accent: #d6a85f;
-    --background: #f3f6f9;
-    --white: #ffffff;
-    --text: #243746;
-    --muted: #758493;
-    --border: #e2e8ee;
-    --success: #198754;
-    --danger: #dc3545;
+    --reservation-success: #217750;
+    --reservation-warning: #9b6c22;
 }
 
-* {
-    box-sizing: border-box;
-    margin: 0;
-    padding: 0;
-}
-
-body {
-    font-family: "Segoe UI", Arial, sans-serif;
-    background: var(--background);
-    color: var(--text);
-    line-height: 1.6;
-}
-
-.topbar {
-    min-height: 76px;
-    background: var(--primary);
-    color: white;
-    padding: 12px 7%;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    gap: 20px;
-}
-
-.brand {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-}
-
-.brand-icon {
-    width: 44px;
-    height: 44px;
-    border-radius: 10px;
-    background: var(--accent);
-    color: var(--primary);
-    display: grid;
-    place-items: center;
-    font-size: 25px;
-    font-weight: bold;
-}
-
-.brand h2 {
-    font-size: 20px;
-}
-
-.brand small {
-    color: #d5e0e8;
-}
-
-.topbar nav {
-    display: flex;
-    gap: 25px;
-}
-
-.topbar nav a {
-    text-decoration: none;
-    color: #e5edf3;
-    font-size: 14px;
-    font-weight: 600;
-}
-
-.topbar nav a.active,
-.topbar nav a:hover {
-    color: var(--accent);
-}
+/* Main content */
 
 .container {
-    width: min(1180px, 92%);
-    margin: 35px auto;
+    width: min(1180px, calc(100% - 48px));
+    margin: 36px auto 0;
 }
+
+/* Welcome banner */
 
 .welcome {
-    background: linear-gradient(120deg, #183b56, #285b7b);
-    color: white;
-    padding: 38px;
-    border-radius: 15px;
+    min-height: 235px;
+    position: relative;
+    overflow: hidden;
+
     display: flex;
-    justify-content: space-between;
     align-items: center;
-    margin-bottom: 25px;
+    justify-content: space-between;
+    gap: 24px;
+
+    padding: 42px 48px;
+    margin-bottom: 27px;
+    border-radius: 16px;
+
+    background:
+            radial-gradient(
+                    circle at 86% 20%,
+                    rgba(212, 180, 119, 0.14),
+                    transparent 36%
+            ),
+            linear-gradient(
+                    120deg,
+                    #102e2a,
+                    #24564b
+            );
+
+    color: white;
 }
 
-.welcome h1 {
-    font-size: clamp(25px, 4vw, 34px);
-    margin: 7px 0;
-}
-
-.welcome p:not(.eyebrow) {
-    color: #dce6ed;
-}
-
-.welcome-icon {
-    font-size: 65px;
+.welcome-content {
+    position: relative;
+    z-index: 1;
+    max-width: 720px;
 }
 
 .eyebrow {
+    margin: 0 0 10px;
+    color: var(--gs-gold);
     font-size: 11px;
     font-weight: 700;
     letter-spacing: 2px;
-    color: var(--accent);
+    text-transform: uppercase;
 }
+
+.welcome h1 {
+    margin: 0 0 12px;
+    font-family: "Playfair Display", Georgia, serif;
+    font-size: clamp(29px, 4vw, 43px);
+    line-height: 1.2;
+    font-weight: 600;
+}
+
+.welcome p:not(.eyebrow) {
+    margin: 0;
+    max-width: 575px;
+    font-size: 14px;
+    line-height: 1.9;
+    color: #dce9e2;
+}
+
+.welcome-link {
+    display: inline-block;
+    margin-top: 22px;
+    padding-bottom: 4px;
+    border-bottom: 1px solid var(--gs-gold);
+
+    color: var(--gs-gold-light);
+    text-decoration: none;
+    font-size: 13px;
+    font-weight: 700;
+}
+
+.welcome-link:hover {
+    color: white;
+}
+
+.welcome-decoration {
+    color: rgba(212, 180, 119, 0.3);
+    font-size: clamp(75px, 11vw, 145px);
+    line-height: 1;
+}
+
+/* Reservation statistic cards */
 
 .stats-grid {
     display: grid;
-    grid-template-columns: repeat(4, 1fr);
+    grid-template-columns: repeat(4, minmax(0, 1fr));
     gap: 18px;
-    margin-bottom: 25px;
+    margin-bottom: 28px;
 }
 
 .stat-card {
-    background: var(--white);
-    padding: 22px;
-    border-radius: 12px;
-    border: 1px solid var(--border);
-    box-shadow: 0 3px 12px rgba(0, 0, 0, 0.025);
+    position: relative;
+    overflow: hidden;
+    background: var(--gs-white);
+    padding: 24px;
+    border: 1px solid var(--gs-border);
+    border-radius: 13px;
+    box-shadow: var(--gs-shadow);
+}
+
+.stat-card::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 3px;
+    background: var(--gs-gold);
 }
 
 .stat-card span {
     display: block;
-    font-size: 13px;
-    color: var(--muted);
+    margin-bottom: 9px;
+    color: var(--gs-muted);
+    font-size: 12px;
+    font-weight: 600;
 }
 
 .stat-card strong {
     display: block;
-    font-size: 30px;
-    color: var(--primary);
-    margin-top: 5px;
+    color: var(--gs-primary-dark);
+    font-family: "Playfair Display", Georgia, serif;
+    font-size: 34px;
+    line-height: 1.2;
 }
 
+/* Content panels */
+
 .panel {
-    background: var(--white);
-    padding: 28px;
-    border-radius: 14px;
-    margin-bottom: 25px;
-    border: 1px solid var(--border);
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.025);
+    margin-bottom: 26px;
+    padding: 34px;
+    background: white;
+    border: 1px solid var(--gs-border);
+    border-radius: 15px;
+    box-shadow: var(--gs-shadow);
 }
 
 .section-heading {
     display: flex;
-    justify-content: space-between;
     align-items: center;
-    gap: 15px;
-    margin-bottom: 25px;
+    justify-content: space-between;
+    gap: 18px;
+    margin-bottom: 27px;
 }
 
 .section-heading h2 {
-    font-size: 22px;
-    color: var(--primary);
+    margin: 0 0 8px;
+    color: var(--gs-primary-dark);
+    font-family: "Playfair Display", Georgia, serif;
+    font-size: clamp(23px, 3vw, 29px);
+    font-weight: 600;
 }
 
 .heading-icon {
-    font-size: 30px;
+    width: 52px;
+    height: 52px;
+    border-radius: 12px;
+    background: #f5f0e5;
+
+    display: grid;
+    place-items: center;
+    font-size: 25px;
 }
 
 .muted {
-    color: var(--muted);
+    margin: 0;
+    color: var(--gs-muted);
     font-size: 13px;
 }
 
+/* Reservation form */
+
 .form-grid {
     display: grid;
-    grid-template-columns: repeat(2, 1fr);
+    grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 22px;
 }
 
@@ -187,196 +203,246 @@ body {
 }
 
 .form-group label {
-    font-weight: 600;
-    font-size: 14px;
+    color: var(--gs-text);
+    font-size: 13px;
+    font-weight: 700;
 }
 
 .form-group input {
     width: 100%;
-    padding: 12px 14px;
-    border: 1px solid var(--border);
-    border-radius: 7px;
+    min-width: 0;
+    padding: 13px 15px;
+
+    color: var(--gs-text);
+    background: #fcfdfa;
+
+    border: 1px solid var(--gs-border);
+    border-radius: 9px;
+
     font-size: 14px;
-    background: #fcfdff;
-    color: var(--text);
     outline: none;
-    transition: border 0.2s, box-shadow 0.2s;
+    transition:
+            border-color 0.2s,
+            box-shadow 0.2s;
 }
 
 .form-group input:focus {
-    border-color: var(--primary-light);
-    box-shadow: 0 0 0 3px rgba(40, 91, 123, 0.1);
+    border-color: var(--gs-primary);
+    box-shadow:
+            0 0 0 3px rgba(25, 63, 59, 0.09);
+}
+
+.form-group input[readonly] {
+    background: #f2f5f1;
+    color: #63756c;
+    cursor: default;
 }
 
 .form-actions {
     display: flex;
-    flex-wrap: wrap;
     gap: 12px;
-    margin-top: 25px;
+    flex-wrap: wrap;
+    margin-top: 29px;
 }
 
+/* Buttons */
+
 .btn {
-    border: none;
-    padding: 11px 19px;
-    border-radius: 7px;
-    cursor: pointer;
+    padding: 12px 20px;
+    border: 0;
+    border-radius: 9px;
     font-size: 13px;
-    font-weight: 600;
-    transition: opacity 0.2s, transform 0.2s;
+    font-weight: 700;
+
+    transition:
+            transform 0.2s,
+            background 0.2s;
 }
 
 .btn:hover:not(:disabled) {
-    opacity: 0.9;
     transform: translateY(-1px);
 }
 
 .btn:disabled {
-    opacity: 0.5;
+    opacity: 0.55;
     cursor: not-allowed;
 }
 
 .btn-primary {
-    background: var(--primary);
+    background: var(--gs-primary);
     color: white;
 }
 
+.btn-primary:hover:not(:disabled) {
+    background: var(--gs-primary-dark);
+}
+
 .btn-secondary {
-    background: #e8eef3;
-    color: var(--primary);
+    background: #e7eee8;
+    color: var(--gs-primary);
+}
+
+.btn-secondary:hover:not(:disabled) {
+    background: #d9e5dc;
 }
 
 .btn-light {
-    background: #f1f3f5;
-    color: #555;
+    background: #f3f1eb;
+    color: var(--gs-muted);
+}
+
+.btn-light:hover:not(:disabled) {
+    background: #eae7dc;
 }
 
 #reservation-message {
-    margin-top: 17px;
-    font-size: 14px;
+    min-height: 24px;
+    margin-top: 20px;
+    font-size: 13px;
     font-weight: 600;
-    min-height: 22px;
 }
 
+/* Reservation table */
+
 .table-wrapper {
-    overflow-x: auto;
     width: 100%;
+    overflow-x: auto;
+    border: 1px solid var(--gs-border);
+    border-radius: 11px;
 }
 
 table {
     width: 100%;
-    min-width: 850px;
+    min-width: 900px;
     border-collapse: collapse;
 }
 
-th, td {
-    padding: 14px 12px;
+th,
+td {
+    padding: 15px 13px;
     text-align: left;
-    border-bottom: 1px solid var(--border);
-    font-size: 13px;
+    border-bottom: 1px solid var(--gs-border);
+    font-size: 12px;
+    vertical-align: middle;
 }
 
 th {
-    background: #f4f7fa;
-    color: var(--primary);
+    background: #f3f6f0;
+    color: var(--gs-primary);
     font-weight: 700;
     white-space: nowrap;
 }
 
+td {
+    color: var(--gs-text);
+    overflow-wrap: anywhere;
+}
+
 tbody tr:hover {
-    background: #f9fbfd;
+    background: #fcfdf9;
+}
+
+tbody tr:last-child td {
+    border-bottom: none;
 }
 
 .empty-state {
+    padding: 38px;
     text-align: center;
-    color: var(--muted);
-    padding: 35px;
+    color: var(--gs-muted);
 }
+
+/* Reservation status badges */
 
 .status-badge {
     display: inline-block;
-    padding: 5px 10px;
-    border-radius: 20px;
-    font-size: 11px;
+    padding: 6px 12px;
+    border-radius: 30px;
+
+    font-size: 10px;
     font-weight: 700;
-    background: #e8eef3;
-    color: var(--primary);
+    letter-spacing: 0.3px;
 }
 
 .status-PENDING {
-    background: #fff2d8;
-    color: #946200;
+    background: #fff2d9;
+    color: #926117;
 }
 
 .status-CONFIRMED {
-    background: #d9f2e3;
-    color: #146c43;
+    background: #e0f2e6;
+    color: #17643d;
 }
 
 .status-CANCELLED {
-    background: #fde2e2;
-    color: #b02a37;
+    background: #fde6e6;
+    color: #a73535;
 }
 
 .status-COMPLETED {
-    background: #e3e8ed;
-    color: #475569;
+    background: #e8ecea;
+    color: #52645b;
 }
+
+/* Table action buttons */
 
 .table-action {
     display: flex;
-    gap: 6px;
+    flex-wrap: nowrap;
+    gap: 7px;
 }
 
 .table-action button {
-    padding: 7px 10px;
+    padding: 8px 12px;
     font-size: 11px;
 }
 
 .edit-button {
-    background: #e5edf5;
-    color: var(--primary);
+    background: #e9f0e9;
+    color: var(--gs-primary);
+}
+
+.edit-button:hover:not(:disabled) {
+    background: #dce8dc;
 }
 
 .cancel-button {
-    background: #fde8e8;
-    color: var(--danger);
+    background: #fbe8e8;
+    color: var(--gs-danger);
 }
 
-footer {
-    background: var(--primary);
-    color: #dce6ed;
-    text-align: center;
-    padding: 22px;
-    font-size: 12px;
+.cancel-button:hover:not(:disabled) {
+    background: #f4d4d4;
 }
 
-@media (max-width: 800px) {
+/* Responsive layout */
+
+@media (max-width: 900px) {
     .stats-grid {
-        grid-template-columns: repeat(2, 1fr);
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .welcome {
+        padding: 32px;
     }
 }
 
 @media (max-width: 600px) {
-    .topbar {
-        padding: 14px 4%;
-        flex-direction: column;
+    .container {
+        width: calc(100% - 30px);
+        margin-top: 20px;
     }
 
     .welcome {
-        padding: 25px;
+        padding: 28px 24px;
     }
 
-    .welcome-icon {
-        font-size: 40px;
-    }
-
-    .container {
-        width: 94%;
-        margin: 20px auto;
+    .welcome-decoration {
+        display: none;
     }
 
     .panel {
-        padding: 18px;
+        padding: 21px;
     }
 
     .form-grid {
@@ -384,14 +450,22 @@ footer {
     }
 
     .stats-grid {
-        gap: 10px;
+        gap: 11px;
     }
 
     .stat-card {
-        padding: 15px;
+        padding: 17px;
     }
 
     .stat-card strong {
-        font-size: 24px;
+        font-size: 28px;
+    }
+
+    .section-heading {
+        align-items: flex-start;
+    }
+
+    .form-actions .btn {
+        width: 100%;
     }
 }

@@ -7,37 +7,101 @@
 
     <title>Reservation Management | GrandStay Hotel</title>
 
+    <link rel="stylesheet" href="/css/design-system.css">
     <link rel="stylesheet" href="/css/reservation.css">
+
+    <script src="/js/navigation.js" defer></script>
 </head>
 
 <body>
 
-<header class="topbar">
-    <div class="brand">
-        <span class="brand-icon">G</span>
-        <div>
-            <h2>GrandStay</h2>
-            <small>Hotel Reservation System</small>
-        </div>
-    </div>
 
-    <nav>
-        <a href="/index.html">Home</a>
-        <a href="/reservation.html" class="active">Reservations</a>
-    </nav>
+<header class="gs-header">
+    <div class="gs-header-inner">
+
+        <a class="gs-brand" href="/search.html">
+            <span class="gs-brand-mark">G</span>
+
+            <span>
+                <strong>GrandStay</strong>
+                <small>Hotel & Resorts</small>
+            </span>
+        </a>
+
+        <nav class="gs-nav" aria-label="Main navigation">
+
+            <a href="/search.html">
+                Explore Rooms
+            </a>
+
+            <a href="/reservation.html"
+               aria-current="page"
+               class="auth-only" hidden>
+                Reservations
+            </a>
+
+            <a href="/profile.html"
+               class="auth-only" hidden>
+                My Profile
+            </a>
+
+            <a href="/rooms.html"
+               class="admin-only" hidden>
+                Manage Rooms
+            </a>
+
+            <a href="/admin.html"
+               class="admin-only" hidden>
+                Dashboard
+            </a>
+
+            <a href="/login.html"
+               class="guest-only gs-sign-in">
+                Sign In
+            </a>
+
+            <button type="button"
+                    id="navLogout"
+                    class="auth-only" hidden>
+                Log Out
+            </button>
+
+        </nav>
+
+    </div>
 </header>
+
 
 <main class="container">
 
+
     <section class="welcome">
-        <div>
-            <p class="eyebrow">RESERVATION MANAGEMENT</p>
+        <div class="welcome-content">
+
+            <p class="eyebrow">
+                YOUR GRANDSTAY EXPERIENCE
+            </p>
+
             <h1>Manage Your Reservations</h1>
-            <p>Create, view, update and cancel hotel reservations.</p>
+
+            <p>
+                Review your upcoming stays, manage
+                your booking details and prepare for
+                your next GrandStay experience.
+            </p>
+
+            <a href="/search.html" class="welcome-link">
+                Explore More Rooms
+            </a>
+
         </div>
 
-        <div class="welcome-icon">🏨</div>
+        <div class="welcome-decoration"
+             aria-hidden="true">
+            ✦
+        </div>
     </section>
+
 
     <section class="stats-grid">
         <article class="stat-card">
@@ -76,7 +140,7 @@
             <div class="form-grid">
 
                 <div class="form-group">
-                    <label for="userId">Customer ID</label>
+                    <label for="userId"> Customer ID (Automatically Assigned)</label>
                     <input
                             type="text"
                             id="userId"
@@ -160,8 +224,10 @@
         <div class="section-heading">
             <div>
                 <p class="eyebrow">BOOKING OVERVIEW</p>
-                <h2>All Reservations</h2>
-                <p class="muted">View and manage existing bookings.</p>
+                <h2>Reservation Overview</h2>
+                <p class="muted">
+                    View and manage your existing bookings.
+                </p>
             </div>
 
             <button type="button" id="refresh-reservations"
@@ -201,9 +267,9 @@
 
 </main>
 
-<footer>
-    <p>© 2026 GrandStay Hotel Reservation System</p>
-    <p>Reservation Management Module</p>
+<footer class="gs-footer">
+    <p>GrandStay Hotel & Resorts</p>
+    <p>© 2026 GrandStay · Hotel Reservation System</p>
 </footer>
 
 <script src="/js/reservation.js" defer></script>
