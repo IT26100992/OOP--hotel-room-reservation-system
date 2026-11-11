@@ -1,0 +1,346 @@
+
+/* ==========================================
+   GRANDSTAY - PAYMENT & RECEIPT THEME
+   Works with both existing page stylesheets
+   ========================================== */
+
+:root {
+    --navy: var(--gs-primary-dark);
+    --navy-light: var(--gs-primary);
+    --gold: var(--gs-gold);
+    --gold-hover: #bb985c;
+    --background: var(--gs-cream);
+    --border: var(--gs-border);
+    --muted: var(--gs-muted);
+}
+
+body {
+    background: var(--gs-cream);
+    color: var(--gs-text);
+    font-family: "DM Sans", Arial, sans-serif;
+}
+
+/* Shared header */
+
+.gs-header {
+    background: var(--gs-primary-dark);
+    border-bottom: 1px solid rgba(212,180,119,0.2);
+}
+
+.gs-nav button {
+    background: transparent;
+    border: 0;
+    padding: 9px 12px;
+    font-size: 13px;
+    color: #e3ebe7;
+}
+
+.gs-nav button:hover {
+    color: var(--gs-gold);
+    background: rgba(255,255,255,0.06);
+}
+
+/* Payment page */
+
+main.gs-payments-main {
+    max-width: 1180px;
+    margin: 0 auto;
+    padding: 36px 24px 60px;
+}
+
+.gs-payments-main .hero {
+    padding: 43px 46px;
+    border-radius: 16px;
+    color: white;
+
+    background:
+            radial-gradient(
+                    circle at 90% 15%,
+                    rgba(212,180,119,0.2),
+                    transparent 38%
+            ),
+            linear-gradient(120deg, #102e2a, #27574b);
+
+    box-shadow: var(--gs-shadow);
+}
+
+.gs-payments-main .eyebrow,
+.gs-receipt-main .eyebrow {
+    color: var(--gs-gold);
+}
+
+.gs-payments-main h1,
+.gs-payments-main h2,
+.gs-receipt-main h1,
+.gs-receipt-main h2 {
+    font-family: "Playfair Display", Georgia, serif;
+    font-weight: 600;
+}
+
+.gs-payments-main .hero h1 {
+    color: white;
+}
+
+.gs-payments-main .hero p:last-child {
+    color: #e1eae3;
+    line-height: 1.9;
+}
+
+.gs-payments-main section {
+    background: white;
+    padding: 33px;
+    border: 1px solid var(--gs-border);
+    border-radius: 15px;
+    box-shadow: var(--gs-shadow);
+}
+
+.gs-payments-main section h2 {
+    color: var(--gs-primary-dark);
+    font-size: 28px;
+}
+
+.gs-payments-main .step-label {
+    color: #a17c3c;
+}
+
+.gs-payments-main .section-description {
+    color: var(--gs-muted);
+    line-height: 1.8;
+}
+
+/* Forms */
+
+.gs-payments-main label,
+.gs-receipt-main label {
+    color: var(--gs-text);
+    font-weight: 700;
+}
+
+.gs-payments-main input,
+.gs-payments-main select,
+.gs-receipt-main input {
+    border: 1px solid var(--gs-border);
+    border-radius: 9px;
+    background: #fcfdfa;
+    color: var(--gs-text);
+    padding: 13px 15px;
+}
+
+.gs-payments-main input:focus,
+.gs-payments-main select:focus,
+.gs-receipt-main input:focus {
+    outline: none;
+    border-color: var(--gs-primary);
+    box-shadow: 0 0 0 3px rgba(25,63,59,0.10);
+}
+
+/* Buttons */
+
+.gs-payments-main button,
+.gs-receipt-main button {
+    border-radius: 9px;
+    font-weight: 700;
+}
+
+.gs-payments-main #create-button,
+.gs-receipt-main #print-button {
+    background: var(--gs-primary);
+    color: white;
+    padding: 14px 22px;
+}
+
+.gs-payments-main #create-button:hover,
+.gs-receipt-main #print-button:hover:not(:disabled) {
+    background: var(--gs-primary-dark);
+}
+
+.gs-payments-main #refresh-button,
+.gs-payments-main .receipt-link,
+.gs-payments-main .payment-action.edit,
+.gs-receipt-main .back-link {
+    background: #eef3ec;
+    border: 1px solid var(--gs-border);
+    color: var(--gs-primary);
+}
+
+.gs-payments-main #refresh-button:hover,
+.gs-payments-main .receipt-link:hover,
+.gs-payments-main .payment-action.edit:hover,
+.gs-receipt-main .back-link:hover {
+    background: #e0eae1;
+}
+
+.gs-payments-main .simulation-note {
+    padding: 13px 17px;
+    background: #f7f3e8;
+    border-left: 3px solid var(--gs-gold);
+    border-radius: 7px;
+    color: #655638;
+    line-height: 1.7;
+}
+
+/* Payment history */
+
+.gs-payments-main .table-container {
+    border-radius: 11px;
+    border-color: var(--gs-border);
+}
+
+.gs-payments-main th {
+    background: #f2f5ef;
+    color: var(--gs-primary);
+}
+
+.gs-payments-main td {
+    border-color: var(--gs-border);
+}
+
+.gs-payments-main tbody tr:hover {
+    background: #fafcf8;
+}
+
+.gs-payments-main .status.completed,
+.gs-receipt-main .receipt-status.completed {
+    background: #e0f2e6;
+    color: #16623d;
+}
+
+.gs-payments-main .status.pending {
+    background: #fff1d6;
+    color: #8d631b;
+}
+
+.gs-payments-main .status.failed {
+    background: #fde6e6;
+    color: #a73535;
+}
+
+.gs-payments-main .status.refunded {
+    background: #e9edeb;
+    color: #4c6055;
+}
+
+.gs-payments-main .status.voided {
+    background: #edf0ec;
+    color: #657369;
+}
+
+/* Receipt page */
+
+main.gs-receipt-main {
+    max-width: 960px;
+    margin: 0 auto;
+    padding: 40px 24px 60px;
+}
+
+.gs-receipt-main .page-heading {
+    padding: 26px 0 12px;
+}
+
+.gs-receipt-main .page-heading h1 {
+    color: var(--gs-primary-dark);
+    font-size: clamp(30px, 4vw, 41px);
+}
+
+.gs-receipt-main .lookup-card {
+    background: white;
+    border-color: var(--gs-border);
+    border-radius: 14px;
+    box-shadow: var(--gs-shadow);
+}
+
+.gs-receipt-main .receipt-card {
+    border-color: var(--gs-border);
+    border-radius: 15px;
+    box-shadow: var(--gs-shadow);
+}
+
+.gs-receipt-main .receipt-heading {
+    background: #f6f7f1;
+    border-bottom: 3px solid var(--gs-gold);
+}
+
+.gs-receipt-main .receipt-heading h2 {
+    color: var(--gs-primary-dark);
+}
+
+.gs-receipt-main .receipt-emblem {
+    border-color: var(--gs-gold);
+    color: var(--gs-primary);
+}
+
+.gs-receipt-main .receipt-number {
+    color: var(--gs-primary-dark);
+}
+
+.gs-receipt-main .receipt-label {
+    color: var(--gs-muted);
+}
+
+.gs-receipt-main .receipt-total {
+    background: #f3f7ef;
+    border-color: var(--gs-border);
+    border-left: 4px solid var(--gs-gold);
+    border-radius: 10px;
+}
+
+.gs-receipt-main .receipt-total-amount {
+    color: var(--gs-primary);
+    font-family: "Playfair Display", Georgia, serif;
+}
+
+/* Responsive */
+
+@media (max-width: 700px) {
+    main.gs-payments-main,
+    main.gs-receipt-main {
+        padding: 24px 16px 42px;
+    }
+
+    .gs-payments-main .hero {
+        padding: 30px 24px;
+    }
+
+    .gs-payments-main section {
+        padding: 24px 18px;
+    }
+
+    .gs-payments-main form {
+        grid-template-columns: 1fr;
+    }
+
+    .gs-payments-main .section-heading {
+        align-items: flex-start;
+    }
+}
+
+/* Print a clean receipt without navigation */
+
+@media print {
+    body {
+        background: white !important;
+    }
+
+    .gs-header,
+    .gs-footer,
+    .gs-receipt-main .page-heading,
+    .gs-receipt-main .lookup-card,
+    .gs-receipt-main .actions {
+        display: none !important;
+    }
+
+    main.gs-receipt-main {
+        max-width: none;
+        margin: 0;
+        padding: 0;
+    }
+
+    .gs-receipt-main .receipt-card {
+        box-shadow: none;
+        border: none;
+    }
+
+    .gs-receipt-main .receipt-total {
+        background: white;
+    }
+}

@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>Create Account | GrandStay</title>
+
+    <link rel="stylesheet" href="/css/design-system.css">
+    <link rel="stylesheet" href="/css/auth.css">
+    <script src="/js/navigation.js" defer></script>
+    <script src="/js/register.js" defer></script>
+</head>
+
+<body>
+
+<header class="gs-header">
+    <div class="gs-header-inner">
+        <a class="gs-brand" href="/">
+            <span class="gs-brand-mark" aria-hidden="true">G</span>
+            <span>
+                <strong>GrandStay</strong>
+                <small>Hotel &amp; Resorts</small>
+            </span>
+        </a>
+        <nav class="gs-nav" aria-label="Main navigation">
+            <a href="/search.html">Explore Rooms</a>
+            <a href="/reservation.html" class="auth-only" hidden>Reservations</a>
+            <a href="/payment.html" class="auth-only" hidden>My Payments</a>
+            <a href="/profile.html" class="auth-only" hidden>My Profile</a>
+            <a href="/rooms.html" class="admin-only" hidden>Manage Rooms</a>
+            <a href="/admin.html" class="admin-only" hidden>Dashboard</a>
+            <a href="/login.html" class="guest-only gs-sign-in">Sign In</a>
+            <a href="/register.html" class="guest-only" aria-current="page">Register</a>
+            <button type="button" id="navLogout" data-logout class="auth-only" hidden>Log Out</button>
+        </nav>
+    </div>
+</header>
+
+<main class="auth-layout">
+
+    <section class="auth-visual">
+        <div class="visual-content">
+            <span class="brand">GRANDSTAY HOTEL &amp; RESORTS</span>
+
+            <h1>Your next stay starts here.</h1>
+
+            <p>
+                Create an account to discover rooms,
+                manage reservations and enjoy a
+                comfortable hotel experience.
+            </p>
+        </div>
+    </section>
+
+    <section class="auth-panel">
+
+        <div class="auth-card">
+            <p class="gs-eyebrow">Your GrandStay account</p>
+
+            <h2>Create your account</h2>
+
+            <p class="subtitle">
+                Enter your details to get started.
+            </p>
+
+            <form id="registerForm">
+
+                <div class="form-group">
+                    <label for="fullName">Full Name</label>
+
+                    <input
+                            type="text"
+                            id="fullName"
+                            name="fullName"
+                            placeholder="Enter your full name"
+                            autocomplete="name"
+                            maxlength="100"
+                            required>
+                </div>
+
+                <div class="form-group">
+                    <label for="email">Email Address</label>
+
+                    <input
+                            type="email"
+                            id="email"
+                            name="email"
+                            placeholder="you@example.com"
+                            autocomplete="email"
+                            maxlength="254"
+                            required>
+                </div>
+
+                <div class="form-group">
+                    <label for="phone">
+                        Phone Number
+                        <span class="optional">(Optional)</span>
+                    </label>
+
+                    <input
+                            type="tel"
+                            id="phone"
+                            name="phone"
+                            placeholder="0771234567"
+                            autocomplete="tel">
+                </div>
+
+                <div class="form-group">
+                    <label for="password">Password</label>
+
+                    <div class="password-field">
+                        <input
+                                type="password"
+                                id="password"
+                                name="password"
+                                placeholder="At least 12 characters"
+                                autocomplete="new-password"
+                                minlength="12"
+                                maxlength="1024"
+                                required>
+
+                        <button type="button"
+                                id="togglePassword"
+                                aria-label="Show password"
+                                class="password-toggle"
+                                aria-label="Show password">
+                            Show
+                        </button>
+                    </div>
+
+                    <small class="field-hint">
+                        Use at least 12 characters.
+                    </small>
+                </div>
+
+                <div class="form-group">
+                    <label for="confirmPassword">
+                        Confirm Password
+                    </label>
+
+                    <input
+                            type="password"
+                            id="confirmPassword"
+                            name="confirmPassword"
+                            placeholder="Enter your password again"
+                            autocomplete="new-password"
+                            minlength="12"
+                            required>
+                </div>
+
+                <div id="formMessage"
+                     class="form-message"
+                     role="status"
+                     aria-live="polite"></div>
+
+                <button type="submit"
+                        id="registerButton"
+                        class="primary-button">
+                    Create Account
+                </button>
+
+            </form>
+
+            <p class="auth-footer">
+                Already have an account?
+                <a href="/login.html">Sign in</a>
+            </p>
+
+        </div>
+    </section>
+
+</main>
+
+</body>
+</html>

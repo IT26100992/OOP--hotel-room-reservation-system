@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>Dashboard & Reports | GrandStay</title>
+
+    <link rel="stylesheet" href="/css/design-system.css">
+    <link rel="stylesheet" href="/css/admin.css">
+
+    <script src="/js/navigation.js" defer></script>
+    <script src="/js/admin.js" defer></script>
+</head>
+
+<body data-requires="ADMIN">
+
+<header class="gs-header">
+    <div class="gs-header-inner">
+        <a class="gs-brand" href="/">
+            <span class="gs-brand-mark" aria-hidden="true">G</span>
+            <span>
+                <strong>GrandStay</strong>
+                <small>Hotel &amp; Resorts</small>
+            </span>
+        </a>
+        <nav class="gs-nav" aria-label="Main navigation">
+            <a href="/search.html">Explore Rooms</a>
+            <a href="/reservation.html" class="auth-only" hidden>Reservations</a>
+            <a href="/payment.html" class="auth-only" hidden>My Payments</a>
+            <a href="/profile.html" class="auth-only" hidden>My Profile</a>
+            <a href="/rooms.html" class="admin-only" hidden>Manage Rooms</a>
+            <a href="/admin.html" class="admin-only" aria-current="page" hidden>Dashboard</a>
+            <a href="/login.html" class="guest-only gs-sign-in">Sign In</a>
+            <a href="/register.html" class="guest-only">Register</a>
+            <button type="button" id="navLogout" data-logout class="auth-only" hidden>Log Out</button>
+        </nav>
+    </div>
+</header>
+
+<div class="gs-container gs-session-status">
+    <p data-session-status role="status">Checking access to the dashboard…</p>
+    <a href="/search.html">Explore Rooms</a>
+</div>
+
+<main class="main-content" data-session-content hidden>
+
+    <!-- Page Header -->
+    <header class="page-header gs-page-hero">
+
+        <div>
+            <p class="eyebrow">HOTEL MANAGEMENT</p>
+            <h1>Admin Dashboard</h1>
+            <p class="subtitle">
+                Monitor hotel activity and generate reports.
+            </p>
+        </div>
+
+        <button id="refreshDashboard"
+                class="btn btn-outline"
+                type="button">
+            Refresh Dashboard
+        </button>
+
+    </header>
+
+    <nav class="section-links" aria-label="Dashboard sections">
+        <a href="#dashboard">Hotel Overview</a>
+        <a href="#reports">Saved Reports</a>
+    </nav>
+
+    <p id="message"
+       class="message"
+       role="status"
+       aria-live="polite"></p>
+
+    <!-- Dashboard Section -->
+    <section id="dashboard"
+             class="content-section">
+
+        <div class="section-heading">
+            <h2>Hotel Overview</h2>
+            <p>Live statistics from the hotel system</p>
+        </div>
+
+        <!-- Summary Cards -->
+        <div class="stats-grid">
+
+            <article class="stat-card">
+                <p>Total Rooms</p>
+                <h3 id="totalRooms">—</h3>
+            </article>
+
+            <article class="stat-card">
+                <p>Operationally Available Rooms</p>
+                <h3 id="availableRooms">—</h3>
+            </article>
+
+            <article class="stat-card">
+                <p>Registered Users</p>
+                <h3 id="totalUsers">—</h3>
+            </article>
+
+            <article class="stat-card">
+                <p>Total Reservations</p>
+                <h3 id="totalReservations">—</h3>
+            </article>
+
+            <article class="stat-card">
+                <p>Confirmed Reservations</p>
+                <h3 id="confirmedReservations">—</h3>
+            </article>
+
+            <article class="stat-card">
+                <p>Pending Reservations</p>
+                <h3 id="pendingReservations">—</h3>
+            </article>
+
+            <article class="stat-card revenue-card">
+                <p>Gross Completed Payments</p>
+                <h3 id="grossCompletedPayments">—</h3>
+            </article>
+
+            <article class="stat-card">
+                <p>Completed Payments</p>
+                <h3 id="completedPayments">—</h3>
+            </article>
+
+        </div>
+
+        <!-- Charts -->
+        <div class="charts-grid">
+
+            <section class="panel">
+                <h3>Reservation Status</h3>
+
+                <div id="reservationChart"
+                     class="chart-container">
+                    <p class="empty-state">
+                        Loading reservation statistics...
+                    </p>
+                </div>
+            </section>
+
+            <section class="panel">
+                <h3>Room Status</h3>
+
+                <div id="roomChart"
+                     class="chart-container">
+                    <p class="empty-state">
+                        Loading room statistics...
+                    </p>
+                </div>
+            </section>
+
+        </div>
+
+    </section>
+
+    <!-- Reports Section -->
+    <section id="reports"
+             class="content-section">
+
+        <div class="section-heading">
+            <h2>Saved Reports</h2>
+            <p>
+                Generate and manage historical report snapshots.
+            </p>
+        </div>
+
+        <!-- Generate Report Form -->
+        <section class="panel">
+
+            <h3>Generate New Report</h3>
+
+            <form id="generateReportForm">
+
+                <div class="form-grid">
+
+                    <div class="form-group">
+                        <label for="reportTitle">
+                            Report Title
+                        </label>
+
+                        <input type="text"
+                               id="reportTitle"
+                               required
+                               placeholder="November Hotel Report">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="startDate">
+                            Start Date
+                        </label>
+
+                        <input type="date"
+                               id="startDate"
+                               required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="endDate">
+                            End Date
+                        </label>
+
+                        <input type="date"
+                               id="endDate"
+                               required>
+                    </div>
+
+                    <div class="form-group full-width">
+                        <label for="reportNotes">
+                            Notes (Optional)
+                        </label>
+
+                        <textarea id="reportNotes"
+                                  rows="3"
+                                  placeholder="Additional report details"></textarea>
+                    </div>
+
+                </div>
+
+                <button type="submit"
+                        class="btn btn-primary">
+                    Generate Report
+                </button>
+
+            </form>
+
+        </section>
+
+        <!-- Saved Reports Table -->
+        <section class="panel">
+
+            <div class="table-header">
+                <h3>Report History</h3>
+
+                <button id="refreshReports"
+                        type="button"
+                        class="btn btn-outline">
+                    Refresh Reports
+                </button>
+            </div>
+
+            <div class="table-wrapper">
+
+                <table id="reportsTable">
+
+                    <thead>
+                    <tr>
+                        <th>Report Title</th>
+                        <th>Date Range</th>
+                        <th>Reservations</th>
+                        <th>Gross Completed Payments</th>
+                        <th>Generated At</th>
+                        <th>Actions</th>
+                    </tr>
+                    </thead>
+
+                    <tbody id="reportsTableBody">
+                    <tr>
+                        <td colspan="6">
+                            Loading saved reports...
+                        </td>
+                    </tr>
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        </section>
+
+    </section>
+
+</main>
+
+<!-- Edit Report Dialog -->
+<dialog id="editReportDialog" aria-labelledby="editReportHeading">
+
+    <div class="dialog-content">
+
+        <h2 id="editReportHeading">Edit Report</h2>
+
+        <form id="editReportForm">
+
+            <input type="hidden" id="editReportId">
+
+            <div class="form-group">
+                <label for="editReportTitle">
+                    Report Title
+                </label>
+
+                <input type="text"
+                       id="editReportTitle"
+                       required>
+            </div>
+
+            <div class="form-group">
+                <label for="editReportNotes">
+                    Notes
+                </label>
+
+                <textarea id="editReportNotes"
+                          rows="4"></textarea>
+            </div>
+
+            <div class="dialog-actions">
+
+                <button id="cancelEdit"
+                        type="button"
+                        class="btn btn-outline">
+                    Cancel
+                </button>
+
+                <button type="submit"
+                        class="btn btn-primary">
+                    Save Changes
+                </button>
+
+            </div>
+
+        </form>
+
+    </div>
+
+</dialog>
+
+</body>
+</html>
