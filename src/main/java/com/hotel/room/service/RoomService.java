@@ -1,4 +1,3 @@
-
 package com.hotel.room.service;
 
 import com.hotel.common.ResourceNotFoundException;
@@ -6,6 +5,9 @@ import com.hotel.common.ValidationException;
 import com.hotel.reservation.repository.ReservationRepository;
 import com.hotel.room.model.Room;
 import com.hotel.room.repository.RoomRepository;
+import java.util.UUID;
+import com.hotel.room.exception.DuplicateRoomException;
+import com.hotel.room.exception.RoomHasReservationsException;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -22,7 +24,17 @@ public class RoomService {
         this.reservationRepository = reservationRepository;
     }
 
+
     public Room createRoom(Room room) {
+
+        if (room == null) {
+            throw new ValidationException(
+                    "Room information is required.");
+        }
+
+        // Generate internal ID on the server
+        room.setId(UUID.randomUUID().toString());
+
         validateRoom(room);
 
         boolean numberExists = roomRepository.findAll().stream()
@@ -31,13 +43,16 @@ public class RoomService {
                                 room.getRoomNumber().trim()));
 
         if (numberExists) {
-            throw new ValidationException(
-                    "Room number already exists.");
+            throw new DuplicateRoomException(
+                    room.getRoomNumber().trim()
+            );
         }
 
         room.setRoomNumber(room.getRoomNumber().trim());
+
         return roomRepository.create(room);
     }
+
 
     public List<Room> getAllRooms() {
         return roomRepository.findAll();
@@ -50,7 +65,16 @@ public class RoomService {
     }
 
     public Room updateRoom(String id, Room updatedRoom) {
-        getRoomById(id);
+        Room existingRoom = getRoomById(id);
+
+        if (updatedRoom == null) {
+            throw new ValidationException(
+                    "Updated room information is required.");
+        }
+
+// Preserve the original room ID
+        updatedRoom.setId(existingRoom.getId());
+
         validateRoom(updatedRoom);
 
         boolean numberUsedByAnotherRoom =
@@ -62,8 +86,9 @@ public class RoomService {
                                                 updatedRoom.getRoomNumber().trim()));
 
         if (numberUsedByAnotherRoom) {
-            throw new ValidationException(
-                    "Another room already uses this room number.");
+            throw new DuplicateRoomException(
+                    updatedRoom.getRoomNumber().trim()
+            );
         }
 
         updatedRoom.setRoomNumber(
@@ -80,9 +105,7 @@ public class RoomService {
                         reservation.getRoomId().equals(id));
 
         if (referenced) {
-            throw new ValidationException(
-                    "This room has reservation history. "
-                            + "Set its status to INACTIVE instead.");
+            throw new RoomHasReservationsException(id);
         }
 
         return roomRepository.deleteById(id);

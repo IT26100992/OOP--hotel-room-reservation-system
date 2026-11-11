@@ -68,7 +68,8 @@ searchForm.addEventListener("submit", async function (event) {
             );
         }
 
-        displayRooms(data);
+        const user = await GrandStaySession.ready;
+        displayRooms(data, { checkIn, checkOut, guests }, user);
 
     } catch (error) {
         message.textContent = error.message;
@@ -77,7 +78,7 @@ searchForm.addEventListener("submit", async function (event) {
     }
 });
 
-function displayRooms(rooms) {
+function displayRooms(rooms, criteria, user) {
 
     roomResults.replaceChildren();
 
@@ -118,13 +119,23 @@ function displayRooms(rooms) {
         const description = document.createElement("p");
         description.textContent = room.description || "";
 
-        card.append(
-            title,
-            type,
-            capacity,
-            price,
-            description
-        );
+
+        card.append(title, type, capacity, price, description);
+
+        if (user?.role !== "ADMIN") {
+            const bookButton = document.createElement("button");
+            bookButton.type = "button";
+            bookButton.className = "search-button";
+            bookButton.textContent = user ? "Book Now" : "Sign In to Book";
+
+            bookButton.addEventListener("click", () => {
+                const params = new URLSearchParams({ ...criteria, roomId: room.id });
+                const bookingUrl = "/reservation.html?" + params;
+                window.location.href = user ? bookingUrl : GrandStaySession.signInUrl(bookingUrl);
+            });
+
+            card.appendChild(bookButton);
+        }
 
         roomResults.appendChild(card);
     });
@@ -147,17 +158,6 @@ const savedSearchMessage =
 const savedSearchResults =
     document.getElementById("savedSearchResults");
 
-function getTestUserId() {
-    const userId = document
-        .getElementById("savedSearchUserId")
-        .value.trim();
-
-    if (!userId) {
-        throw new Error("Please enter a test user ID.");
-    }
-
-    return userId;
-}
 
 async function readApiResponse(response) {
     if (response.status === 204) {
@@ -179,7 +179,6 @@ async function readApiResponse(response) {
 saveSearchBtn.addEventListener("click", async () => {
 
     try {
-        const userId = getTestUserId();
 
         const checkInDate =
             document.getElementById("checkIn").value;
@@ -223,7 +222,6 @@ saveSearchBtn.addEventListener("click", async () => {
         }
 
         const preference = {
-            userId: userId,
             checkInDate: checkInDate,
             checkOutDate: checkOutDate,
             guestCount: guestCount,
@@ -272,13 +270,10 @@ loadSavedSearchesBtn.addEventListener(
 async function loadSavedSearches() {
 
     try {
-        const userId = getTestUserId();
 
         const response = await fetch(
-            "/api/search-preferences?userId=" +
-            encodeURIComponent(userId)
+            "/api/search-preferences"
         );
-
         const preferences =
             await readApiResponse(response);
 
@@ -388,7 +383,6 @@ const cancelEditBtn =
     document.getElementById("cancelEditBtn");
 
 let editingPreferenceId = null;
-let editingUserId = null;
 
 // Fill the main search form with a saved preference
 function fillSearchForm(preference) {
@@ -467,7 +461,6 @@ function getPreferenceFormData() {
 // Start editing a preference
 function startEditing(preference) {
     editingPreferenceId = preference.id;
-    editingUserId = getTestUserId();
 
     fillSearchForm(preference);
 
@@ -488,7 +481,6 @@ function startEditing(preference) {
 // Return to normal mode
 function stopEditing() {
     editingPreferenceId = null;
-    editingUserId = null;
 
     updateSearchBtn.hidden = true;
     cancelEditBtn.hidden = true;
@@ -507,13 +499,6 @@ updateSearchBtn.addEventListener("click", async () => {
     }
 
     try {
-        const userId = getTestUserId();
-
-        if (userId !== editingUserId) {
-            throw new Error(
-                "Do not change the test user while editing."
-            );
-        }
 
         const updatedData = getPreferenceFormData();
 
@@ -521,8 +506,7 @@ updateSearchBtn.addEventListener("click", async () => {
 
         const response = await fetch(
             "/api/search-preferences/" +
-            encodeURIComponent(editingPreferenceId) +
-            "?userId=" + encodeURIComponent(userId),
+            encodeURIComponent(editingPreferenceId),
             {
                 method: "PUT",
                 headers: {
@@ -550,7 +534,6 @@ updateSearchBtn.addEventListener("click", async () => {
 // DELETE - Remove a preference
 async function deleteSavedPreference(preferenceId) {
     try {
-        const userId = getTestUserId();
 
         if (!confirm(
             "Are you sure you want to delete this saved search?"
@@ -560,8 +543,7 @@ async function deleteSavedPreference(preferenceId) {
 
         const response = await fetch(
             "/api/search-preferences/" +
-            encodeURIComponent(preferenceId) +
-            "?userId=" + encodeURIComponent(userId),
+            encodeURIComponent(preferenceId),
             { method: "DELETE" }
         );
 
@@ -580,5 +562,3 @@ async function deleteSavedPreference(preferenceId) {
         savedSearchMessage.textContent = error.message;
     }
 }
-
-

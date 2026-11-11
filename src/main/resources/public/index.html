@@ -1,19 +1,72 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Hotel Room Reservation System</title>
+    <title>GrandStay | Hotel &amp; Resorts</title>
+    <link rel="stylesheet" href="/css/design-system.css">
     <link rel="stylesheet" href="/css/style.css">
+    <script src="/js/navigation.js" defer></script>
+    <script src="/js/app.js" defer></script>
 </head>
 <body>
-<main class="container">
-    <h1>Hotel Room Reservation System</h1>
-    <p>Welcome to our hotel reservation system.</p>
-    <p id="api-status">Checking backend connection...</p>
+<header class="gs-header">
+    <div class="gs-header-inner">
+        <a class="gs-brand" href="/" aria-current="page">
+            <span class="gs-brand-mark" aria-hidden="true">G</span>
+            <span>
+                <strong>GrandStay</strong>
+                <small>Hotel &amp; Resorts</small>
+            </span>
+        </a>
+        <nav class="gs-nav" aria-label="Main navigation">
+            <a href="/search.html">Explore Rooms</a>
+            <a href="/reservation.html" class="auth-only" hidden>Reservations</a>
+            <a href="/payment.html" class="auth-only" hidden>My Payments</a>
+            <a href="/profile.html" class="auth-only" hidden>My Profile</a>
+            <a href="/rooms.html" class="admin-only" hidden>Manage Rooms</a>
+            <a href="/admin.html" class="admin-only" hidden>Dashboard</a>
+            <a href="/login.html" class="guest-only gs-sign-in">Sign In</a>
+            <a href="/register.html" class="guest-only">Register</a>
+            <button type="button" id="navLogout" data-logout class="auth-only" hidden>Log Out</button>
+        </nav>
+    </div>
+</header>
+
+<main class="gs-container home-main">
+    <section class="home-hero">
+        <p class="gs-eyebrow">GrandStay Hotel &amp; Resorts</p>
+        <h1>Find a room for your next stay.</h1>
+        <p>Check availability for your dates, choose a room and manage your reservation in one place.</p>
+        <div class="home-actions">
+            <a class="home-button" href="/search.html">Explore Rooms</a>
+            <a class="home-secondary guest-only" href="/register.html">Create an Account</a>
+            <a class="home-secondary auth-only" href="/reservation.html" hidden>View Reservations</a>
+        </div>
+    </section>
+
+    <section class="home-guide" aria-labelledby="stay-heading">
+        <h2 id="stay-heading">Plan your stay</h2>
+        <ol>
+            <li>
+                <span class="gs-eyebrow">01 / Find a room</span>
+                <p>Search by dates, guest count, room type and nightly rate.</p>
+            </li>
+            <li>
+                <span class="gs-eyebrow">02 / Reserve</span>
+                <p>Sign in to book a room and review your reservations.</p>
+            </li>
+            <li>
+                <span class="gs-eyebrow">03 / Pay &amp; review</span>
+                <p>Simulate a payment, then view or print the receipt.</p>
+            </li>
+        </ol>
+    </section>
 </main>
 
-<script src="/js/app.js"></script>
+<footer class="gs-footer">
+    <p>GrandStay Hotel &amp; Resorts</p>
+    <p id="api-status" role="status">Checking booking service…</p>
+</footer>
 </body>
 </html>
