@@ -1,0 +1,1172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Payments | GrandStay</title>
+
+    <style>
+        :root {
+            --navy: #0f172a;
+            --gold: #d4af37;
+            --background: #f8fafc;
+            --border: #e2e8f0;
+            --muted: #64748b;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            background: var(--background);
+            color: var(--navy);
+            font-family: "Segoe UI", Arial, sans-serif;
+            line-height: 1.6;
+        }
+
+        button,
+        input,
+        select {
+            font: inherit;
+        }
+
+        a {
+            color: inherit;
+        }
+
+        .site-header {
+            background: var(--navy);
+            border-bottom: 1px solid rgba(212, 175, 55, 0.35);
+        }
+
+        .header-inner {
+            max-width: 1240px;
+            margin: auto;
+            padding: 20px 28px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 24px;
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            color: white;
+            text-decoration: none;
+        }
+
+        .brand-mark {
+            display: grid;
+            place-items: center;
+            width: 44px;
+            height: 44px;
+            border: 1px solid var(--gold);
+            border-radius: 8px;
+            color: var(--gold);
+            font: 26px Georgia, serif;
+        }
+
+        .brand-name {
+            display: block;
+            font: bold 23px Georgia, serif;
+        }
+
+        .brand-caption {
+            display: block;
+            margin-top: 5px;
+            color: var(--gold);
+            font-size: 10px;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+        }
+
+        nav {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        nav a {
+            padding: 8px 14px;
+            border-radius: 6px;
+            color: #cbd5e1;
+            text-decoration: none;
+            font-size: 14px;
+        }
+
+        nav a:hover,
+        nav a.active {
+            background: rgba(255, 255, 255, 0.08);
+            color: var(--gold);
+        }
+
+        main {
+            max-width: 1184px;
+            margin: auto;
+            padding: 36px 28px 60px;
+        }
+
+        .hero {
+            padding: 38px;
+            border-radius: 14px;
+            background: linear-gradient(120deg, #0f172a, #26354c);
+            color: white;
+            box-shadow: 0 12px 28px rgba(15, 23, 42, 0.12);
+        }
+
+        .eyebrow {
+            margin: 0 0 10px;
+            color: var(--gold);
+            font-size: 11px;
+            font-weight: 600;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+        }
+
+        h1,
+        h2 {
+            font-family: Georgia, "Times New Roman", serif;
+        }
+
+        h1 {
+            margin: 0 0 12px;
+            font-size: clamp(30px, 4vw, 42px);
+            line-height: 1.2;
+        }
+
+        .hero p:last-child {
+            max-width: 600px;
+            margin: 0;
+            color: #cbd5e1;
+            font-size: 14px;
+        }
+
+        section {
+            margin-top: 26px;
+            padding: 30px;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            background: white;
+            box-shadow: 0 3px 12px rgba(15, 23, 42, 0.035);
+        }
+
+        h2 {
+            margin: 0 0 8px;
+            font-size: 25px;
+        }
+
+        .section-description {
+            margin: 0;
+            color: var(--muted);
+            font-size: 14px;
+        }
+
+        .section-heading {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 16px;
+        }
+
+        .step-label {
+            display: inline-block;
+            margin-bottom: 12px;
+            color: #8a6b16;
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 1.8px;
+            text-transform: uppercase;
+        }
+
+        form {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            max-width: 760px;
+            margin-top: 26px;
+        }
+
+        label {
+            display: grid;
+            gap: 8px;
+            font-size: 13px;
+            font-weight: 600;
+        }
+
+        .full-width {
+            grid-column: 1 / -1;
+        }
+
+        input,
+        select {
+            width: 100%;
+            min-width: 0;
+            padding: 13px 14px;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            background: white;
+            color: var(--navy);
+            font-size: 14px;
+        }
+
+        input::placeholder {
+            color: #94a3b8;
+        }
+
+        input:focus,
+        select:focus {
+            outline: 2px solid var(--gold);
+            outline-offset: 2px;
+        }
+
+        button,
+        .receipt-link {
+            display: inline-flex;
+            justify-content: center;
+            align-items: center;
+            padding: 10px 14px;
+            border: 1px solid transparent;
+            border-radius: 6px;
+            background: var(--navy);
+            color: white;
+            font-size: 13px;
+            font-weight: 600;
+            text-decoration: none;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background: #26354c;
+        }
+
+        button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        button:focus-visible,
+        a:focus-visible {
+            outline: 3px solid var(--gold);
+            outline-offset: 3px;
+        }
+
+        #create-button {
+            padding: 15px;
+            background: var(--gold);
+            color: var(--navy);
+        }
+
+        #create-button:hover {
+            background: #b8972e;
+        }
+
+        #refresh-button,
+        .receipt-link,
+        .payment-action.edit {
+            border-color: var(--border);
+            background: white;
+            color: var(--navy);
+        }
+
+        #refresh-button:hover,
+        .receipt-link:hover,
+        .payment-action.edit:hover {
+            background: #f1f5f9;
+        }
+
+        .simulation-note {
+            margin: 20px 0 0;
+            color: var(--muted);
+            font-size: 12px;
+        }
+
+        #message:empty {
+            display: none;
+        }
+
+        #message {
+            margin: 22px 0;
+            padding: 14px 18px;
+            border: 1px solid;
+            border-radius: 8px;
+            white-space: pre-wrap;
+            overflow-wrap: anywhere;
+            font-size: 14px;
+        }
+
+        #message.error {
+            background: #fef2f2;
+            border-color: #fecaca;
+            color: #991b1b;
+        }
+
+        #message.success {
+            background: #ecfdf5;
+            border-color: #a7f3d0;
+            color: #065f46;
+        }
+
+        .table-container {
+            margin-top: 24px;
+            overflow-x: auto;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: left;
+            font-size: 13px;
+        }
+
+        th {
+            padding: 15px 16px;
+            background: #f8fafc;
+            color: var(--muted);
+            font-size: 11px;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+            white-space: nowrap;
+        }
+
+        td {
+            padding: 18px 16px;
+            border-top: 1px solid var(--border);
+            white-space: nowrap;
+        }
+
+        tbody tr:hover {
+            background: #fafbfd;
+        }
+
+        td:first-child {
+            font-family: Consolas, monospace;
+            font-weight: 600;
+        }
+
+        .action-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            min-width: 200px;
+            max-width: 290px;
+        }
+
+        .status {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 20px;
+            background: #f1f5f9;
+            color: #475569;
+            font-size: 10px;
+            font-weight: 700;
+            letter-spacing: 0.4px;
+        }
+
+        .status.completed {
+            background: #ecfdf5;
+            color: #047857;
+        }
+
+        .status.pending {
+            background: #fffbeb;
+            color: #92400e;
+        }
+
+        .status.failed {
+            background: #fef2f2;
+            color: #b91c1c;
+        }
+
+        .status.refunded {
+            background: #eff6ff;
+            color: #1d4ed8;
+        }
+
+        .status.voided {
+            background: #f1f5f9;
+            color: #475569;
+        }
+
+        .payment-action.cancel,
+        .payment-action.delete {
+            background: white;
+            border-color: #fecaca;
+            color: #b91c1c;
+        }
+
+        .payment-action.cancel:hover,
+        .payment-action.delete:hover {
+            background: #fef2f2;
+        }
+
+        .payment-action.refund {
+            background: #fffbeb;
+            border-color: #fde68a;
+            color: #92400e;
+        }
+
+        .payment-action.refund:hover {
+            background: #fef3c7;
+        }
+
+        .empty-state {
+            padding: 36px 16px;
+            text-align: center;
+            color: var(--muted);
+            font-family: inherit !important;
+            font-weight: normal !important;
+        }
+
+        footer {
+            padding: 8px 20px 28px;
+            text-align: center;
+            color: var(--muted);
+            font-size: 12px;
+        }
+
+        @media (max-width: 700px) {
+            .header-inner {
+                flex-direction: column;
+                align-items: flex-start;
+                padding: 20px;
+            }
+
+            .brand-name {
+                font-size: 21px;
+            }
+
+            nav {
+                gap: 2px;
+            }
+
+            nav a {
+                padding: 7px 10px;
+                font-size: 13px;
+            }
+
+            main {
+                padding: 24px 16px 36px;
+            }
+
+            .hero {
+                padding: 28px 22px;
+            }
+
+            section {
+                padding: 24px 18px;
+            }
+
+            form {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+    <link rel="stylesheet" href="/css/design-system.css">
+    <link rel="stylesheet" href="/css/grandstay-payments.css">
+
+    <script src="/js/navigation.js" defer></script>
+</head>
+
+<body data-requires="account">
+
+<header class="gs-header">
+    <div class="gs-header-inner">
+        <a class="gs-brand" href="/">
+            <span class="gs-brand-mark" aria-hidden="true">G</span>
+            <span>
+                <strong>GrandStay</strong>
+                <small>Hotel &amp; Resorts</small>
+            </span>
+        </a>
+        <nav class="gs-nav" aria-label="Main navigation">
+            <a href="/search.html">Explore Rooms</a>
+            <a href="/reservation.html" class="auth-only" hidden>Reservations</a>
+            <a href="/payment.html" class="auth-only" aria-current="page" hidden>My Payments</a>
+            <a href="/profile.html" class="auth-only" hidden>My Profile</a>
+            <a href="/rooms.html" class="admin-only" hidden>Manage Rooms</a>
+            <a href="/admin.html" class="admin-only" hidden>Dashboard</a>
+            <a href="/login.html" class="guest-only gs-sign-in">Sign In</a>
+            <a href="/register.html" class="guest-only">Register</a>
+            <button type="button" id="navLogout" data-logout class="auth-only" hidden>Log Out</button>
+        </nav>
+    </div>
+</header>
+
+<div class="gs-container gs-session-status">
+    <p data-session-status role="status">Checking access to your payments…</p>
+    <a href="/search.html">Explore Rooms</a>
+</div>
+
+<main class="gs-payments-main" data-session-content hidden>
+
+    <div class="hero">
+        <p class="eyebrow">
+            GRANDSTAY / GUEST SERVICES
+        </p>
+
+        <h1>Payments & Receipts</h1>
+
+        <p>
+            Review your booking payments, complete
+            pending transactions and access receipts
+            for your confirmed stays.
+        </p>
+    </div>
+
+
+    <p id="message" role="status" aria-live="polite"></p>
+
+    <section aria-labelledby="create-title" data-payment-details hidden>
+        <span class="step-label">Reservation Payment</span>
+        <h2 id="create-title">Complete Your Reservation Payment</h2>
+        <p class="section-description">
+            Review the total for your reservation and choose a payment method. Once created,
+            choose Process Payment in your payment history.
+        </p>
+
+        <form id="payment-form">
+            <label class="full-width">
+                Reservation ID
+                <input
+                        id="reservation-id"
+                        type="text"
+                        readonly>
+            </label>
+
+            <label>
+                Payment Amount
+                <input
+                        id="amount"
+                        type="number"
+                        readonly>
+            </label>
+
+            <label>
+                Payment Method
+                <select id="method">
+                    <option value="CASH">Cash</option>
+                    <option value="BANK_TRANSFER">Bank Transfer</option>
+                    <option value="CARD">Credit / Debit Card</option>
+                </select>
+            </label>
+
+            <button id="create-button"
+                    class="full-width"
+                    type="submit" disabled>
+                Continue to Payment
+            </button>
+        </form>
+
+        <p class="simulation-note">
+            Payment processing and refunds are simulated for this
+            university project. No real money is transferred.
+        </p>
+    </section>
+
+    <section id="payment-history"
+             aria-labelledby="history-title">
+        <div class="section-heading">
+            <div>
+                <h2 id="history-title">Payment History</h2>
+                <p class="section-description">
+                    Review your payments, process pending
+                    transactions and open completed receipts.
+                    To start a payment, <a href="/reservation.html">open your reservations</a>.
+                </p>
+            </div>
+
+            <button id="refresh-button" type="button">
+                Refresh Payments
+            </button>
+        </div>
+
+        <div class="table-container">
+            <table aria-label="Payment history">
+                <thead>
+                <tr>
+                    <th scope="col">Payment ID</th>
+                    <th scope="col">Reservation</th>
+                    <th scope="col">Amount</th>
+                    <th scope="col">Method</th>
+                    <th scope="col">Status</th>
+                    <th scope="col">Actions</th>
+                </tr>
+                </thead>
+
+                <tbody id="payment-rows">
+                <tr>
+                    <td colspan="6" class="empty-state">
+                        Loading payments...
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+</main>
+
+<footer class="gs-footer">
+    <p>GrandStay Hotel & Resorts</p>
+    <p>© 2026 GrandStay · Payment Management</p>
+</footer>
+
+<script>
+    const form = document.getElementById("payment-form");
+    const rows = document.getElementById("payment-rows");
+    const message = document.getElementById("message");
+    const createButton = document.getElementById("create-button");
+    const refreshButton = document.getElementById("refresh-button");
+    const paymentDetails = document.querySelector("[data-payment-details]");
+    let currentUserRole = null;
+
+
+    const paymentParams = new URLSearchParams(window.location.search);
+    const selectedReservationId = paymentParams.get("reservationId");
+
+    function normalizeBookingDate(value) {
+        if (Array.isArray(value)) {
+            return [
+                value[0],
+                String(value[1]).padStart(2, "0"),
+                String(value[2]).padStart(2, "0")
+            ].join("-");
+        }
+
+        return value;
+    }
+
+    async function prefillPaymentDetails() {
+
+        const reservationInput =
+            document.getElementById("reservation-id");
+
+        const amountInput =
+            document.getElementById("amount");
+
+        reservationInput.value = selectedReservationId;
+
+        try {
+            const reservationResponse = await fetch(
+                "/api/reservations/" +
+                encodeURIComponent(selectedReservationId)
+            );
+
+            if (!reservationResponse.ok) {
+                throw new Error("Could not load reservation.");
+            }
+
+            const reservation = await reservationResponse.json();
+
+            if (["CANCELLED", "COMPLETED"].includes(reservation.status)) {
+                throw new Error("This reservation is closed to new payments.");
+            }
+
+            const roomResponse = await fetch(
+                "/api/rooms/" +
+                encodeURIComponent(reservation.roomId)
+            );
+
+            if (!roomResponse.ok) {
+                throw new Error("Could not load room details.");
+            }
+
+            const room = await roomResponse.json();
+
+            const checkIn = normalizeBookingDate(
+                reservation.checkInDate
+            );
+
+            const checkOut = normalizeBookingDate(
+                reservation.checkOutDate
+            );
+
+            const nights =
+                (Date.parse(checkOut + "T00:00:00Z") -
+                    Date.parse(checkIn + "T00:00:00Z")) / 86400000;
+
+            if (!Number.isInteger(nights) || nights <= 0) {
+                throw new Error("Invalid reservation dates.");
+            }
+
+            const estimatedTotal =
+                nights * Number(room.pricePerNight);
+
+            if (!Number.isFinite(estimatedTotal) ||
+                estimatedTotal <= 0) {
+                throw new Error("Invalid room price.");
+            }
+
+            amountInput.value = estimatedTotal.toFixed(2);
+
+            const existingPayments = await request(
+                "/api/payments?reservationId=" +
+                encodeURIComponent(selectedReservationId)
+            );
+
+            const activePayment = existingPayments.find(
+                payment =>
+                    payment.status === "PENDING" ||
+                    payment.status === "COMPLETED"
+            );
+
+            if (activePayment) {
+                amountInput.value = Number(activePayment.amount).toFixed(2);
+                if (activePayment.status === "COMPLETED") {
+                    createButton.textContent = "Already Paid";
+
+                    showMessage(
+                        "This reservation has already been paid. " +
+                        "View your receipt in Payment History below."
+                    );
+                } else {
+                    createButton.textContent = "Payment Already Created";
+
+                    showMessage(
+                        "A pending payment already exists. " +
+                        "Use Process Payment in Payment History below."
+                    );
+                }
+            } else {
+                createButton.disabled = false;
+            }
+        } catch (error) {
+            showMessage(error.message, true);
+        }
+    }
+
+
+    const methodLabels = {
+        CASH: "Cash",
+        BANK_TRANSFER: "Bank Transfer",
+        CARD: "Card"
+    };
+
+    function showMessage(text, isError = false) {
+        message.textContent = text;
+        message.className = isError ? "error" : "success";
+    }
+
+    async function request(url, options = {}) {
+        const response = await fetch(url, options);
+        const text = await response.text();
+
+        let data;
+
+        try {
+            data = text ? JSON.parse(text) : null;
+        } catch {
+            throw new Error(
+                "The server returned an unexpected response."
+            );
+        }
+
+        if (!response.ok) {
+            throw new Error(
+                data?.error || data?.message || "Request failed."
+            );
+        }
+
+        return data;
+    }
+
+    function addCell(row, value) {
+        const cell = document.createElement("td");
+        cell.textContent = String(value ?? "");
+        row.appendChild(cell);
+        return cell;
+    }
+
+    function showTableMessage(text) {
+        rows.replaceChildren();
+
+        const row = document.createElement("tr");
+        const cell = addCell(row, text);
+
+        cell.colSpan = 6;
+        cell.className = "empty-state";
+
+        rows.appendChild(row);
+    }
+
+    async function runPaymentChange(
+        container,
+        button,
+        operation,
+        successMessage
+    ) {
+        const buttons = container.querySelectorAll("button");
+        const originalLabel = button.textContent;
+
+        buttons.forEach(item => item.disabled = true);
+        button.textContent = "Updating...";
+
+        let succeeded = false;
+
+        try {
+            await operation();
+            succeeded = true;
+
+            showMessage(successMessage);
+
+            try {
+                await loadPayments();
+            } catch {
+                button.textContent = "Updated";
+
+                showMessage(
+                    "Change saved successfully. "
+                    + "Click Refresh Payments to reload the list.",
+                    true
+                );
+            }
+        } catch (error) {
+            showMessage(error.message, true);
+        } finally {
+            if (!succeeded) {
+                buttons.forEach(item => item.disabled = false);
+                button.textContent = originalLabel;
+            }
+        }
+    }
+
+    function addPaymentAction(
+        container,
+        payment,
+        action,
+        label,
+        successStatus
+    ) {
+        const button = document.createElement("button");
+
+        button.type = "button";
+        button.textContent = label;
+        button.className = "payment-action " + action;
+
+        button.addEventListener("click", async () => {
+            await runPaymentChange(
+                container,
+                button,
+                () => request(
+                    "/api/payments/"
+                    + encodeURIComponent(payment.id)
+                    + "/" + action,
+                    { method: "POST" }
+                ),
+                "Payment " + payment.id + ": " + successStatus
+            );
+        });
+
+        container.appendChild(button);
+    }
+
+    function addEditButton(container, payment) {
+        const button = document.createElement("button");
+
+        button.type = "button";
+        button.className = "payment-action edit";
+        button.textContent = "Edit";
+
+        button.addEventListener("click", async () => {
+            const enteredAmount = window.prompt(
+                "Enter the new payment amount:",
+                Number(payment.amount).toFixed(2)
+            );
+
+            if (enteredAmount === null) {
+                return;
+            }
+
+            const amount = enteredAmount.trim();
+
+            if (!/^\d+(\.\d{1,2})?$/.test(amount)
+                || !Number.isFinite(Number(amount))
+                || Number(amount) <= 0) {
+                showMessage(
+                    "Enter a positive amount with at most "
+                    + "two decimal places.",
+                    true
+                );
+                return;
+            }
+
+            const enteredMethod = window.prompt(
+                "Enter CASH, BANK_TRANSFER, or CARD:",
+                payment.method
+            );
+
+            if (enteredMethod === null) {
+                return;
+            }
+
+            const method = enteredMethod.trim().toUpperCase();
+
+            if (!["CASH", "BANK_TRANSFER", "CARD"].includes(method)) {
+                showMessage(
+                    "Payment method must be CASH, "
+                    + "BANK_TRANSFER, or CARD.",
+                    true
+                );
+                return;
+            }
+
+            await runPaymentChange(
+                container,
+                button,
+                () => request(
+                    "/api/payments/" + encodeURIComponent(payment.id),
+                    {
+                        method: "PUT",
+                        headers: {
+                            "Content-Type": "application/json"
+                        },
+                        body: JSON.stringify({
+                            ...payment,
+                            amount,
+                            method
+                        })
+                    }
+                ),
+                "Payment " + payment.id + " updated."
+            );
+        });
+
+        container.appendChild(button);
+    }
+
+    function addDeleteButton(container, payment) {
+        const button = document.createElement("button");
+
+        button.type = "button";
+        button.className = "payment-action delete";
+        button.textContent = "Delete";
+
+        button.addEventListener("click", async () => {
+            const confirmed = window.confirm(
+                "Delete pending payment " + payment.id + "?"
+            );
+
+            if (!confirmed) {
+                return;
+            }
+
+            await runPaymentChange(
+                container,
+                button,
+                () => request(
+                    "/api/payments/" + encodeURIComponent(payment.id),
+                    { method: "DELETE" }
+                ),
+                "Payment " + payment.id + " deleted."
+            );
+        });
+
+        container.appendChild(button);
+    }
+
+    async function loadPayments() {
+        const payments = await request("/api/payments");
+
+        if (!Array.isArray(payments)) {
+            throw new Error(
+                "The server returned an invalid payment list."
+            );
+        }
+
+        rows.replaceChildren();
+
+        if (payments.length === 0) {
+            showTableMessage("No payments found.");
+            return;
+        }
+
+        for (const payment of payments) {
+            const row = document.createElement("tr");
+
+            addCell(row, payment.id);
+            addCell(row, payment.reservationId);
+            addCell(row, Number(payment.amount).toFixed(2));
+
+            addCell(
+                row,
+                methodLabels[payment.method] || payment.method
+            );
+
+            const statusCell = document.createElement("td");
+            const statusBadge = document.createElement("span");
+
+            statusBadge.className = "status";
+
+            const statusClasses = {
+                COMPLETED: "completed",
+                PENDING: "pending",
+                FAILED: "failed",
+                REFUNDED: "refunded",
+                VOIDED: "voided"
+            };
+
+            if (statusClasses[payment.status]) {
+                statusBadge.classList.add(
+                    statusClasses[payment.status]
+                );
+            }
+
+            statusBadge.textContent = payment.status;
+            statusCell.appendChild(statusBadge);
+            row.appendChild(statusCell);
+
+            const actionsCell = document.createElement("td");
+            const actions = document.createElement("div");
+
+            actions.className = "action-group";
+
+            if (payment.status === "PENDING") {
+                addPaymentAction(
+                    actions,
+                    payment,
+                    "process",
+                    "Process Payment",
+                    "COMPLETED"
+                );
+
+                addPaymentAction(
+                    actions,
+                    payment,
+                    "cancel",
+                    "Cancel Payment",
+                    "VOIDED"
+                );
+
+                addEditButton(actions, payment);
+                addDeleteButton(actions, payment);
+            }
+
+
+            if (payment.status === "COMPLETED") {
+
+                // Both customers and admins can view receipts.
+                const receiptLink = document.createElement("a");
+
+                receiptLink.className = "receipt-link";
+                receiptLink.textContent = "View Receipt";
+                receiptLink.href = "/receipt.html?paymentId="
+                    + encodeURIComponent(payment.id);
+
+                actions.appendChild(receiptLink);
+
+                // Only admins can see the Refund button.
+                if (currentUserRole === "ADMIN") {
+                    addPaymentAction(
+                        actions,
+                        payment,
+                        "refund",
+                        "Simulate Refund",
+                        "REFUNDED"
+                    );
+                }
+            }
+
+
+            if (!actions.hasChildNodes()) {
+                actions.textContent = "—";
+            }
+
+            actionsCell.appendChild(actions);
+            row.appendChild(actionsCell);
+            rows.appendChild(row);
+        }
+    }
+
+    form.addEventListener("submit", async event => {
+        event.preventDefault();
+
+        if (createButton.disabled || currentUserRole !== "CUSTOMER") return;
+
+        createButton.disabled = true;
+        createButton.textContent = "Creating Payment...";
+
+        try {
+            const payment = await request("/api/payments", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({
+                    reservationId: selectedReservationId,
+                    amount: document.getElementById("amount").value,
+                    method: document.getElementById("method").value
+                })
+            });
+
+            showMessage(
+                "Pending payment created: " + payment.id
+            );
+
+            paymentDetails.hidden = true;
+
+            try {
+                await loadPayments();
+            } catch {
+                showMessage(
+                    "Payment created: " + payment.id
+                    + ". Click Refresh Payments to reload the list.",
+                    true
+                );
+            }
+        } catch (error) {
+            showMessage(error.message, true);
+        } finally {
+            createButton.disabled = paymentDetails.hidden;
+            createButton.textContent = "Continue to Payment";
+        }
+    });
+
+    refreshButton.addEventListener("click", async () => {
+        refreshButton.disabled = true;
+
+        try {
+            await loadPayments();
+            showMessage("Payment list refreshed.");
+        } catch (error) {
+            showMessage(error.message, true);
+        } finally {
+            refreshButton.disabled = false;
+        }
+    });
+
+
+    async function initializePaymentPage() {
+        try {
+            const user = await GrandStaySession.ready;
+            if (!user) return;
+
+            currentUserRole = user.role;
+            await loadPayments();
+
+            if (selectedReservationId && currentUserRole === "CUSTOMER") {
+                paymentDetails.hidden = false;
+                await prefillPaymentDetails();
+            }
+
+        } catch (error) {
+            showTableMessage(
+                "Unable to load payments. " +
+                "Click Refresh Payments to retry."
+            );
+
+            showMessage(error.message, true);
+        }
+    }
+
+    document.addEventListener("DOMContentLoaded", initializePaymentPage);
+
+</script>
+</body>
+</html>
