@@ -10,15 +10,13 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
-//import java.util.List;
 
 public class JsonFileStorage<T> {
 
     private final ObjectMapper mapper = new ObjectMapper()
             .registerModule(new JavaTimeModule())
-            .disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
-                    //.findAndRegisterModules()
-                  // .enable(SerializationFeature.INDENT_OUTPUT);
+            .disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS)
+            .enable(SerializationFeature.INDENT_OUTPUT);
 
     private final Path filePath;
     private final TypeReference<T> typeReference;
@@ -38,7 +36,7 @@ public class JsonFileStorage<T> {
             Files.createDirectories(filePath.getParent());
 
             if (Files.notExists(filePath)) {
-                Files.writeString(filePath, "[]");;
+                Files.writeString(filePath, "[]");
             }
         } catch (IOException e) {
             throw new StorageException(
@@ -50,7 +48,6 @@ public class JsonFileStorage<T> {
     public synchronized T read() {
         try {
             return mapper.readValue(
-                    //above mapper previously in MAPPER -manually checked by me
                     filePath.toFile(), typeReference
             );
         } catch (IOException e) {
@@ -71,7 +68,6 @@ public class JsonFileStorage<T> {
             );
 
             mapper.writeValue(tempFile.toFile(), data);
-            //above mapper previously in MAPPER -manually checked by me
 
             try {
                 Files.move(
@@ -97,7 +93,7 @@ public class JsonFileStorage<T> {
                 try {
                     Files.deleteIfExists(tempFile);
                 } catch (IOException ignored) {
-                    // The main storage operation has already finished.
+                    // Ignore cleanup failure.
                 }
             }
         }

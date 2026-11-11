@@ -5,6 +5,8 @@ import com.hotel.common.ResourceNotFoundException;
 import com.hotel.common.ValidationException;
 import com.hotel.user.model.User;
 import com.hotel.user.repository.UserRepository;
+import com.hotel.user.dto.UpdateProfileRequest;
+import com.hotel.user.dto.UserResponse;
 
 import java.util.List;
 import java.util.Locale;
@@ -94,4 +96,58 @@ public class UserService {
     private boolean blank(String value) {
         return value == null || value.isBlank();
     }
+
+
+    public UserResponse updateOwnProfile(
+            String authenticatedUserId,
+            UpdateProfileRequest request) {
+
+        if (request == null) {
+            throw new ValidationException(
+                    "Profile information is required.");
+        }
+
+        // Load the account identified by the authenticated session
+        User existing = getUserById(authenticatedUserId);
+
+        if (!existing.isActive()) {
+            throw new ValidationException(
+                    "This account is deactivated.");
+        }
+
+        if (request.getFullName() == null ||
+                request.getFullName().isBlank()) {
+            throw new ValidationException(
+                    "Full name is required.");
+        }
+
+        if (request.getEmail() == null ||
+                request.getEmail().isBlank()) {
+            throw new ValidationException(
+                    "Email address is required.");
+        }
+
+        // Build an updated user while preserving protected fields
+        User updated = new User(
+                existing.getId(),
+                request.getFullName().trim(),
+                request.getEmail().trim(),
+                existing.getPasswordHash(),
+                existing.getRole(),
+                request.getPhone() == null
+                        ? ""
+                        : request.getPhone().trim(),
+                existing.isActive()
+        );
+
+        // Reuse existing validation and duplicate-email checks
+        User saved = updateUser(
+                authenticatedUserId,
+                updated
+        );
+
+        return new UserResponse(saved);
+    }
+
+
 }

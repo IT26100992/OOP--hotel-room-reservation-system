@@ -1,18 +1,60 @@
-//Test if the local host port 7070 is working and backend API is running.
-package com.hotel;
 
-import com.hotel.common.AppException;
+package com.hotel;
+import com.hotel.common.AccessControl;
+// ======================================
+// USER AUTHENTICATION - ASHINI
+// ======================================
+import com.hotel.user.api.AuthApi;
+import com.hotel.user.repository.UserRepository;
+import com.hotel.user.service.UserService;
+import com.hotel.user.service.AuthenticationService;
+
+// ======================================
+// ROOM MANAGEMENT - RENU
+// ======================================
 import com.hotel.room.repository.RoomRepository;
+import com.hotel.room.api.RoomApi;
+import com.hotel.room.service.RoomService;
+
+// ======================================
+// RESERVATION MANAGEMENT - ASHAN
+// ======================================
 import com.hotel.reservation.repository.ReservationRepository;
+import com.hotel.reservation.service.ReservationService;
+import com.hotel.reservation.api.ReservationApi;
+
+// ======================================
+// SEARCH & AVAILABILITY - SITHUM
+// ======================================
 import com.hotel.search.service.RoomAvailabilityService;
 import com.hotel.search.api.RoomSearchApi;
-import io.javalin.Javalin;
-import io.javalin.http.staticfiles.Location;
-import java.util.Map;
 import com.hotel.search.repository.SearchPreferenceRepository;
 import com.hotel.search.service.SearchPreferenceService;
 import com.hotel.search.api.SearchPreferenceApi;
-import com.hotel.user.repository.UserRepository;
+
+// ======================================
+// PAYMENT & RECEIPT - KAVEESHA
+// ======================================
+import com.hotel.payment.api.PaymentApi;
+import com.hotel.payment.repository.PaymentRepository;
+import com.hotel.payment.service.PaymentService;
+
+// ======================================
+// ADMIN DASHBOARD & REPORTS - MIHIRI
+// ======================================
+import com.hotel.admin.api.AdminReportApi;
+import com.hotel.admin.service.AdminReportService;
+import com.hotel.admin.repository.ReportRepository;
+
+// ======================================
+// EXCEPTION HANDLING & JAVALIN
+// ======================================
+import com.hotel.common.AppException;
+
+import io.javalin.Javalin;
+import io.javalin.http.staticfiles.Location;
+
+import java.util.Map;
 
 public class HotelApplication {
 
@@ -20,62 +62,124 @@ public class HotelApplication {
 
         Javalin app = Javalin.create(config -> {
 
-            // Serve HTML, CSS and JavaScript from resources/public
-            config.staticFiles.add("/public", Location.CLASSPATH);
+            // ======================================
+            // FRONTEND STATIC FILES
+            // ======================================
 
-            /*app.exception(AppException.class, (exception, ctx) -> {
-                ctx.status(exception.getStatusCode().json)
-                        .json(Map.of("error", exception.getMessage()));
-            });*/
-
-            // Test the backend API
-            config.routes.get("/api/health", ctx ->
-                    ctx.json(Map.of(
-                            "status", "ok",
-                            "message", "Hotel Reservation API is running"
-                    ))
+            config.staticFiles.add(
+                    "/public",
+                    Location.CLASSPATH
             );
 
-            //newly add missing exception handler
-            config.routes.exception(AppException.class, (e, ctx) -> {
-                ctx.status(e.getStatusCode()).json(
-                        Map.of("error", e.getMessage())
-                );
+            // ======================================
+            // HEALTH CHECK
+            // ======================================
+
+            config.routes.get("/api/health", ctx -> {
+                ctx.json(Map.of(
+                        "status", "ok",
+                        "message",
+                        "Hotel Reservation API is running"
+                ));
             });
 
-            // Handle our application's custom exceptions
-            // Handle unexpected server errors
-            config.routes.exception(Exception.class, (e, ctx) -> {
-                e.printStackTrace();
+            // ======================================
+            // EXCEPTION HANDLING
+            // ======================================
 
-                ctx.status(500).json(
-                        Map.of("error", "An unexpected server error occurred")
-                );
-            });
-            // Handle unexpected server errors
-            /*config.routes.exception(Exception.class, (e, ctx) -> {
-                ctx.status(500).json(
-                        Map.of("error", "An unexpected server error occurred")
-                );
-            }); */
+            // Handle custom application exceptions
+            config.routes.exception(
+                    AppException.class,
+                    (exception, ctx) -> {
 
-            // Return a consistent response for unknown routes
+                        ctx.status(exception.getStatusCode());
+
+                        ctx.json(Map.of(
+                                "error",
+                                exception.getMessage()
+                        ));
+                    }
+            );
+
+            // Handle unexpected server errors
+            config.routes.exception(
+                    Exception.class,
+                    (exception, ctx) -> {
+
+                        exception.printStackTrace();
+
+                        ctx.status(500);
+
+                        ctx.json(Map.of(
+                                "error",
+                                "An unexpected server error occurred"
+                        ));
+                    }
+            );
+
+            // Handle unknown routes without replacing
+            // existing exception responses
             config.routes.error(404, ctx -> {
-                ctx.json(Map.of("error", "Resource not found"));
+
+                String responseBody = ctx.result();
+
+                if (responseBody == null ||
+                        responseBody.isBlank()) {
+
+                    ctx.json(Map.of(
+                            "error",
+                            "Resource not found"
+                    ));
+                }
             });
 
-            config.routes.exception(AppException.class, (e, ctx) -> {
-                ctx.status(e.getStatusCode()).json(
-                        Map.of("error", e.getMessage())
-                );
-            });
+            // ======================================
+            // SHARED REPOSITORIES
+            // ======================================
 
+            UserRepository userRepository =
+                    new UserRepository();
 
-            // Search & Availability feature - Sithum
-            RoomRepository roomRepository = new RoomRepository();
+            AccessControl accessControl =
+                    new AccessControl(userRepository);
+
+            RoomRepository roomRepository =
+                    new RoomRepository();
 
             ReservationRepository reservationRepository =
                     new ReservationRepository();
+
+            PaymentRepository paymentRepository =
+                    new PaymentRepository();
+
+            ReportRepository reportRepository =
+                    new ReportRepository();
+
+            // ======================================
+            // USER AUTHENTICATION - ASHINI
+            // ======================================
+
+            UserService userService =
+                    new UserService(userRepository);
+
+            AuthenticationService authenticationService =
+                    new AuthenticationService(
+                            userService,
+                            userRepository
+                    );
+
+            AuthApi authApi =
+                    new AuthApi(
+                            authenticationService,
+                            userService
+                    );
+
+            authApi.registerRoutes(config);
+
+            // ======================================
+            // SEARCH & AVAILABILITY - SITHUM
+            // REGISTER BEFORE ROOM API
+            // ======================================
 
             RoomAvailabilityService availabilityService =
                     new RoomAvailabilityService(
@@ -88,12 +192,46 @@ public class HotelApplication {
 
             roomSearchApi.registerRoutes(config);
 
-            // Saved Search Preferences - Sithum
+            // ======================================
+            // ROOM MANAGEMENT - RENU
+            // ======================================
+
+            RoomService roomService =
+                    new RoomService(
+                            roomRepository,
+                            reservationRepository
+                    );
+
+            RoomApi roomApi =
+                    new RoomApi(roomService, accessControl);
+
+            roomApi.registerRoutes(config);
+
+            // ======================================
+            // RESERVATION MANAGEMENT - ASHAN
+            // ======================================
+
+            ReservationService reservationService =
+                    new ReservationService(
+                            reservationRepository,
+                            userRepository,
+                            roomRepository
+                    );
+
+            ReservationApi reservationApi =
+                    new ReservationApi(
+                            reservationService,
+                            accessControl
+                    );
+
+            reservationApi.registerRoutes(config);
+
+            // ======================================
+            // SAVED SEARCH PREFERENCES - SITHUM
+            // ======================================
+
             SearchPreferenceRepository preferenceRepository =
                     new SearchPreferenceRepository();
-
-            UserRepository userRepository =
-                    new UserRepository();
 
             SearchPreferenceService preferenceService =
                     new SearchPreferenceService(
@@ -102,14 +240,64 @@ public class HotelApplication {
                     );
 
             SearchPreferenceApi preferenceApi =
-                    new SearchPreferenceApi(preferenceService);
+                    new SearchPreferenceApi(
+                            preferenceService,
+                            accessControl
+                    );
 
             preferenceApi.registerRoutes(config);
 
+            // ======================================
+            // PAYMENT & RECEIPT - KAVEESHA
+            // ======================================
+
+            PaymentService paymentService =
+                    new PaymentService(
+                            paymentRepository,
+                            reservationRepository,
+                            roomRepository
+                    );
+
+            PaymentApi paymentApi =
+                    new PaymentApi(
+                            paymentService,
+                            reservationService,
+                            accessControl
+                    );
+
+            paymentApi.registerRoutes(config);
+
+            // ======================================
+            // ADMIN DASHBOARD & REPORTS - MIHIRI
+            // ======================================
+
+            AdminReportService adminReportService =
+                    new AdminReportService(
+                            roomRepository,
+                            userRepository,
+                            reservationRepository,
+                            paymentRepository,
+                            reportRepository
+                    );
+
+            AdminReportApi adminReportApi =
+                    new AdminReportApi(
+                            adminReportService,
+                            accessControl
+                    );
+
+            adminReportApi.registerRoutes(config);
 
         });
 
+        // ======================================
+        // START SERVER
+        // ======================================
 
         app.start(7070);
+
+        System.out.println(
+                "Hotel Reservation System running on port 7070"
+        );
     }
 }

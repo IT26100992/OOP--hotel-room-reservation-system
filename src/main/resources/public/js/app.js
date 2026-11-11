@@ -1,20 +1,16 @@
-
-async function checkBackend() {
-    const statusElement = document.getElementById("api-status");
+async function checkBookingService() {
+    const status = document.getElementById("api-status");
 
     try {
-        const response = await fetch("/api/health");
-
-        if (!response.ok) {
-            throw new Error("Backend returned an error");
+        const response = await fetch("/api/health", { cache: "no-store" });
+        if (!response.ok || (await response.json()).status !== "ok") {
+            throw new Error("Booking service unavailable");
         }
 
-        const result = await response.json();
-        statusElement.textContent = result.message;
-    } catch (error) {
-        statusElement.textContent = "Could not connect to the backend.";
-        console.error(error);
+        status.textContent = "Booking service online";
+    } catch {
+        status.textContent = "Booking service unavailable. Try again shortly.";
     }
 }
 
-checkBackend();
+checkBookingService();
