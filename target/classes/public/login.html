@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>Sign In | GrandStay</title>
+
+    <link rel="stylesheet" href="/css/design-system.css">
+    <link rel="stylesheet" href="/css/auth.css">
+    <script src="/js/navigation.js" defer></script>
+    <script src="/js/login.js" defer></script>
+</head>
+
+<body>
+
+<header class="gs-header">
+    <div class="gs-header-inner">
+        <a class="gs-brand" href="/">
+            <span class="gs-brand-mark" aria-hidden="true">G</span>
+            <span>
+                <strong>GrandStay</strong>
+                <small>Hotel &amp; Resorts</small>
+            </span>
+        </a>
+        <nav class="gs-nav" aria-label="Main navigation">
+            <a href="/search.html">Explore Rooms</a>
+            <a href="/reservation.html" class="auth-only" hidden>Reservations</a>
+            <a href="/payment.html" class="auth-only" hidden>My Payments</a>
+            <a href="/profile.html" class="auth-only" hidden>My Profile</a>
+            <a href="/rooms.html" class="admin-only" hidden>Manage Rooms</a>
+            <a href="/admin.html" class="admin-only" hidden>Dashboard</a>
+            <a href="/login.html" class="guest-only gs-sign-in" aria-current="page">Sign In</a>
+            <a href="/register.html" class="guest-only">Register</a>
+            <button type="button" id="navLogout" data-logout class="auth-only" hidden>Log Out</button>
+        </nav>
+    </div>
+</header>
+
+<main class="auth-layout">
+
+    <section class="auth-visual">
+        <div class="visual-content">
+            <span class="brand">GRANDSTAY HOTEL &amp; RESORTS</span>
+
+            <h1>Welcome back.</h1>
+
+            <p>
+                Sign in to explore available rooms,
+                manage your reservations and
+                enjoy your next hotel stay.
+            </p>
+        </div>
+    </section>
+
+    <section class="auth-panel">
+
+        <div class="auth-card">
+            <p class="gs-eyebrow">Your GrandStay account</p>
+
+            <h2>Sign in to your account</h2>
+
+            <p class="subtitle">
+                Enter your credentials to continue.
+            </p>
+
+            <form id="loginForm">
+
+                <div class="form-group">
+                    <label for="email">
+                        Email Address
+                    </label>
+
+                    <input
+                            type="email"
+                            id="email"
+                            placeholder="you@example.com"
+                            autocomplete="email"
+                            required>
+                </div>
+
+                <div class="form-group">
+                    <label for="password">
+                        Password
+                    </label>
+
+                    <div class="password-field">
+                        <input
+                                type="password"
+                                id="password"
+                                placeholder="Enter your password"
+                                autocomplete="current-password"
+                                required>
+
+                        <button
+                                type="button"
+                                id="togglePassword"
+                                aria-label="Show password"
+                                class="password-toggle">
+                            Show
+                        </button>
+                    </div>
+                </div>
+
+                <div
+                        id="formMessage"
+                        class="form-message"
+                        role="status"
+                        aria-live="polite">
+                </div>
+
+                <button
+                        type="submit"
+                        id="loginButton"
+                        class="primary-button">
+                    Sign In
+                </button>
+
+            </form>
+
+            <p class="auth-footer">
+                Don't have an account?
+                <a href="/register.html">
+                    Create an account
+                </a>
+            </p>
+
+        </div>
+
+    </section>
+
+</main>
+
+</body>
+</html>

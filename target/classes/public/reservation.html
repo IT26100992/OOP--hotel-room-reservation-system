@@ -1,0 +1,240 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Reservation Management | GrandStay Hotel</title>
+
+    <link rel="stylesheet" href="/css/design-system.css">
+    <link rel="stylesheet" href="/css/reservation.css">
+
+    <script src="/js/navigation.js" defer></script>
+</head>
+
+<body data-requires="account">
+
+
+<header class="gs-header">
+    <div class="gs-header-inner">
+        <a class="gs-brand" href="/">
+            <span class="gs-brand-mark" aria-hidden="true">G</span>
+            <span>
+                <strong>GrandStay</strong>
+                <small>Hotel &amp; Resorts</small>
+            </span>
+        </a>
+        <nav class="gs-nav" aria-label="Main navigation">
+            <a href="/search.html">Explore Rooms</a>
+            <a href="/reservation.html" class="auth-only" aria-current="page" hidden>Reservations</a>
+            <a href="/payment.html" class="auth-only" hidden>My Payments</a>
+            <a href="/profile.html" class="auth-only" hidden>My Profile</a>
+            <a href="/rooms.html" class="admin-only" hidden>Manage Rooms</a>
+            <a href="/admin.html" class="admin-only" hidden>Dashboard</a>
+            <a href="/login.html" class="guest-only gs-sign-in">Sign In</a>
+            <a href="/register.html" class="guest-only">Register</a>
+            <button type="button" id="navLogout" data-logout class="auth-only" hidden>Log Out</button>
+        </nav>
+    </div>
+</header>
+
+<div class="gs-container gs-session-status">
+    <p data-session-status role="status">Checking access to your reservations…</p>
+    <a href="/search.html">Explore Rooms</a>
+</div>
+
+<main class="container" data-session-content hidden>
+
+
+    <section class="welcome">
+        <div class="welcome-content">
+
+            <p class="eyebrow">
+                YOUR GRANDSTAY EXPERIENCE
+            </p>
+
+            <h1>Manage Reservations</h1>
+
+            <p>
+                Review your upcoming stays, manage
+                your booking details and prepare for
+                your next GrandStay experience.
+            </p>
+
+            <a href="/search.html" class="welcome-link">
+                Explore More Rooms
+            </a>
+
+        </div>
+
+        <div class="welcome-decoration"
+             aria-hidden="true">
+            ✦
+        </div>
+    </section>
+
+
+    <section class="stats-grid">
+        <article class="stat-card">
+            <span>Total Reservations</span>
+            <strong id="total-count">0</strong>
+        </article>
+
+        <article class="stat-card">
+            <span>Pending</span>
+            <strong id="pending-count">0</strong>
+        </article>
+
+        <article class="stat-card">
+            <span>Confirmed</span>
+            <strong id="confirmed-count">0</strong>
+        </article>
+
+        <article class="stat-card">
+            <span>Cancelled</span>
+            <strong id="cancelled-count">0</strong>
+        </article>
+    </section>
+
+    <section class="panel" data-booking-panel hidden>
+
+        <div class="section-heading">
+            <div>
+                <p class="eyebrow">BOOKING DETAILS</p>
+                <h2 id="form-heading">Create a Reservation</h2>
+            </div>
+            <span class="heading-icon">📅</span>
+        </div>
+
+        <form id="reservation-form">
+            <input type="hidden" id="userId" name="userId">
+
+            <div class="form-grid">
+
+                <div class="form-group">
+                    <label for="roomId">Room ID</label>
+                    <input
+                            type="text"
+                            id="roomId"
+                            name="roomId"
+                            placeholder="Select a room from Explore Rooms"
+                            required
+                    >
+                </div>
+
+                <div class="form-group">
+                    <label for="checkInDate">Check-in Date</label>
+                    <input
+                            type="date"
+                            id="checkInDate"
+                            name="checkInDate"
+                            required
+                    >
+                </div>
+
+                <div class="form-group">
+                    <label for="checkOutDate">Check-out Date</label>
+                    <input
+                            type="date"
+                            id="checkOutDate"
+                            name="checkOutDate"
+                            required
+                    >
+                </div>
+
+                <div class="form-group">
+                    <label for="guestCount">Number of Guests</label>
+                    <input
+                            type="number"
+                            id="guestCount"
+                            name="guestCount"
+                            min="1"
+                            placeholder="Number of guests"
+                            required
+                    >
+                </div>
+
+            </div>
+
+            <div class="form-actions">
+                <button type="submit" id="submit-reservation"
+                        class="btn btn-primary">
+                    Create Reservation
+                </button>
+
+                <button type="button" id="cancel-edit"
+                        class="btn btn-secondary" hidden>
+                    Cancel Edit
+                </button>
+
+                <button type="reset" id="clear-form"
+                        class="btn btn-light">
+                    Clear Form
+                </button>
+            </div>
+
+        </form>
+
+        <p id="reservation-message" role="status"
+           aria-live="polite"></p>
+
+    </section>
+
+    <section class="panel">
+
+        <div class="section-heading">
+            <div>
+                <p class="eyebrow">BOOKING OVERVIEW</p>
+                <h2>Reservation Overview</h2>
+                <p class="muted">
+                    View and manage your existing bookings.
+                </p>
+            </div>
+
+            <button type="button" id="refresh-reservations"
+                    class="btn btn-secondary">
+                ↻ Refresh
+            </button>
+        </div>
+
+        <div class="table-wrapper">
+
+            <table>
+                <thead>
+                <tr>
+                    <th>Reservation ID</th>
+                    <th class="admin-only" hidden>Customer ID</th>
+                    <th>Room ID</th>
+                    <th>Check-in</th>
+                    <th>Check-out</th>
+                    <th>Guests</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                </tr>
+                </thead>
+
+                <tbody id="reservation-list">
+                <tr>
+                    <td colspan="8" class="empty-state">
+                        Loading reservations...
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+
+        </div>
+
+    </section>
+
+</main>
+
+<footer class="gs-footer">
+    <p>GrandStay Hotel & Resorts</p>
+    <p>© 2026 GrandStay · Hotel Reservation System</p>
+</footer>
+
+<script src="/js/reservation.js" defer></script>
+
+</body>
+</html>
