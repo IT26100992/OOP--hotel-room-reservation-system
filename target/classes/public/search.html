@@ -1,0 +1,268 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>Explore Rooms | GrandStay Hotel</title>
+
+    <link rel="stylesheet"
+          href="/css/design-system.css">
+    <link rel="stylesheet"
+          href="/css/search.css">
+
+    <script src="/js/navigation.js" defer></script>
+    <script src="/js/search.js" defer></script>
+</head>
+
+<body>
+
+<!-- HEADER -->
+<header class="gs-header">
+    <div class="gs-header-inner">
+        <a class="gs-brand" href="/">
+            <span class="gs-brand-mark" aria-hidden="true">G</span>
+            <span>
+                <strong>GrandStay</strong>
+                <small>Hotel &amp; Resorts</small>
+            </span>
+        </a>
+        <nav class="gs-nav" aria-label="Main navigation">
+            <a href="/search.html" aria-current="page">Explore Rooms</a>
+            <a href="/reservation.html" class="auth-only" hidden>Reservations</a>
+            <a href="/payment.html" class="auth-only" hidden>My Payments</a>
+            <a href="/profile.html" class="auth-only" hidden>My Profile</a>
+            <a href="/rooms.html" class="admin-only" hidden>Manage Rooms</a>
+            <a href="/admin.html" class="admin-only" hidden>Dashboard</a>
+            <a href="/login.html" class="guest-only gs-sign-in">Sign In</a>
+            <a href="/register.html" class="guest-only">Register</a>
+            <button type="button" id="navLogout" data-logout class="auth-only" hidden>Log Out</button>
+        </nav>
+    </div>
+</header>
+
+<!-- HERO -->
+<section class="search-hero">
+    <div class="gs-container hero-content">
+
+        <p class="gs-eyebrow">
+            WELCOME TO GRANDSTAY
+        </p>
+
+        <h1>
+            Discover your
+            <em>perfect stay.</em>
+        </h1>
+
+        <p class="hero-description">
+            Explore our rooms, compare rates and
+            find a comfortable stay for your next
+            journey.
+        </p>
+
+        <a href="#search-section"
+           class="hero-link">
+            Explore Available Rooms ↓
+        </a>
+
+    </div>
+</section>
+
+<main class="gs-container main-content">
+
+    <!-- SEARCH FORM -->
+    <section class="search-section"
+             id="search-section">
+
+        <div class="section-heading">
+            <div>
+                <p class="gs-eyebrow">
+                    01 / FIND YOUR ROOM
+                </p>
+                <h2>Search Available Rooms</h2>
+                <p>
+                    Tell us when you're visiting
+                    and what kind of room you prefer.
+                </p>
+            </div>
+
+            <span class="section-symbol"
+                  aria-hidden="true">✦</span>
+        </div>
+
+        <form id="searchForm">
+
+            <div class="form-grid">
+
+                <div class="form-group">
+                    <label for="checkIn">
+                        Check-in Date
+                    </label>
+                    <input type="date"
+                           id="checkIn"
+                           required>
+                </div>
+
+                <div class="form-group">
+                    <label for="checkOut">
+                        Check-out Date
+                    </label>
+                    <input type="date"
+                           id="checkOut"
+                           required>
+                </div>
+
+                <div class="form-group">
+                    <label for="guests">
+                        Number of Guests
+                    </label>
+                    <input type="number"
+                           id="guests"
+                           min="1"
+                           value="2"
+                           required>
+                </div>
+
+                <div class="form-group">
+                    <label for="roomType">
+                        Room Type
+                    </label>
+
+                    <select id="roomType">
+                        <option value="">
+                            All Room Types
+                        </option>
+                        <option value="SINGLE">Single</option>
+                        <option value="DOUBLE">Double</option>
+                        <option value="TWIN">Twin</option>
+                        <option value="DELUXE">Deluxe</option>
+                        <option value="SUITE">Suite</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="minPrice">
+                        Minimum Price (LKR)
+                    </label>
+                    <input type="number"
+                           id="minPrice"
+                           min="0"
+                           step="0.01"
+                           placeholder="No minimum">
+                </div>
+
+                <div class="form-group">
+                    <label for="maxPrice">
+                        Maximum Price (LKR)
+                    </label>
+                    <input type="number"
+                           id="maxPrice"
+                           min="0"
+                           step="0.01"
+                           placeholder="No maximum">
+                </div>
+
+            </div>
+
+            <div class="search-actions">
+                <button type="submit"
+                        class="search-button">
+                    Search Rooms
+                </button>
+
+                <span>
+                    All rates displayed in LKR per night.
+                </span>
+            </div>
+
+        </form>
+    </section>
+
+    <!-- AVAILABLE ROOMS -->
+    <section class="results-section">
+
+        <div class="section-heading">
+            <div>
+                <p class="gs-eyebrow">
+                    02 / ROOM COLLECTION
+                </p>
+                <h2>Available Rooms</h2>
+                <p>
+                    Explore rooms matching your
+                    selected dates and preferences.
+                </p>
+            </div>
+        </div>
+
+        <p id="message"
+           role="status"
+           aria-live="polite">
+            Select your dates to discover
+            available rooms.
+        </p>
+
+        <div id="roomResults"
+             class="room-grid"></div>
+
+    </section>
+
+    <!-- SAVED SEARCHES -->
+    <section class="saved-search-section customer-only" hidden>
+
+        <div class="section-heading">
+            <div>
+                <p class="gs-eyebrow">
+                    03 / YOUR PREFERENCES
+                </p>
+                <h2>My Saved Searches</h2>
+                <p>
+                    Save your favorite search conditions
+                    and return to them whenever you like.
+                </p>
+            </div>
+        </div>
+
+        <div class="saved-actions">
+
+            <button type="button"
+                    id="saveSearchBtn">
+                Save Current Search
+            </button>
+
+            <button type="button"
+                    id="loadSavedSearchesBtn">
+                View Saved Searches
+            </button>
+
+            <button type="button"
+                    id="updateSearchBtn" hidden>
+                Update Saved Search
+            </button>
+
+            <button type="button"
+                    id="cancelEditBtn" hidden>
+                Cancel Editing
+            </button>
+
+        </div>
+
+        <p id="savedSearchMessage"
+           role="status"
+           aria-live="polite"></p>
+
+        <div id="savedSearchResults"></div>
+
+    </section>
+
+</main>
+
+<!-- FOOTER -->
+<footer class="gs-footer">
+    <p>GrandStay Hotel & Resorts</p>
+    <p>© 2026 GrandStay · Hotel Reservation System</p>
+</footer>
+
+</body>
+</html>
