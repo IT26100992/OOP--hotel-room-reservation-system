@@ -1,1 +1,118 @@
-[{"id":"48ff0d6f-4a9c-43d9-82ec-35675fa605b9","userId":"a8412e33-d7b8-4f4c-abb5-9cab349fbb5f","roomId":"ROOM-102","checkInDate":"2026-11-10","checkOutDate":"2026-11-12","guestCount":2,"status":"PENDING","createdAt":"2026-11-09T15:17:36.86635"},{"id":"c3e4c9c1-f5a6-4130-b765-f6ff19660039","userId":"a8412e33-d7b8-4f4c-abb5-9cab349fbb5f","roomId":"ROOM-103","checkInDate":"2026-11-10","checkOutDate":"2026-11-12","guestCount":2,"status":"CANCELLED","createdAt":"2026-11-09T15:20:02.0685892"},{"id":"a9e551c3-2d3b-4d0b-902b-d060448e0412","userId":"a8412e33-d7b8-4f4c-abb5-9cab349fbb5f","roomId":"ROOM-104","checkInDate":"2026-11-09","checkOutDate":"2026-11-12","guestCount":2,"status":"CONFIRMED","createdAt":"2026-11-09T18:11:08.1109844"},{"id":"35bfba86-f07b-4224-93df-ef78d04483a3","userId":"a8412e33-d7b8-4f4c-abb5-9cab349fbb5f","roomId":"ROOM-104","checkInDate":"2026-11-25","checkOutDate":"2026-11-26","guestCount":4,"status":"CONFIRMED","createdAt":"2026-11-09T18:22:37.6867352"},{"id":"d6cdc5eb-c7b5-4472-acc3-0d037878cf30","userId":"a8412e33-d7b8-4f4c-abb5-9cab349fbb5f","roomId":"ROOM-106","checkInDate":"2026-11-09","checkOutDate":"2026-11-11","guestCount":2,"status":"CONFIRMED","createdAt":"2026-11-09T20:18:08.2997777"},{"id":"f0064a7d-2198-4a50-b663-0b4876653f34","userId":"da3f7662-d0e2-4d58-a969-12fe8188978d","roomId":"a925c4be-382d-4f3a-8c49-d40df3c5fca0","checkInDate":"2026-11-10","checkOutDate":"2026-11-12","guestCount":2,"status":"CONFIRMED","createdAt":"2026-11-10T00:02:28.710805"},{"id":"1f79fad6-396f-4ae7-8b09-0f0660c197ac","userId":"a8412e33-d7b8-4f4c-abb5-9cab349fbb5f","roomId":"ROOM-103","checkInDate":"2026-11-27","checkOutDate":"2026-11-28","guestCount":3,"status":"CONFIRMED","createdAt":"2026-11-10T00:12:25.4346784"},{"id":"49206b71-716f-4839-b2b7-39284a01c413","userId":"a8412e33-d7b8-4f4c-abb5-9cab349fbb5f","roomId":"ROOM-102","checkInDate":"2026-11-12","checkOutDate":"2026-11-13","guestCount":2,"status":"PENDING","createdAt":"2026-11-10T18:01:52.0741439"},{"id":"856cc5b4-695a-4b32-ae5c-c098211d4761","userId":"da3f7662-d0e2-4d58-a969-12fe8188978d","roomId":"ROOM-102","checkInDate":"2026-11-30","checkOutDate":"2026-12-01","guestCount":2,"status":"PENDING","createdAt":"2026-11-10T18:53:43.4968165"},{"id":"a3cc4779-c385-4cd6-837d-3fdbbbf7d950","userId":"a8412e33-d7b8-4f4c-abb5-9cab349fbb5f","roomId":"ROOM-102","checkInDate":"2026-11-26","checkOutDate":"2026-11-27","guestCount":2,"status":"CONFIRMED","createdAt":"2026-11-11T09:59:55.9164924"}]
+[ {
+  "id" : "48ff0d6f-4a9c-43d9-82ec-35675fa605b9",
+  "userId" : "a8412e33-d7b8-4f4c-abb5-9cab349fbb5f",
+  "roomId" : "ROOM-102",
+  "checkInDate" : "2026-11-10",
+  "checkOutDate" : "2026-11-12",
+  "guestCount" : 2,
+  "status" : "PENDING",
+  "createdAt" : "2026-11-09T15:17:36.86635"
+}, {
+  "id" : "c3e4c9c1-f5a6-4130-b765-f6ff19660039",
+  "userId" : "a8412e33-d7b8-4f4c-abb5-9cab349fbb5f",
+  "roomId" : "ROOM-103",
+  "checkInDate" : "2026-11-10",
+  "checkOutDate" : "2026-11-12",
+  "guestCount" : 2,
+  "status" : "CANCELLED",
+  "createdAt" : "2026-11-09T15:20:02.0685892"
+}, {
+  "id" : "a9e551c3-2d3b-4d0b-902b-d060448e0412",
+  "userId" : "a8412e33-d7b8-4f4c-abb5-9cab349fbb5f",
+  "roomId" : "ROOM-104",
+  "checkInDate" : "2026-11-09",
+  "checkOutDate" : "2026-11-12",
+  "guestCount" : 2,
+  "status" : "CONFIRMED",
+  "createdAt" : "2026-11-09T18:11:08.1109844"
+}, {
+  "id" : "35bfba86-f07b-4224-93df-ef78d04483a3",
+  "userId" : "a8412e33-d7b8-4f4c-abb5-9cab349fbb5f",
+  "roomId" : "ROOM-104",
+  "checkInDate" : "2026-11-25",
+  "checkOutDate" : "2026-11-26",
+  "guestCount" : 4,
+  "status" : "CONFIRMED",
+  "createdAt" : "2026-11-09T18:22:37.6867352"
+}, {
+  "id" : "d6cdc5eb-c7b5-4472-acc3-0d037878cf30",
+  "userId" : "a8412e33-d7b8-4f4c-abb5-9cab349fbb5f",
+  "roomId" : "ROOM-106",
+  "checkInDate" : "2026-11-09",
+  "checkOutDate" : "2026-11-11",
+  "guestCount" : 2,
+  "status" : "CONFIRMED",
+  "createdAt" : "2026-11-09T20:18:08.2997777"
+}, {
+  "id" : "f0064a7d-2198-4a50-b663-0b4876653f34",
+  "userId" : "da3f7662-d0e2-4d58-a969-12fe8188978d",
+  "roomId" : "a925c4be-382d-4f3a-8c49-d40df3c5fca0",
+  "checkInDate" : "2026-11-10",
+  "checkOutDate" : "2026-11-12",
+  "guestCount" : 2,
+  "status" : "CONFIRMED",
+  "createdAt" : "2026-11-10T00:02:28.710805"
+}, {
+  "id" : "1f79fad6-396f-4ae7-8b09-0f0660c197ac",
+  "userId" : "a8412e33-d7b8-4f4c-abb5-9cab349fbb5f",
+  "roomId" : "ROOM-103",
+  "checkInDate" : "2026-11-27",
+  "checkOutDate" : "2026-11-28",
+  "guestCount" : 3,
+  "status" : "CONFIRMED",
+  "createdAt" : "2026-11-10T00:12:25.4346784"
+}, {
+  "id" : "49206b71-716f-4839-b2b7-39284a01c413",
+  "userId" : "a8412e33-d7b8-4f4c-abb5-9cab349fbb5f",
+  "roomId" : "ROOM-102",
+  "checkInDate" : "2026-11-12",
+  "checkOutDate" : "2026-11-13",
+  "guestCount" : 2,
+  "status" : "PENDING",
+  "createdAt" : "2026-11-10T18:01:52.0741439"
+}, {
+  "id" : "856cc5b4-695a-4b32-ae5c-c098211d4761",
+  "userId" : "da3f7662-d0e2-4d58-a969-12fe8188978d",
+  "roomId" : "ROOM-102",
+  "checkInDate" : "2026-11-30",
+  "checkOutDate" : "2026-12-01",
+  "guestCount" : 2,
+  "status" : "PENDING",
+  "createdAt" : "2026-11-10T18:53:43.4968165"
+}, {
+  "id" : "a3cc4779-c385-4cd6-837d-3fdbbbf7d950",
+  "userId" : "a8412e33-d7b8-4f4c-abb5-9cab349fbb5f",
+  "roomId" : "ROOM-102",
+  "checkInDate" : "2026-11-26",
+  "checkOutDate" : "2026-11-27",
+  "guestCount" : 2,
+  "status" : "CONFIRMED",
+  "createdAt" : "2026-11-11T09:59:55.9164924"
+}, {
+  "id" : "8242f711-a702-4079-b058-7c972805df42",
+  "userId" : "64770fc1-2737-47b0-9787-ea894cc6b799",
+  "roomId" : "ROOM-103",
+  "checkInDate" : "2026-11-12",
+  "checkOutDate" : "2026-11-13",
+  "guestCount" : 1,
+  "status" : "CONFIRMED",
+  "createdAt" : "2026-11-12T12:56:11.6360222"
+}, {
+  "id" : "d25fdd93-bf8c-4880-a98f-a84ac3f6d468",
+  "userId" : "28e09cc6-3afd-41ab-aa73-8e9e90d2d9e5",
+  "roomId" : "ROOM-103",
+  "checkInDate" : "2026-12-23",
+  "checkOutDate" : "2026-12-26",
+  "guestCount" : 2,
+  "status" : "CONFIRMED",
+  "createdAt" : "2026-11-14T09:35:52.0419921"
+}, {
+  "id" : "e776caec-a0c0-40b8-86c9-3bad027260d9",
+  "userId" : "64770fc1-2737-47b0-9787-ea894cc6b799",
+  "roomId" : "ROOM-106",
+  "checkInDate" : "2026-12-30",
+  "checkOutDate" : "2026-12-31",
+  "guestCount" : 2,
+  "status" : "PENDING",
+  "createdAt" : "2026-11-15T22:02:33.4578192"
+} ]

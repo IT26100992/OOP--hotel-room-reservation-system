@@ -46,12 +46,4 @@
   "capacity" : 2,
   "status" : "AVAILABLE",
   "description" : "Comfortable single room with Wi-Fi, air conditioning and a private bathroom."
-}, {
-  "id" : "d092cc1f-f0b3-43ab-adbc-f1bf770e3d64",
-  "roomNumber" : "R199",
-  "roomType" : "TWIN",
-  "pricePerNight" : 15000,
-  "capacity" : 3,
-  "status" : "AVAILABLE",
-  "description" : ""
 } ]

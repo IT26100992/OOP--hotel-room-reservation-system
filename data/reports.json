@@ -1,1 +1,11 @@
-[]
+[ {
+  "id" : "9c42f8e9-dc52-4fda-a6b7-60fa148f5673",
+  "title" : "test report",
+  "startDate" : "2026-11-13",
+  "endDate" : "2026-11-15",
+  "generatedAt" : "2026-11-12T13:09:21.5208312",
+  "totalRooms" : 6,
+  "totalReservations" : 0,
+  "totalRevenue" : 0,
+  "notes" : "test report"
+} ]

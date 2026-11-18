@@ -70,4 +70,40 @@
   "roomType" : "SINGLE",
   "minPrice" : null,
   "maxPrice" : null
+}, {
+  "id" : "5cfb269b-8529-49f1-a20a-43989964c189",
+  "userId" : "64770fc1-2737-47b0-9787-ea894cc6b799",
+  "checkInDate" : "2026-12-23",
+  "checkOutDate" : "2026-12-24",
+  "guestCount" : 3,
+  "roomType" : null,
+  "minPrice" : null,
+  "maxPrice" : null
+}, {
+  "id" : "311858d5-bca7-4192-8745-0204d99ead86",
+  "userId" : "64770fc1-2737-47b0-9787-ea894cc6b799",
+  "checkInDate" : "2026-12-20",
+  "checkOutDate" : "2026-12-21",
+  "guestCount" : 2,
+  "roomType" : null,
+  "minPrice" : null,
+  "maxPrice" : null
+}, {
+  "id" : "892b0f6a-9120-4d61-bd79-61dca880b25a",
+  "userId" : "28e09cc6-3afd-41ab-aa73-8e9e90d2d9e5",
+  "checkInDate" : "2026-12-23",
+  "checkOutDate" : "2026-12-26",
+  "guestCount" : 2,
+  "roomType" : null,
+  "minPrice" : null,
+  "maxPrice" : null
+}, {
+  "id" : "8d5ad9da-891e-4817-9441-ff29815eb343",
+  "userId" : "64770fc1-2737-47b0-9787-ea894cc6b799",
+  "checkInDate" : "2026-12-30",
+  "checkOutDate" : "2026-12-31",
+  "guestCount" : 2,
+  "roomType" : null,
+  "minPrice" : null,
+  "maxPrice" : null
 } ]
